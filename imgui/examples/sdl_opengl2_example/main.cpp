@@ -7,6 +7,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+    
 int main(int, char**)
 {
     // Setup SDL
@@ -24,7 +25,7 @@ int main(int, char**)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_DisplayMode current;
     SDL_GetCurrentDisplayMode(0, &current);
-    SDL_Window *window = SDL_CreateWindow("ImGui SDL2+OpenGL example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
+    SDL_Window *window = SDL_CreateWindow("Patch Image Analysist", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE);
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 
     // Setup ImGui binding
@@ -40,14 +41,15 @@ int main(int, char**)
     //io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
     //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
-    bool show_test_window = false;
-    bool show_another_window = false;
+    bool show_test_window = true;
+
     ImVec4 clear_color = ImColor(114, 144, 154);
 
     // Main loop
     bool done = false;
     while (!done)
     {
+        
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -57,7 +59,7 @@ int main(int, char**)
         }
         ImGui_ImplSdl_NewFrame(window);
 
-        // 1. Show a simple window
+/*        // 1. Show a simple window
         // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
         {
             static float f = 0.0f;
@@ -86,12 +88,19 @@ int main(int, char**)
             ImGui::ShowTestWindow(&show_test_window);
         }
 
+*/  
+        {
+            ImGui::ShowTestWindow(&show_test_window);
+        }
+        
+        
         // Rendering
         glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui::Render();
         SDL_GL_SwapWindow(window);
+
     }
 
     // Cleanup
@@ -102,3 +111,25 @@ int main(int, char**)
 
     return 0;
 }
+
+
+
+/*
+{
+        float tex_w = (float)ImGui::GetIO().Fonts->TexWidth;
+        float tex_h = (float)ImGui::GetIO().Fonts->TexHeight;
+        ImTextureID tex_id = ImGui::GetIO().Fonts->TexID;
+          
+        ImGui::BeginTooltip();
+        ImVec2 tex_screen_pos = ImGui::GetCursorScreenPos();
+        float focus_sz = 32.0f;
+        float focus_x = ImGui::GetMousePos().x - tex_screen_pos.x - focus_sz * 0.5f; if (focus_x < 0.0f) focus_x = 0.0f; else if (focus_x > tex_w - focus_sz) focus_x = tex_w - focus_sz;
+        float focus_y = ImGui::GetMousePos().y - tex_screen_pos.y - focus_sz * 0.5f; if (focus_y < 0.0f) focus_y = 0.0f; else if (focus_y > tex_h - focus_sz) focus_y = tex_h - focus_sz;
+        ImGui::Text("Min: (%.2f, %.2f)", focus_x, focus_y);
+        ImGui::Text("Max: (%.2f, %.2f)", focus_x + focus_sz, focus_y + focus_sz);
+        ImVec2 uv0 = ImVec2((focus_x) / tex_w, (focus_y) / tex_h);
+        ImVec2 uv1 = ImVec2((focus_x + focus_sz) / tex_w, (focus_y + focus_sz) / tex_h);
+        ImGui::Image(tex_id, ImVec2(128,128), uv0, uv1, ImColor(255,255,255,255), ImColor(255,255,255,128));
+        ImGui::EndTooltip();
+    }
+*/

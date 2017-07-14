@@ -48,8 +48,10 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = qt-test.cpp /home/alennex/project/2017_project/qt/test-v0/test-v0_plugin_import.cpp
+SOURCES       = qt-test.cpp \
+		test-v0_plugin_import.cpp /home/alennex/project/2017_project/qt/test-v0/test-v0_plugin_import.cpp
 OBJECTS       = qt-test.o \
+		test-v0_plugin_import.o \
 		test-v0_plugin_import.o
 DIST          = ../../../../Qt/mkspecs/features/spec_pre.prf \
 		../../../../Qt/mkspecs/common/unix.conf \
@@ -274,7 +276,8 @@ DIST          = ../../../../Qt/mkspecs/features/spec_pre.prf \
 		../../../../Qt/mkspecs/features/exceptions.prf \
 		../../../../Qt/mkspecs/features/yacc.prf \
 		../../../../Qt/mkspecs/features/lex.prf \
-		test-v0.pro  qt-test.cpp
+		test-v0.pro  qt-test.cpp \
+		test-v0_plugin_import.cpp
 QMAKE_TARGET  = test-v0
 DESTDIR       = 
 TARGET        = test-v0
@@ -784,7 +787,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents qt-test.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents qt-test.cpp test-v0_plugin_import.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -957,7 +960,120 @@ qt-test.o: qt-test.cpp ../../../../Qt/include/QtWidgets/QApplication \
 		../../../../Qt/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qt-test.o qt-test.cpp
 
-test-v0_plugin_import.o: /home/alennex/project/2017_project/qt/test-v0/test-v0_plugin_import.cpp 
+test-v0_plugin_import.o: test-v0_plugin_import.cpp ../../../../Qt/include/QtCore/QtPlugin \
+		../../../../Qt/include/QtCore/qplugin.h \
+		../../../../Qt/include/QtCore/qobject.h \
+		../../../../Qt/include/QtCore/qobjectdefs.h \
+		../../../../Qt/include/QtCore/qnamespace.h \
+		../../../../Qt/include/QtCore/qglobal.h \
+		../../../../Qt/include/QtCore/qconfig-bootstrapped.h \
+		../../../../Qt/include/QtCore/qconfig.h \
+		../../../../Qt/include/QtCore/qtcore-config.h \
+		../../../../Qt/include/QtCore/qsystemdetection.h \
+		../../../../Qt/include/QtCore/qprocessordetection.h \
+		../../../../Qt/include/QtCore/qcompilerdetection.h \
+		../../../../Qt/include/QtCore/qtypeinfo.h \
+		../../../../Qt/include/QtCore/qsysinfo.h \
+		../../../../Qt/include/QtCore/qlogging.h \
+		../../../../Qt/include/QtCore/qflags.h \
+		../../../../Qt/include/QtCore/qtypetraits.h \
+		../../../../Qt/include/QtCore/qatomic.h \
+		../../../../Qt/include/QtCore/qbasicatomic.h \
+		../../../../Qt/include/QtCore/qatomic_bootstrap.h \
+		../../../../Qt/include/QtCore/qgenericatomic.h \
+		../../../../Qt/include/QtCore/qatomic_cxx11.h \
+		../../../../Qt/include/QtCore/qatomic_msvc.h \
+		../../../../Qt/include/QtCore/qglobalstatic.h \
+		../../../../Qt/include/QtCore/qmutex.h \
+		../../../../Qt/include/QtCore/qnumeric.h \
+		../../../../Qt/include/QtCore/qversiontagging.h \
+		../../../../Qt/include/QtCore/qobjectdefs_impl.h \
+		../../../../Qt/include/QtCore/qstring.h \
+		../../../../Qt/include/QtCore/qchar.h \
+		../../../../Qt/include/QtCore/qbytearray.h \
+		../../../../Qt/include/QtCore/qrefcount.h \
+		../../../../Qt/include/QtCore/qarraydata.h \
+		../../../../Qt/include/QtCore/qstringbuilder.h \
+		../../../../Qt/include/QtCore/qlist.h \
+		../../../../Qt/include/QtCore/qalgorithms.h \
+		../../../../Qt/include/QtCore/qiterator.h \
+		../../../../Qt/include/QtCore/qhashfunctions.h \
+		../../../../Qt/include/QtCore/qpair.h \
+		../../../../Qt/include/QtCore/qbytearraylist.h \
+		../../../../Qt/include/QtCore/qstringlist.h \
+		../../../../Qt/include/QtCore/qregexp.h \
+		../../../../Qt/include/QtCore/qstringmatcher.h \
+		../../../../Qt/include/QtCore/qcoreevent.h \
+		../../../../Qt/include/QtCore/qscopedpointer.h \
+		../../../../Qt/include/QtCore/qmetatype.h \
+		../../../../Qt/include/QtCore/qvarlengtharray.h \
+		../../../../Qt/include/QtCore/qcontainerfwd.h \
+		../../../../Qt/include/QtCore/qobject_impl.h \
+		../../../../Qt/include/QtCore/qpointer.h \
+		../../../../Qt/include/QtCore/qsharedpointer.h \
+		../../../../Qt/include/QtCore/qshareddata.h \
+		../../../../Qt/include/QtCore/qhash.h \
+		../../../../Qt/include/QtCore/qsharedpointer_impl.h \
+		../../../../Qt/include/QtCore/qjsonobject.h \
+		../../../../Qt/include/QtCore/qjsonvalue.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o test-v0_plugin_import.o test-v0_plugin_import.cpp
+
+test-v0_plugin_import.o: /home/alennex/project/2017_project/qt/test-v0/test-v0_plugin_import.cpp ../../../../Qt/include/QtCore/QtPlugin \
+		../../../../Qt/include/QtCore/qplugin.h \
+		../../../../Qt/include/QtCore/qobject.h \
+		../../../../Qt/include/QtCore/qobjectdefs.h \
+		../../../../Qt/include/QtCore/qnamespace.h \
+		../../../../Qt/include/QtCore/qglobal.h \
+		../../../../Qt/include/QtCore/qconfig-bootstrapped.h \
+		../../../../Qt/include/QtCore/qconfig.h \
+		../../../../Qt/include/QtCore/qtcore-config.h \
+		../../../../Qt/include/QtCore/qsystemdetection.h \
+		../../../../Qt/include/QtCore/qprocessordetection.h \
+		../../../../Qt/include/QtCore/qcompilerdetection.h \
+		../../../../Qt/include/QtCore/qtypeinfo.h \
+		../../../../Qt/include/QtCore/qsysinfo.h \
+		../../../../Qt/include/QtCore/qlogging.h \
+		../../../../Qt/include/QtCore/qflags.h \
+		../../../../Qt/include/QtCore/qtypetraits.h \
+		../../../../Qt/include/QtCore/qatomic.h \
+		../../../../Qt/include/QtCore/qbasicatomic.h \
+		../../../../Qt/include/QtCore/qatomic_bootstrap.h \
+		../../../../Qt/include/QtCore/qgenericatomic.h \
+		../../../../Qt/include/QtCore/qatomic_cxx11.h \
+		../../../../Qt/include/QtCore/qatomic_msvc.h \
+		../../../../Qt/include/QtCore/qglobalstatic.h \
+		../../../../Qt/include/QtCore/qmutex.h \
+		../../../../Qt/include/QtCore/qnumeric.h \
+		../../../../Qt/include/QtCore/qversiontagging.h \
+		../../../../Qt/include/QtCore/qobjectdefs_impl.h \
+		../../../../Qt/include/QtCore/qstring.h \
+		../../../../Qt/include/QtCore/qchar.h \
+		../../../../Qt/include/QtCore/qbytearray.h \
+		../../../../Qt/include/QtCore/qrefcount.h \
+		../../../../Qt/include/QtCore/qarraydata.h \
+		../../../../Qt/include/QtCore/qstringbuilder.h \
+		../../../../Qt/include/QtCore/qlist.h \
+		../../../../Qt/include/QtCore/qalgorithms.h \
+		../../../../Qt/include/QtCore/qiterator.h \
+		../../../../Qt/include/QtCore/qhashfunctions.h \
+		../../../../Qt/include/QtCore/qpair.h \
+		../../../../Qt/include/QtCore/qbytearraylist.h \
+		../../../../Qt/include/QtCore/qstringlist.h \
+		../../../../Qt/include/QtCore/qregexp.h \
+		../../../../Qt/include/QtCore/qstringmatcher.h \
+		../../../../Qt/include/QtCore/qcoreevent.h \
+		../../../../Qt/include/QtCore/qscopedpointer.h \
+		../../../../Qt/include/QtCore/qmetatype.h \
+		../../../../Qt/include/QtCore/qvarlengtharray.h \
+		../../../../Qt/include/QtCore/qcontainerfwd.h \
+		../../../../Qt/include/QtCore/qobject_impl.h \
+		../../../../Qt/include/QtCore/qpointer.h \
+		../../../../Qt/include/QtCore/qsharedpointer.h \
+		../../../../Qt/include/QtCore/qshareddata.h \
+		../../../../Qt/include/QtCore/qhash.h \
+		../../../../Qt/include/QtCore/qsharedpointer_impl.h \
+		../../../../Qt/include/QtCore/qjsonobject.h \
+		../../../../Qt/include/QtCore/qjsonvalue.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o test-v0_plugin_import.o /home/alennex/project/2017_project/qt/test-v0/test-v0_plugin_import.cpp
 
 ####### Install

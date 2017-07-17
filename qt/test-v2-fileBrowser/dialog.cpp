@@ -1,12 +1,86 @@
 #include "dialog.h"
 
 
-MyWidget::MyWidget(QWidget *parent):QWidget(parent){
+MyWidget::MyWidget(QWidget *parent):
+QWidget(parent){
 
-     Bu_fileOpen = new QPushButton("open CSV file", this);
-     fileLineEdit =  new QLineEdit(this);
-     connect(Bu_fileOpen, SIGNAL(clicked()), SLOT(showfile()));
+     // ========= File Open
+     QGroupBox* FileOpen = new QGroupBox("Step 1: File Open", this);
+     QVBoxLayout* FO_layout = new QVBoxLayout(this);
+    
+     QPushButton* FO_bu = new QPushButton("open CSV file",this);
+     FO_line =  new QLineEdit(this);
      
+     connect(FO_bu, SIGNAL(clicked()), this,SLOT(showfile()));
+     
+     FO_layout->addWidget(FO_bu);
+     FO_layout->addWidget(FO_line);
+     FileOpen->setLayout(FO_layout);
+
+     // ========= Image Alignment
+     QGroupBox* ImageAlignment = new QGroupBox("Step 2: Image Alignment", this);
+     QVBoxLayout* IA_layout = new QVBoxLayout(this);
+
+     QComboBox* IA_combo = new QComboBox(this);
+     IA_combo->setEditable(false);
+     IA_combo->insertItem(0,tr("Alignment-0"));
+     IA_combo->insertItem(1,tr("Alignment-1"));
+     IA_combo->insertItem(2,tr("Alignment-2"));
+     IA_combo->insertItem(3,tr("Alignment-3"));
+     
+     IA_layout->addWidget(IA_combo);
+     ImageAlignment->setLayout(IA_layout);
+
+     // ========= Feature Extraction
+     QGroupBox* FeatureExtraction = new QGroupBox("Step 3: Feature Extraction", this);
+     QGridLayout* FE_layout = new QGridLayout(this);
+
+     QCheckBox* FE_ch0 = new QCheckBox("Feature-0",this);
+     QCheckBox* FE_ch1 = new QCheckBox("Feature-1",this);
+     QCheckBox* FE_ch2 = new QCheckBox("Feature-2",this);
+     QCheckBox* FE_ch3 = new QCheckBox("Feature-3",this);
+     QCheckBox* FE_ch4 = new QCheckBox("Feature-4",this);
+     QCheckBox* FE_ch5 = new QCheckBox("Feature-5",this);
+     QCheckBox* FE_ch6 = new QCheckBox("Feature-6",this);
+     QCheckBox* FE_ch7 = new QCheckBox("Feature-7",this);
+     QCheckBox* FE_ch8 = new QCheckBox("Feature-8",this);     
+     
+     FE_layout->addWidget(FE_ch0,0,0);
+     FE_layout->addWidget(FE_ch1,0,1);
+     FE_layout->addWidget(FE_ch2,0,2);
+     FE_layout->addWidget(FE_ch3,0,3);
+     FE_layout->addWidget(FE_ch4,1,0);
+     FE_layout->addWidget(FE_ch5,1,1);
+     FE_layout->addWidget(FE_ch6,1,2);
+     FE_layout->addWidget(FE_ch7,1,3);
+     FE_layout->addWidget(FE_ch8,2,0);
+     FeatureExtraction->setLayout(FE_layout);
+
+     // ========= Mainmenu Layout
+     QGridLayout *mainLayout = new QGridLayout(this);
+     mainLayout->addWidget(FileOpen,0,0);
+     mainLayout->addWidget(ImageAlignment,0,1);
+     mainLayout->addWidget(FeatureExtraction,0,2);
+
+}
+
+
+void MyWidget::showfile(){
+     
+     QFileDialog myFileDialog(this);
+     QString fileName = myFileDialog.getOpenFileName(this, "Open File",
+               QDir::currentPath (), "CSV Files (*.csv *.xls)");
+
+     if (fileName.isEmpty ()) {
+          FO_line->setText (myFileDialog.directory().absolutePath());
+     } else {
+          FO_line->setText (fileName);
+     }
+}
+
+
+
+/*
      // ========= open / show image
      Mat opencv_image = imread("ref128.png", CV_LOAD_IMAGE_COLOR);
      Mat dest ;
@@ -19,73 +93,17 @@ MyWidget::MyWidget(QWidget *parent):QWidget(parent){
      myLabel->setPixmap(QPixmap::fromImage(image));
      myLabel->show();
 
-     // ========= push button to exit
-     Bu_Quit = new QPushButton("Quit", this);
-     //Bu_Quit->setGeometry(30, 30, 50, 20);
-     //Bu_Quit->setFont(QFont("Times", 10, QFont::Bold));
-     connect(Bu_Quit, SIGNAL(clicked()), qApp, SLOT(quit()));
-
-     // ========= check box
-     FE_GroupBox = new QGroupBox("Filter Extraction",this);
-     FE_GroupBox->resize(100,100);
-
-     check1 = new QCheckBox("FE1",this);
-     check2 = new QCheckBox("FE2",this);
-     check3 = new QCheckBox("FE3",this);
-
-     FE_Layout = new QVBoxLayout(this);
-/*     if(check1->checkState() == Qt::Checked)
-        printf("check1 been uncheck\n");
-    if(check2->isChecked())
-        printf("check2 been check\n");
-    if(check3->isChecked())
-        printf("check3 been check\n");
-*/
-     FE_Layout->addWidget(check1);
-     FE_Layout->addWidget(check2);
-     FE_Layout->addWidget(check3);
-     FE_GroupBox->setLayout(FE_Layout);
-
      // =========Radio button
-     AL_GroupBox = new QGroupBox("Aliment",this);
+     QGroupBox *AL_GroupBox = new QGroupBox("Aliment",this);
      AL_GroupBox->resize(100,100);
      rcheck1 = new QRadioButton("AL1",this);
      rcheck2 = new QRadioButton("AL2",this);
      rcheck3 = new QRadioButton("AL3",this);
      
-     AL_Layout = new QVBoxLayout(this);
+     QVBoxLayout * AL_Layout = new QVBoxLayout(this);
      AL_Layout->addWidget(rcheck1);
      AL_Layout->addWidget(rcheck2);
      AL_Layout->addWidget(rcheck3);
      AL_GroupBox->setLayout(AL_Layout);
 
-     // ========= QVBoxLayout
-
-     mainLayout = new QGridLayout(this);
-     mainLayout->addWidget(Bu_fileOpen,1,0);
-     mainLayout->addWidget(fileLineEdit,1,1);
-     mainLayout->addWidget(myLabel,2,0);
-     
-     mainLayout->addWidget(FE_GroupBox,3,0);
-     mainLayout->addWidget(AL_GroupBox,3,1);
-     mainLayout->addWidget(Bu_Quit,4,0);
-
-     //mainLayout->setColumnStretch(1,1);
-     mainLayout->setMargin(10);
-     mainLayout->setSpacing(10);
-}
-
-
-void MyWidget::showfile(){
-     
-     QFileDialog myFileDialog(this);
-     QString fileName = myFileDialog.getOpenFileName(this, "Open File",
-               QDir::currentPath (), "CSV Files (*.csv *.xls)");
-
-     if (fileName.isEmpty ()) {
-          fileLineEdit->setText (myFileDialog.directory().absolutePath());
-     } else {
-          fileLineEdit->setText (fileName);
-     }
-   
-}
+*/

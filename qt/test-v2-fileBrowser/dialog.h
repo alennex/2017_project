@@ -1,3 +1,7 @@
+
+#ifndef WINDOW_H
+#define WINDOW_H
+
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QPushButton>
@@ -10,6 +14,8 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QComboBox>
+#include <QtCore/QDebug>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -17,33 +23,22 @@
 using namespace cv;
 using namespace std;
 
+class QPushButton;
+class QCheckBox;
+class QRadioButton;
+
 class MyWidget : public QWidget{
 	Q_OBJECT
      
      public:
           MyWidget(QWidget *parent = 0);
 
-     private slots:
+     protected:
+          QLineEdit* FO_line;
+          
+
+     protected slots:
           void showfile();
-     
-     private:
-     		QGridLayout *mainLayout;
-
-          QPushButton *Bu_fileOpen;
-          QLineEdit *fileLineEdit;
-          
-          QLabel *myLabel;
-          QPushButton *Bu_Quit;
-          
-          QVBoxLayout *FE_Layout;
-          QGroupBox *FE_GroupBox;
-          QCheckBox *check1;
-          QCheckBox *check2;
-          QCheckBox *check3;
-
-          QVBoxLayout *AL_Layout;
-		QGroupBox *AL_GroupBox;
-          QRadioButton *rcheck1;
-          QRadioButton *rcheck2;
-          QRadioButton *rcheck3;
 };
+
+#endif

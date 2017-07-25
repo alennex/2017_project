@@ -6,6 +6,7 @@ TEMPLATE = app
 TARGET = test-v2-fileBrowser
 INCLUDEPATH += .
 QT+=opengl
+#CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 # Input
 HEADERS += dialog.h

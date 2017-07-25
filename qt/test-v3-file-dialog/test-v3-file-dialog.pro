@@ -5,6 +5,10 @@
 TEMPLATE = app
 TARGET = test-v3-file-dialog
 INCLUDEPATH += .
+QT+=widgets printsupport
 QT+=opengl
+
 # Input
-SOURCES += main.cpp
+SOURCES += main.cpp\
+qcustomplot.cpp
+HEADERS+=qcustomplot.h

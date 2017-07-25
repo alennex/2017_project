@@ -21,6 +21,7 @@
 #include <QtCore/QVector>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include "qcustomplot.h"
 
 #include "include/alignment.h"
 #include "include/feature.h"
@@ -49,7 +50,7 @@ class MyWidget : public QWidget{
      
      protected:
           QLineEdit* FO_line;
-          //QLineEdit* ST_state;
+          QLineEdit* ST_state;
           QProgressBar* SB_pbar;
           QVector<QStringList> inFile;
           QVector<QStringList> outFile;
@@ -59,12 +60,18 @@ class MyWidget : public QWidget{
           
           QVector<QCheckBox*> FE_ch;
           QListWidget* LR_list;
+          QLabel* PI_label;
+          QLabel* PI_label2;
+          QVector<QImage> _PI_image;
+          QVector<QImage> _PI_image2;
 
           QVector<int> IA_index;
           QVector<int> FE_index;
           QVector<Mat> defImg;
           QVector<Mat> refImg;
           QVector<QVector<double>> feCal;
+          
+          QCustomPlot * preImg;
 
           bool FO_check_switch;
           bool IA_check_switch;
@@ -78,10 +85,11 @@ class MyWidget : public QWidget{
 
           void IA_check(int);
           void FE_check();
-          void LR_check(QListWidgetItem*);
           void build_list();
           void progress();
+          void previewImg();
 
+          void do_plot_histogram();
           void do_alignment();
           void do_feature_extraction();
 };

@@ -1,7 +1,4 @@
 
-#ifndef WINDOW_H
-#define WINDOW_H
-
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QPushButton>
@@ -19,9 +16,13 @@
 #include <QtWidgets/QProgressBar>
 #include <QtCore/QThread>
 #include <QtCore/QDebug>
+#include <QtCore/QVector>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
+
+#define FE_N 9
+#define AL_N 9
 
 using namespace cv;
 using namespace std;
@@ -36,14 +37,22 @@ class MyWidget : public QWidget{
      public:
           MyWidget(QWidget *parent = 0);
 
+
+     signals:
+     
      protected:
           QLineEdit* FO_line;
           QProgressBar* SB_pbar;
+          QLineEdit* IA_line;
+          QLineEdit* FE_line;
           
+          QVector<QCheckBox*> FE_ch(9);
+          bool* FE_check;
 
      protected slots:
           void showfile();
+          void show_IA_LINE(int);
+          void show_chbox(int);
           void progress();
 };
 
-#endif

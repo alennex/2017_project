@@ -36,6 +36,7 @@ QWidget(parent){
 
      IA_combo->setEditable(false);
      IA_line->setReadOnly(true);
+     IA_line->setAlignment(Qt::AlignCenter);
 
      for(int i=0; i<AlignmentN; ++i){
           sprintf(name, "Alignment-%d", i);
@@ -78,6 +79,7 @@ QWidget(parent){
      SB_pbar = new QProgressBar(this);
      
      ST_state->setReadOnly(true);
+     ST_state->setAlignment(Qt::AlignCenter);
      SB_pbar->setRange(0,100);
      SB_pbar->setValue(0);
      connect(SB_bu, SIGNAL(clicked()), this,SLOT(progress()));
@@ -93,7 +95,6 @@ QWidget(parent){
      QVBoxLayout* LR_layout = new QVBoxLayout(this);
 
      LR_list = new QListWidget(this);
-     //connect(check, SIGNAL(clicked()), this, SLOT(build_list()));
      connect(LR_list, SIGNAL(itemPressed(QListWidgetItem*)),this, SLOT(previewImg()));
 
      LR_layout->addWidget(LR_list);
@@ -107,12 +108,12 @@ QWidget(parent){
      PI_label = new QLabel(this);
      PI_label2 = new QLabel(this);
 
-     QImage PI_image = QImage(640,240,QImage::Format_RGB888);
-     PI_label->resize(640,240);
+     QImage PI_image = QImage(800,240,QImage::Format_RGB888);
+     PI_label->resize(800,240);
      PI_label->setPixmap(QPixmap::fromImage(PI_image));
 
-     QImage PI_image2 = QImage(640,240,QImage::Format_RGB888);
-     PI_label2->resize(640,240);
+     QImage PI_image2 = QImage(800,240,QImage::Format_RGB888);
+     PI_label2->resize(800,240);
      PI_label2->setPixmap(QPixmap::fromImage(PI_image2));
 
      PI_layout->addWidget(PI_label);
@@ -179,7 +180,7 @@ void MyWidget::IA_check(int combo_index){
 void MyWidget::progress(){
 
      bool image_check_switch = true;
-     float  sb_val = 0.0, sb_step = 0.0;
+     
      // check
      if(!FO_check_switch){
           qDebug()<<"error: csv file not open.";
@@ -196,7 +197,7 @@ void MyWidget::progress(){
      else if(ST_check_switch){
 
           // image open
-          
+          float  sb_val = 0.0;
           int defCol = 5;
           int refCol = 6;
 
@@ -211,7 +212,6 @@ void MyWidget::progress(){
           qDebug() << "refCol = " << refCol;
 
           QString defName, refName;
-          sb_step = 20.0/inFile.size();
           ST_state->setText("Open Image ...");
 
           for(int i=1; i<inFile.size(); ++i){
@@ -224,14 +224,14 @@ void MyWidget::progress(){
                refName = refName.replace(QString("\""),QString(""));
                refName = refName.simplified();
 
-               qDebug() << "defName/refName = "<< defName << refName;
-
                defImg.push_back(imread(defName.toStdString(),CV_LOAD_IMAGE_GRAYSCALE));
                refImg.push_back(imread(refName.toStdString(),CV_LOAD_IMAGE_GRAYSCALE));
                
-               sb_val += sb_step;
+               sb_val += 100./inFile.size();
                SB_pbar->setValue(sb_val+1);
           }
+
+          qDebug() << "open image done.";
 
           for(int i=0; i<defImg.size(); ++i){
                if(!defImg[i].data || !refImg[i].data){
@@ -243,37 +243,36 @@ void MyWidget::progress(){
           }
      }
 
+     qDebug() << "image_check_switch = "<< image_check_switch;
+     qDebug() << "ST_check_switch = " << ST_check_switch;
+
      if(image_check_switch && ST_check_switch){
+          qDebug() << "tag-0-(ImPro)";
+
           ST_state->setText("Alignment ...");
           do_alignment();
-          sb_val += 5;
-          SB_pbar->setValue(sb_val+1);
 
           QVector<double> _feCal;
           for(int j=1; j<inFile.size(); ++j)
                _feCal.push_back(0.0);
           for(int i=0; i<FE_index.size(); ++i)
                feCal.push_back(_feCal);
-          
+
+          qDebug() << "tag-1-(ImPro)";          
           ST_state->setText("Feature Extraction ...");
           do_feature_extraction();
-          sb_val += 30;
-          SB_pbar->setValue(sb_val+1);
 
+          qDebug() << "tag-2-(ImPro)";
           ST_state->setText("Build List ...");
           build_list();
-          sb_val += 5;
-          SB_pbar->setValue(sb_val+1);
 
+          qDebug() << "tag-3-(ImPro)";
           ST_state->setText("Output csv ...");
           writefile();
-          sb_val += 20;
-          SB_pbar->setValue(sb_val+1);
 
           ST_state->setText("Ploting ...");
           do_plot_histogram();
-          sb_val += 20;
-          SB_pbar->setValue(sb_val+1);
+      
           ST_state->setText("Finish ...");
           ST_check_switch = false;
      }
@@ -330,6 +329,7 @@ void MyWidget::writefile(){
      
      QTextStream out(&file); 
      QString name, value;
+     float sb_val = 0.0;
 
      for(int i=0; i<inFile.size(); ++i){
           outFile.push_back(inFile[i]);
@@ -345,6 +345,8 @@ void MyWidget::writefile(){
                     outFile[i].append(value);
                }
           }
+          sb_val += 100./inFile.size();
+          SB_pbar->setValue(sb_val+1);
      }   
 
      for(int i=0; i<outFile.size(); ++i){
@@ -358,6 +360,9 @@ void MyWidget::writefile(){
 }
 
 void MyWidget::do_alignment(){
+     float  sb_val = 0.0;
+     float sb_step = 100./defImg.size();
+
      Alignment af;
 
      switch(IA_index[0]){
@@ -365,40 +370,88 @@ void MyWidget::do_alignment(){
                for(int i=0; i<defImg.size();++i) af.alignECC_Translation(defImg[i],refImg[i]);
                break;
           case 1:
-               for(int i=0; i<defImg.size();++i) af.alignECC_Euclidean(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.alignECC_Euclidean(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 2:
-               for(int i=0; i<defImg.size();++i) af.alignECC_Affine(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.alignECC_Affine(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 3:
-               for(int i=0; i<defImg.size();++i) af.alignECC_Homography(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.alignECC_Homography(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);   
+               } 
                break;
           case 4:
-               for(int i=0; i<defImg.size();++i) af.alignDCT(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.alignDCT(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1); 
+               } 
                break;
           case 5:
-               for(int i=0; i<defImg.size();++i) af.alignDFT(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.alignDFT(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1); 
+               } 
                break;
           case 6:
-               for(int i=0; i<defImg.size();++i) af.histogramEqualization(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.histogramEqualization(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 7:
-               for(int i=0; i<defImg.size();++i) af.threshOtsu(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshOtsu(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 8:
-               for(int i=0; i<defImg.size();++i) af.threshBinary(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshBinary(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 9:
-               for(int i=0; i<defImg.size();++i) af.threshBinaryINV(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshBinaryINV(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 10:
-               for(int i=0; i<defImg.size();++i) af.threshTrunc(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshTrunc(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 11:
-               for(int i=0; i<defImg.size();++i) af.threshToZero(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshToZero(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           case 12:
-               for(int i=0; i<defImg.size();++i) af.threshToZeroINV(defImg[i],refImg[i]);
+               for(int i=0; i<defImg.size();++i){
+                    af.threshToZeroINV(defImg[i],refImg[i]);
+                    sb_val += sb_step;
+                    SB_pbar->setValue(sb_val+1);
+               } 
                break;
           default:
                break;
@@ -406,6 +459,8 @@ void MyWidget::do_alignment(){
 }
 
 void MyWidget::do_feature_extraction(){
+     float  sb_val = 0.0;
+     float sb_step = 100./FE_index.size()*defImg.size();
      Feature fe;
      int color_gap = 3;
      int pool_size = 4;
@@ -415,26 +470,36 @@ void MyWidget::do_feature_extraction(){
                case 0:
                     for(int j=0; j<defImg.size(); ++j){
                          feCal[i][j] = (double)fe.diffGlobalMean(defImg[j], refImg[j]);   
+                         sb_val += sb_step;
+                         SB_pbar->setValue(sb_val+1);
                     } 
                     break;
                case 1:
                     for(int j=0; j<defImg.size(); ++j){
                          feCal[i][j] = (double)fe.diffPixelsCount(defImg[j], refImg[j], color_gap);
+                         sb_val += sb_step;
+                         SB_pbar->setValue(sb_val+1);
                     }
                     break;
                case 2:
                     for(int j=0; j<defImg.size(); ++j){
                          feCal[i][j] = fe.getPSNR(defImg[j], refImg[j]);
+                         sb_val += sb_step;
+                         SB_pbar->setValue(sb_val+1);
                     }
                     break;
                case 3:
                     for(int j=0; j<defImg.size(); ++j){
                          feCal[i][j] = fe.localmeanSSE(defImg[j], refImg[j], pool_size);
+                         sb_val += sb_step;
+                         SB_pbar->setValue(sb_val+1);
                     }
                     break;
                case 4:
                     for(int j=0; j<defImg.size(); ++j){
                          feCal[i][j] = fe.localmeanSAE(defImg[j], refImg[j], pool_size);
+                         sb_val += sb_step;
+                         SB_pbar->setValue(sb_val+1);
                     }
                     break;
                default:
@@ -447,11 +512,17 @@ void MyWidget::do_plot_histogram(){
 
      QString name;
      double min_x = 100000.0, max_x = 0.0, max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
+     double mean_y  = 0.0, stnd_y  = 0.0;
+     double mean_y0 = 0.0, stnd_y0 = 0.0;
+     double mean_y1 = 0.0, stnd_y1 = 0.0;
 
+     QString text;
      QVector<QCustomPlot *> hist, hist2;
+     QVector<double> feCal_0, feCal_1;
      QVector<double> x;
      QVector<double> y, y0, y1;
      
+     float sb_val = 0.0;
      int type_col = 4;
      bool ok = true;
 
@@ -471,7 +542,7 @@ void MyWidget::do_plot_histogram(){
                min_x = (min_x < feCal[i][j])?(min_x):(feCal[i][j]);
           }
 
-          for(int j=0; j<max_x; ++j){
+          for(int j=0; j<(max_x+1); ++j){
                x.push_back((double)j);
                y.push_back(0.0);
                y0.push_back(0.0);
@@ -484,71 +555,111 @@ void MyWidget::do_plot_histogram(){
 
                if(inFile[j+1].at(type_col).toInt(&ok,10) == 0){
                     y0[ feCal[i][j] ]++;
+                    feCal_0.push_back(feCal[i][j]);
                }
                else if(inFile[j+1 ].at(type_col).toInt(&ok,10) == 1){
                     y1[ feCal[i][j] ]++;
+                    feCal_1.push_back(feCal_1[i][j]);
                }
           }
+       
+          his_mean_stnd(feCal[i],  mean_y,  stnd_y );
+          his_mean_stnd(feCal_0, mean_y0, stnd_y0);
+          his_mean_stnd(feCal_1, mean_y1, stnd_y1);
 
-          for(int j=0; j<max_x; ++j){
+          for(int j=0; j<feCal_0.size(); ++j) feCal_0.pop_back();
+          for(int j=0; j<feCal_1.size(); ++j) feCal_1.pop_back();
+               
+          for(int j=0; j<(max_x+1); ++j){
                max_y  = (max_y  > y[j] )?(max_y ):(y[j] );
                max_y0 = (max_y0 > y0[j])?(max_y0):(y0[j]);
                max_y1 = (max_y1 > y1[j])?(max_y1):(y1[j]);
           }
 
-          for(int j=0; j<max_x; ++j){
-               y[j]  = y[j]/max_y;
+          max_x = max_x + 0.0001;
+          max_y = max_y + 0.0001;
+          max_y0 = max_y0 + 0.0001;
+          max_y1 = max_y1 + 0.0001;
+
+          for(int j=0; j<(max_x+1); ++j){
+               //qDebug() << y[j];  
+               x[j] = x[j]/max_x;
+               y[j] = y[j]/max_y;
                y0[j] = y0[j]/max_y0;
                y1[j] = y1[j]/max_y1;
           }
 
-          for(int j=0; j<max_x; ++j)
-               qDebug() << "j, x[j], y[j] , y0[j], y1[j] = " << j << x[j] << y[j] << y0[j] << y1[j];
+          // ===============================================
+          qDebug() << "max/min = "<< min_x << max_x;
 
           hist.push_back(new QCustomPlot(this));
           hist[i]->addGraph(); 
-          hist[i]->resize(640,240);
-          hist[i]->graph(0)->setData(x,y);
-          hist[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist[i]->graph(0)->setBrush(QColor(0, 0, 255, 20));
-          hist[i]->graph(0)->setLineStyle(QCPGraph::lsStepCenter);
+          hist[i]->legend->setVisible(true);
+          hist[i]->legend->setFont(QFont("Helvetica", 9));
 
+          hist[i]->resize(800,240);
+          hist[i]->graph(0)->setPen(QPen(Qt::blue));
+          hist[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
+          hist[i]->graph(0)->setData(x,y);
+          
           hist[i]->xAxis->setLabel("Feature Value");
           hist[i]->yAxis->setLabel("Num");
-          hist[i]->xAxis->setRange(min_x, max_x);
-          hist[i]->yAxis->setRange(0, 1);
+
+          hist[i]->xAxis->setRange(0, 1.5);
+          hist[i]->yAxis->setRange(0, 1.2);
+
+          text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean_y,stnd_y);
+          QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
+          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
+          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
+          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
+          phaseTracerText->setText(text);
+          phaseTracerText->setTextAlignment(Qt::AlignLeft);
+          phaseTracerText->setFont(QFont(font().family(), 9));
+          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
+
           hist[i]->replot();
  
           name.sprintf("Feature-%d.png",FE_index[i]);
-          hist[i]->savePng(name,640,240,1);
+          hist[i]->savePng(name,800,240,1);
           _PI_image.push_back(QImage(name));
-
-
-
+          // ===============================================
 
           hist2.push_back(new QCustomPlot(this));
-          hist2[i]->addGraph();
-          hist2[i]->resize(640,240);
-          hist2[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist2[i]->graph(0)->setBrush(QColor(0, 0, 255, 20));
-          hist2[i]->graph(0)->setData(x,y0);
-          hist2[i]->graph(0)->setName("Type 0");
-          hist2[i]->graph(0)->setLineStyle(QCPGraph::lsStepCenter);
- 
-          hist2[i]->addGraph();
-          hist2[i]->graph(1)->setPen(QPen(Qt::red));
-          hist2[i]->graph(1)->setBrush(QColor(255, 0, 0, 20));
-          hist2[i]->graph(1)->setData(x,y1);
-          hist2[i]->graph(1)->setName("Type 1");
-          hist2[i]->graph(1)->setLineStyle(QCPGraph::lsStepCenter);
+          hist2[i]->legend->setVisible(true);
+          hist2[i]->legend->setFont(QFont("Helvetica", 9));
 
+          hist2[i]->resize(800,240);
+          hist2[i]->addGraph();
+          hist2[i]->graph(0)->setName("Type 0");
+          hist2[i]->graph(0)->setPen(QPen(Qt::blue));
+          hist2[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
+          hist2[i]->graph(0)->setData(x,y0);
+          
+          hist2[i]->addGraph();
+          hist2[i]->graph(1)->setName("Type 1");
+          hist2[i]->graph(1)->setPen(QPen(Qt::red));
+          hist2[i]->graph(1)->setBrush(QColor(255, 0, 0, 100));
+          hist2[i]->graph(1)->setData(x,y1);
+          
           hist2[i]->xAxis->setLabel("Feature Value");
           hist2[i]->yAxis->setLabel("Num");
-          hist2[i]->xAxis->setRange(min_x, max_x);
-          hist2[i]->yAxis->setRange(0, 1);
+          hist2[i]->xAxis->setRange(0, 1.5);
+          hist2[i]->yAxis->setRange(0, 1.2);
+
+          text.sprintf("Mean(0) = %.2lf\nMaen(1) = %.2lf\nSTD(0) = %.2lf\nSTD(1) = %.2lf",mean_y0,mean_y1,stnd_y0,stnd_y1);
+          phaseTracerText = new QCPItemText(hist2[i]);
+          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
+          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
+          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
+          phaseTracerText->setText(text);
+          phaseTracerText->setTextAlignment(Qt::AlignLeft);
+          phaseTracerText->setFont(QFont(font().family(), 9));
+          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
+
           hist2[i]->replot();
           name.sprintf("Feature2-%d.png",FE_index[i]);
-          hist2[i]->savePng(name,640,240,1);
+          hist2[i]->savePng(name,800,240,1);
           _PI_image2.push_back(QImage(name));
      
           for(int j=0; j<max_x; ++j){
@@ -557,6 +668,12 @@ void MyWidget::do_plot_histogram(){
           }
 
           max_x = 0.0, max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
+          mean_y = 0.0, mean_y0 = 0.0, mean_y1 = 0.0;
+          stnd_y = 0.0, stnd_y0 = 0.0, stnd_y1 = 0.0;
+          
+          sb_val += 100./feCal.size();
+          qDebug() << sb_val;
+          SB_pbar->setValue(sb_val+1);
      }
      
      qDebug() << "FE_index.size() = "   << FE_index.size();
@@ -565,22 +682,37 @@ void MyWidget::do_plot_histogram(){
      qDebug() << "feCal[0].size() = "   << feCal[0].size();
      qDebug() << "inFile.size() = "   << inFile.size();
      qDebug() << "inFile[0].size() = "  << inFile[0].size();
+     SB_pbar->setValue(100);
+
 }
 
+/*
 
-void MyWidget::Mean_std(QVector<double> inVal, double mean, double std){
+void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
      double sum = 0;
      double sum_diff = 0;
-
+     double _N = 0.0;
+     
+     QVector<double> _inVal;
      for(int i=0; i<inVal.size(); ++i){
-          sum += inVal[i];
+          _inVal.push_back(inVal[i] * i);
+          N += inVal[i];
      }
 
-     mean = sum/(double)inVal.size();
-
-     for(int i=0; i<inVal.size(); ++i){
-          sum_diff += pow((inVal[i] - mean),2);
+     for(int i=0; i<_inVal.size(); ++i){
+          sum += _inVal[i];
      }
-     std = sqrt(sum_diff/(double)inVal.size()); 
 
+     mean = sum/_N;
+
+     for(int i=0; i<_inVal.size(); ++i){
+          sum_diff += pow((_inVal[i] - mean),2);
+     }
+     stnd = sqrt(sum_diff/(double)_inVal.size()); 
+     qDebug() << "sum/mean/stnd = " << sum << mean << stnd;
 }
+
+
+
+
+*/

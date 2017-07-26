@@ -36,7 +36,7 @@ DISTNAME      = test-v6-qvector1.0.0
 DISTDIR = /home/alennex/project/2017_project/qt/test-v6-qvector/.tmp/test-v6-qvector1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -L/home/alennex/Qt/lib -lQt5OpenGL -lQt5PrintSupport -lQt5Widgets -L/home/alennex/Qt/plugins/platforms -lqxcb -L/home/alennex/Qt/plugins/xcbglintegrations -lqxcb-egl-integration -lqxcb-glx-integration -lQt5XcbQpa -lQt5LinuxAccessibilitySupport -lQt5AccessibilitySupport -lQt5GlxSupport -lXrender -lxcb-static -lxcb-glx -lXi -L/home/alennex/Qt/plugins/imageformats -lqgif -lqicns -lqico -lqjpeg -lqtga -lqtiff -lqwbmp -lqwebp -L/home/alennex/Qt/plugins/egldeviceintegrations -lqeglfs-kms-egldevice-integration -lQt5EglFsKmsSupport -ldrm -lqeglfs-x11-integration -lQt5EglFSDeviceIntegration -lQt5EventDispatcherSupport -lQt5ServiceSupport -lQt5ThemeSupport -lQt5DBus -ldbus-1 -lQt5FontDatabaseSupport -lQt5FbSupport -lQt5EglSupport -lXext -lQt5PlatformCompositorSupport -lQt5InputSupport -lQt5Gui -lpng15 -lqtharfbuzz -lQt5DeviceDiscoverySupport -lQt5Core -licui18n -licuuc -licudata -lm -ldl -lrt -lz -lqtpcre -lgthread-2.0 -lglib-2.0 -lxcb -lX11 -lX11-xcb -lfontconfig -lfreetype -lEGL -lGL -lpthread 
+LIBS          = $(SUBLIBS) -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dpm -lopencv_freetype -lopencv_fuzzy -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_saliency -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_rgbd -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_face -lopencv_plot -lopencv_dnn -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ximgproc -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_xobjdetect -lopencv_objdetect -lopencv_ml -lopencv_xphoto -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_photo -lopencv_imgproc -lopencv_core -L/home/alennex/Qt/lib -lQt5OpenGL -lQt5PrintSupport -lQt5Widgets -L/home/alennex/Qt/plugins/platforms -lqxcb -L/home/alennex/Qt/plugins/xcbglintegrations -lqxcb-egl-integration -lqxcb-glx-integration -lQt5XcbQpa -lQt5LinuxAccessibilitySupport -lQt5AccessibilitySupport -lQt5GlxSupport -lXrender -lxcb-static -lxcb-glx -lXi -L/home/alennex/Qt/plugins/imageformats -lqgif -lqicns -lqico -lqjpeg -lqtga -lqtiff -lqwbmp -lqwebp -L/home/alennex/Qt/plugins/egldeviceintegrations -lqeglfs-kms-egldevice-integration -lQt5EglFsKmsSupport -ldrm -lqeglfs-x11-integration -lQt5EglFSDeviceIntegration -lQt5EventDispatcherSupport -lQt5ServiceSupport -lQt5ThemeSupport -lQt5DBus -ldbus-1 -lQt5FontDatabaseSupport -lQt5FbSupport -lQt5EglSupport -lXext -lQt5PlatformCompositorSupport -lQt5InputSupport -lQt5Gui -lpng15 -lqtharfbuzz -lQt5DeviceDiscoverySupport -lQt5Core -licui18n -licuuc -licudata -lm -ldl -lrt -lz -lqtpcre -lgthread-2.0 -lglib-2.0 -lxcb -lX11 -lX11-xcb -lfontconfig -lfreetype -lEGL -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -1016,6 +1016,334 @@ moc_dialog.cpp: ../../../../Qt/include/QtWidgets/QApplication \
 		../../../../Qt/include/QtCore/QVector \
 		../../../../Qt/include/QtCore/QDir \
 		../../../../Qt/include/QtCore/QFile \
+		qcustomplot.h \
+		../../../../Qt/include/QtCore/QObject \
+		../../../../Qt/include/QtCore/QPointer \
+		../../../../Qt/include/QtCore/qpointer.h \
+		../../../../Qt/include/QtGui/QPainter \
+		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtGui/QPaintEvent \
+		../../../../Qt/include/QtGui/QMouseEvent \
+		../../../../Qt/include/QtGui/QPixmap \
+		../../../../Qt/include/QtCore/QString \
+		../../../../Qt/include/QtCore/QDateTime \
+		../../../../Qt/include/QtCore/qdatetime.h \
+		../../../../Qt/include/QtCore/QMultiMap \
+		../../../../Qt/include/QtCore/QFlags \
+		../../../../Qt/include/QtGui/QVector2D \
+		../../../../Qt/include/QtCore/QStack \
+		../../../../Qt/include/QtCore/qstack.h \
+		../../../../Qt/include/QtCore/QCache \
+		../../../../Qt/include/QtCore/qcache.h \
+		../../../../Qt/include/QtCore/QMargins \
+		../../../../Qt/include/QtCore/qmath.h \
+		../../../../Qt/include/QtPrintSupport/QPrinter \
+		../../../../Qt/include/QtPrintSupport/qprinter.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
+		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
+		../../../../Qt/include/QtGui/qpagelayout.h \
+		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtPrintSupport/QPrintEngine \
+		../../../../Qt/include/QtPrintSupport/qprintengine.h \
+		../../../../Qt/include/QtCore/QtNumeric \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupport \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupportDepends \
+		../../../../Qt/include/QtCore/QtCore \
+		../../../../Qt/include/QtCore/QtCoreDepends \
+		../../../../Qt/include/QtCore/qabstractanimation.h \
+		../../../../Qt/include/QtCore/qabstracteventdispatcher.h \
+		../../../../Qt/include/QtCore/qabstractnativeeventfilter.h \
+		../../../../Qt/include/QtCore/qabstractproxymodel.h \
+		../../../../Qt/include/QtCore/qabstractstate.h \
+		../../../../Qt/include/QtCore/qabstracttransition.h \
+		../../../../Qt/include/QtCore/qanimationgroup.h \
+		../../../../Qt/include/QtCore/qarraydataops.h \
+		../../../../Qt/include/QtCore/qarraydatapointer.h \
+		../../../../Qt/include/QtCore/qbasictimer.h \
+		../../../../Qt/include/QtCore/qbitarray.h \
+		../../../../Qt/include/QtCore/qbuffer.h \
+		../../../../Qt/include/QtCore/qbytearraymatcher.h \
+		../../../../Qt/include/QtCore/qcollator.h \
+		../../../../Qt/include/QtCore/qcommandlineoption.h \
+		../../../../Qt/include/QtCore/qcommandlineparser.h \
+		../../../../Qt/include/QtCore/qcryptographichash.h \
+		../../../../Qt/include/QtCore/qdeadlinetimer.h \
+		../../../../Qt/include/QtCore/qelapsedtimer.h \
+		../../../../Qt/include/QtCore/qdiriterator.h \
+		../../../../Qt/include/QtCore/qeasingcurve.h \
+		../../../../Qt/include/QtCore/qendian.h \
+		../../../../Qt/include/QtCore/qeventtransition.h \
+		../../../../Qt/include/QtCore/qexception.h \
+		../../../../Qt/include/QtCore/qfactoryinterface.h \
+		../../../../Qt/include/QtCore/qfileselector.h \
+		../../../../Qt/include/QtCore/QStringList \
+		../../../../Qt/include/QtCore/qfilesystemwatcher.h \
+		../../../../Qt/include/QtCore/qfinalstate.h \
+		../../../../Qt/include/QtCore/qfuture.h \
+		../../../../Qt/include/QtCore/qfutureinterface.h \
+		../../../../Qt/include/QtCore/qrunnable.h \
+		../../../../Qt/include/QtCore/qresultstore.h \
+		../../../../Qt/include/QtCore/qfuturesynchronizer.h \
+		../../../../Qt/include/QtCore/qfuturewatcher.h \
+		../../../../Qt/include/QtCore/qhistorystate.h \
+		../../../../Qt/include/QtCore/qidentityproxymodel.h \
+		../../../../Qt/include/QtCore/qisenum.h \
+		../../../../Qt/include/QtCore/qjsonarray.h \
+		../../../../Qt/include/QtCore/qjsonvalue.h \
+		../../../../Qt/include/QtCore/qjsondocument.h \
+		../../../../Qt/include/QtCore/qjsonobject.h \
+		../../../../Qt/include/QtCore/qlibrary.h \
+		../../../../Qt/include/QtCore/qlibraryinfo.h \
+		../../../../Qt/include/QtCore/qversionnumber.h \
+		../../../../Qt/include/QtCore/qlinkedlist.h \
+		../../../../Qt/include/QtCore/qlockfile.h \
+		../../../../Qt/include/QtCore/qloggingcategory.h \
+		../../../../Qt/include/QtCore/qmessageauthenticationcode.h \
+		../../../../Qt/include/QtCore/qmetaobject.h \
+		../../../../Qt/include/QtCore/qmimedata.h \
+		../../../../Qt/include/QtCore/qmimedatabase.h \
+		../../../../Qt/include/QtCore/qmimetype.h \
+		../../../../Qt/include/QtCore/qobjectcleanuphandler.h \
+		../../../../Qt/include/QtCore/qparallelanimationgroup.h \
+		../../../../Qt/include/QtCore/qpauseanimation.h \
+		../../../../Qt/include/QtCore/qplugin.h \
+		../../../../Qt/include/QtCore/qpluginloader.h \
+		../../../../Qt/include/QtCore/qprocess.h \
+		../../../../Qt/include/QtCore/qpropertyanimation.h \
+		../../../../Qt/include/QtCore/qvariantanimation.h \
+		../../../../Qt/include/QtCore/qqueue.h \
+		../../../../Qt/include/QtCore/qreadwritelock.h \
+		../../../../Qt/include/QtCore/qresource.h \
+		../../../../Qt/include/QtCore/qsavefile.h \
+		../../../../Qt/include/QtCore/qscopedvaluerollback.h \
+		../../../../Qt/include/QtCore/qsemaphore.h \
+		../../../../Qt/include/QtCore/qsequentialanimationgroup.h \
+		../../../../Qt/include/QtCore/qsettings.h \
+		../../../../Qt/include/QtCore/qsharedmemory.h \
+		../../../../Qt/include/QtCore/qsignalmapper.h \
+		../../../../Qt/include/QtCore/qsignaltransition.h \
+		../../../../Qt/include/QtCore/qsocketnotifier.h \
+		../../../../Qt/include/QtCore/qsortfilterproxymodel.h \
+		../../../../Qt/include/QtCore/qstandardpaths.h \
+		../../../../Qt/include/QtCore/qstate.h \
+		../../../../Qt/include/QtCore/qstatemachine.h \
+		../../../../Qt/include/QtCore/qstorageinfo.h \
+		../../../../Qt/include/QtCore/qstringlistmodel.h \
+		../../../../Qt/include/QtCore/qsystemsemaphore.h \
+		../../../../Qt/include/QtCore/qtemporarydir.h \
+		../../../../Qt/include/QtCore/QScopedPointer \
+		../../../../Qt/include/QtCore/qtemporaryfile.h \
+		../../../../Qt/include/QtCore/qtextboundaryfinder.h \
+		../../../../Qt/include/QtCore/qtextcodec.h \
+		../../../../Qt/include/QtCore/qthreadpool.h \
+		../../../../Qt/include/QtCore/qthreadstorage.h \
+		../../../../Qt/include/QtCore/qtimeline.h \
+		../../../../Qt/include/QtCore/qtimer.h \
+		../../../../Qt/include/QtCore/qtimezone.h \
+		../../../../Qt/include/QtCore/qtranslator.h \
+		../../../../Qt/include/QtCore/quuid.h \
+		../../../../Qt/include/QtCore/qwaitcondition.h \
+		../../../../Qt/include/QtCore/qwineventnotifier.h \
+		../../../../Qt/include/QtCore/qxmlstream.h \
+		../../../../Qt/include/QtCore/qtcoreversion.h \
+		../../../../Qt/include/QtGui/QtGui \
+		../../../../Qt/include/QtGui/QtGuiDepends \
+		../../../../Qt/include/QtGui/qabstracttextdocumentlayout.h \
+		../../../../Qt/include/QtGui/qtextlayout.h \
+		../../../../Qt/include/QtGui/qglyphrun.h \
+		../../../../Qt/include/QtGui/qrawfont.h \
+		../../../../Qt/include/QtGui/qfontdatabase.h \
+		../../../../Qt/include/QtGui/qtextdocument.h \
+		../../../../Qt/include/QtGui/qaccessible.h \
+		../../../../Qt/include/QtGui/qaccessiblebridge.h \
+		../../../../Qt/include/QtGui/qaccessibleobject.h \
+		../../../../Qt/include/QtGui/qaccessibleplugin.h \
+		../../../../Qt/include/QtGui/qbackingstore.h \
+		../../../../Qt/include/QtGui/qwindow.h \
+		../../../../Qt/include/QtCore/QEvent \
+		../../../../Qt/include/QtCore/QRect \
+		../../../../Qt/include/QtGui/qsurface.h \
+		../../../../Qt/include/QtGui/qsurfaceformat.h \
+		../../../../Qt/include/QtGui/qbitmap.h \
+		../../../../Qt/include/QtGui/qclipboard.h \
+		../../../../Qt/include/QtGui/qdesktopservices.h \
+		../../../../Qt/include/QtGui/qdrag.h \
+		../../../../Qt/include/QtGui/qgenericmatrix.h \
+		../../../../Qt/include/QtGui/qgenericplugin.h \
+		../../../../Qt/include/QtGui/qgenericpluginfactory.h \
+		../../../../Qt/include/QtGui/qiconengine.h \
+		../../../../Qt/include/QtGui/qiconengineplugin.h \
+		../../../../Qt/include/QtGui/qimageiohandler.h \
+		../../../../Qt/include/QtGui/qimagereader.h \
+		../../../../Qt/include/QtGui/qimagewriter.h \
+		../../../../Qt/include/QtGui/qmatrix4x4.h \
+		../../../../Qt/include/QtGui/qvector3d.h \
+		../../../../Qt/include/QtGui/qvector4d.h \
+		../../../../Qt/include/QtGui/qquaternion.h \
+		../../../../Qt/include/QtGui/qmovie.h \
+		../../../../Qt/include/QtGui/qoffscreensurface.h \
+		../../../../Qt/include/QtGui/qopengl.h \
+		../../../../Qt/include/QtCore/qt_windows.h \
+		../../../../Qt/include/QtGui/qopengles2ext.h \
+		../../../../Qt/include/QtGui/qopenglext.h \
+		../../../../Qt/include/QtGui/qopenglbuffer.h \
+		../../../../Qt/include/QtGui/qopenglcontext.h \
+		../../../../Qt/include/QtGui/QSurfaceFormat \
+		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
+		../../../../Qt/include/QtGui/qopengldebug.h \
+		../../../../Qt/include/QtGui/qopenglextrafunctions.h \
+		../../../../Qt/include/QtGui/qopenglfunctions.h \
+		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
+		../../../../Qt/include/QtGui/qopenglpaintdevice.h \
+		../../../../Qt/include/QtGui/qopenglpixeltransferoptions.h \
+		../../../../Qt/include/QtCore/QSharedDataPointer \
+		../../../../Qt/include/QtGui/qopenglshaderprogram.h \
+		../../../../Qt/include/QtGui/qopengltexture.h \
+		../../../../Qt/include/QtGui/qopengltextureblitter.h \
+		../../../../Qt/include/QtGui/QMatrix3x3 \
+		../../../../Qt/include/QtGui/QMatrix4x4 \
+		../../../../Qt/include/QtGui/qopengltimerquery.h \
+		../../../../Qt/include/QtGui/qopenglvertexarrayobject.h \
+		../../../../Qt/include/QtGui/qopenglwindow.h \
+		../../../../Qt/include/QtGui/QPaintDeviceWindow \
+		../../../../Qt/include/QtGui/qpaintdevicewindow.h \
+		../../../../Qt/include/QtGui/QWindow \
+		../../../../Qt/include/QtGui/QPaintDevice \
+		../../../../Qt/include/QtGui/QOpenGLContext \
+		../../../../Qt/include/QtGui/QImage \
+		../../../../Qt/include/QtGui/qpaintengine.h \
+		../../../../Qt/include/QtGui/qpdfwriter.h \
+		../../../../Qt/include/QtGui/qpicture.h \
+		../../../../Qt/include/QtGui/qpictureformatplugin.h \
+		../../../../Qt/include/QtGui/qpixmapcache.h \
+		../../../../Qt/include/QtGui/qrasterwindow.h \
+		../../../../Qt/include/QtGui/qscreen.h \
+		../../../../Qt/include/QtCore/QList \
+		../../../../Qt/include/QtCore/QSize \
+		../../../../Qt/include/QtCore/QSizeF \
+		../../../../Qt/include/QtGui/QTransform \
+		../../../../Qt/include/QtGui/qsessionmanager.h \
+		../../../../Qt/include/QtGui/qstandarditemmodel.h \
+		../../../../Qt/include/QtGui/qstatictext.h \
+		../../../../Qt/include/QtGui/qstylehints.h \
+		../../../../Qt/include/QtGui/qsyntaxhighlighter.h \
+		../../../../Qt/include/QtGui/qtextobject.h \
+		../../../../Qt/include/QtGui/qtextdocumentfragment.h \
+		../../../../Qt/include/QtGui/qtextdocumentwriter.h \
+		../../../../Qt/include/QtGui/qtextlist.h \
+		../../../../Qt/include/QtGui/qtexttable.h \
+		../../../../Qt/include/QtGui/qtguiversion.h \
+		../../../../Qt/include/QtWidgets/QtWidgets \
+		../../../../Qt/include/QtWidgets/QtWidgetsDepends \
+		../../../../Qt/include/QtWidgets/qaccessiblewidget.h \
+		../../../../Qt/include/QtWidgets/qaction.h \
+		../../../../Qt/include/QtWidgets/qactiongroup.h \
+		../../../../Qt/include/QtWidgets/qbuttongroup.h \
+		../../../../Qt/include/QtWidgets/qcalendarwidget.h \
+		../../../../Qt/include/QtWidgets/qcolordialog.h \
+		../../../../Qt/include/QtWidgets/qcolormap.h \
+		../../../../Qt/include/QtWidgets/qcolumnview.h \
+		../../../../Qt/include/QtWidgets/qcommandlinkbutton.h \
+		../../../../Qt/include/QtWidgets/qcommonstyle.h \
+		../../../../Qt/include/QtWidgets/qcompleter.h \
+		../../../../Qt/include/QtWidgets/qdatawidgetmapper.h \
+		../../../../Qt/include/QtWidgets/qdatetimeedit.h \
+		../../../../Qt/include/QtWidgets/qdial.h \
+		../../../../Qt/include/QtWidgets/qdialogbuttonbox.h \
+		../../../../Qt/include/QtWidgets/qdirmodel.h \
+		../../../../Qt/include/QtWidgets/qfileiconprovider.h \
+		../../../../Qt/include/QtWidgets/qdockwidget.h \
+		../../../../Qt/include/QtWidgets/qdrawutil.h \
+		../../../../Qt/include/QtWidgets/qerrormessage.h \
+		../../../../Qt/include/QtWidgets/qfilesystemmodel.h \
+		../../../../Qt/include/QtWidgets/qfocusframe.h \
+		../../../../Qt/include/QtWidgets/qfontcombobox.h \
+		../../../../Qt/include/QtWidgets/qfontdialog.h \
+		../../../../Qt/include/QtWidgets/qformlayout.h \
+		../../../../Qt/include/QtWidgets/QLayout \
+		../../../../Qt/include/QtWidgets/qgesture.h \
+		../../../../Qt/include/QtWidgets/qgesturerecognizer.h \
+		../../../../Qt/include/QtWidgets/qgraphicsanchorlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayoutitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicseffect.h \
+		../../../../Qt/include/QtWidgets/qgraphicsgridlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitemanimation.h \
+		../../../../Qt/include/QtWidgets/qgraphicslinearlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsproxywidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicswidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicsscene.h \
+		../../../../Qt/include/QtWidgets/qgraphicssceneevent.h \
+		../../../../Qt/include/QtWidgets/qgraphicstransform.h \
+		../../../../Qt/include/QtGui/QVector3D \
+		../../../../Qt/include/QtWidgets/qgraphicsview.h \
+		../../../../Qt/include/QtWidgets/qscrollarea.h \
+		../../../../Qt/include/QtWidgets/qheaderview.h \
+		../../../../Qt/include/QtWidgets/qinputdialog.h \
+		../../../../Qt/include/QtWidgets/qitemdelegate.h \
+		../../../../Qt/include/QtWidgets/qitemeditorfactory.h \
+		../../../../Qt/include/QtWidgets/qkeyeventtransition.h \
+		../../../../Qt/include/QtWidgets/qkeysequenceedit.h \
+		../../../../Qt/include/QtWidgets/qmainwindow.h \
+		../../../../Qt/include/QtWidgets/qmdiarea.h \
+		../../../../Qt/include/QtWidgets/qmdisubwindow.h \
+		../../../../Qt/include/QtWidgets/qmenu.h \
+		../../../../Qt/include/QtWidgets/qmenubar.h \
+		../../../../Qt/include/QtWidgets/qmessagebox.h \
+		../../../../Qt/include/QtWidgets/qmouseeventtransition.h \
+		../../../../Qt/include/QtWidgets/qopenglwidget.h \
+		../../../../Qt/include/QtWidgets/qplaintextedit.h \
+		../../../../Qt/include/QtWidgets/qtextedit.h \
+		../../../../Qt/include/QtWidgets/qprogressdialog.h \
+		../../../../Qt/include/QtWidgets/qproxystyle.h \
+		../../../../Qt/include/QtWidgets/QCommonStyle \
+		../../../../Qt/include/QtWidgets/qscrollbar.h \
+		../../../../Qt/include/QtWidgets/qscroller.h \
+		../../../../Qt/include/QtCore/QPointF \
+		../../../../Qt/include/QtWidgets/QScrollerProperties \
+		../../../../Qt/include/QtWidgets/qscrollerproperties.h \
+		../../../../Qt/include/QtCore/QMetaType \
+		../../../../Qt/include/QtCore/QVariant \
+		../../../../Qt/include/QtWidgets/qshortcut.h \
+		../../../../Qt/include/QtWidgets/qsizegrip.h \
+		../../../../Qt/include/QtWidgets/qspinbox.h \
+		../../../../Qt/include/QtWidgets/qsplashscreen.h \
+		../../../../Qt/include/QtWidgets/qsplitter.h \
+		../../../../Qt/include/QtWidgets/qstackedlayout.h \
+		../../../../Qt/include/QtWidgets/qstackedwidget.h \
+		../../../../Qt/include/QtWidgets/qstatusbar.h \
+		../../../../Qt/include/QtWidgets/qstyleditemdelegate.h \
+		../../../../Qt/include/QtWidgets/qstylefactory.h \
+		../../../../Qt/include/QtWidgets/qstylepainter.h \
+		../../../../Qt/include/QtWidgets/qstyleplugin.h \
+		../../../../Qt/include/QtWidgets/qsystemtrayicon.h \
+		../../../../Qt/include/QtWidgets/qtableview.h \
+		../../../../Qt/include/QtWidgets/qtablewidget.h \
+		../../../../Qt/include/QtWidgets/qtextbrowser.h \
+		../../../../Qt/include/QtWidgets/qtoolbar.h \
+		../../../../Qt/include/QtWidgets/qtoolbox.h \
+		../../../../Qt/include/QtWidgets/qtoolbutton.h \
+		../../../../Qt/include/QtWidgets/qtooltip.h \
+		../../../../Qt/include/QtWidgets/qtreeview.h \
+		../../../../Qt/include/QtWidgets/qtreewidget.h \
+		../../../../Qt/include/QtWidgets/qtreewidgetitemiterator.h \
+		../../../../Qt/include/QtWidgets/qundogroup.h \
+		../../../../Qt/include/QtWidgets/qundostack.h \
+		../../../../Qt/include/QtWidgets/qundoview.h \
+		../../../../Qt/include/QtWidgets/qwhatsthis.h \
+		../../../../Qt/include/QtWidgets/qwidgetaction.h \
+		../../../../Qt/include/QtWidgets/qwizard.h \
+		../../../../Qt/include/QtWidgets/qtwidgetsversion.h \
+		../../../../Qt/include/QtPrintSupport/qabstractprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qpagesetupdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprinterinfo.h \
+		../../../../Qt/include/QtCore/QPair \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewwidget.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportversion.h \
 		include/alignment.h \
 		include/utility.h \
 		include/feature.h \
@@ -1024,7 +1352,11 @@ moc_dialog.cpp: ../../../../Qt/include/QtWidgets/QApplication \
 		../../../../Qt/bin/moc
 	/home/alennex/Qt/bin/moc $(DEFINES) --include ./moc_predefs.h -I/home/alennex/Qt/mkspecs/linux-g++ -I/home/alennex/project/2017_project/qt/test-v6-qvector -I/home/alennex/project/2017_project/qt/test-v6-qvector -I/usr/include/opencv -I/home/alennex/Qt/include -I/home/alennex/Qt/include/QtOpenGL -I/home/alennex/Qt/include/QtPrintSupport -I/home/alennex/Qt/include/QtWidgets -I/home/alennex/Qt/include/QtGui -I/home/alennex/Qt/include/QtCore -I/usr/include/c++/4.8.5 -I/usr/include/c++/4.8.5/x86_64-redhat-linux -I/usr/include/c++/4.8.5/backward -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include -I/usr/local/include -I/usr/include dialog.h -o moc_dialog.cpp
 
-moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
+moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/QObject \
+		../../../../Qt/include/QtCore/qobject.h \
+		../../../../Qt/include/QtCore/qobjectdefs.h \
+		../../../../Qt/include/QtCore/qnamespace.h \
+		../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qconfig-bootstrapped.h \
 		../../../../Qt/include/QtCore/qconfig.h \
 		../../../../Qt/include/QtCore/qtcore-config.h \
@@ -1046,10 +1378,6 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qmutex.h \
 		../../../../Qt/include/QtCore/qnumeric.h \
 		../../../../Qt/include/QtCore/qversiontagging.h \
-		../../../../Qt/include/QtCore/QObject \
-		../../../../Qt/include/QtCore/qobject.h \
-		../../../../Qt/include/QtCore/qobjectdefs.h \
-		../../../../Qt/include/QtCore/qnamespace.h \
 		../../../../Qt/include/QtCore/qobjectdefs_impl.h \
 		../../../../Qt/include/QtCore/qstring.h \
 		../../../../Qt/include/QtCore/qchar.h \
@@ -1078,45 +1406,43 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qshareddata.h \
 		../../../../Qt/include/QtCore/qhash.h \
 		../../../../Qt/include/QtCore/qsharedpointer_impl.h \
-		../../../../Qt/include/QtCore/QSharedPointer \
-		../../../../Qt/include/QtCore/QTimer \
-		../../../../Qt/include/QtCore/qtimer.h \
-		../../../../Qt/include/QtCore/qbasictimer.h \
-		../../../../Qt/include/QtGui/QPainter \
-		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtWidgets/QWidget \
+		../../../../Qt/include/QtWidgets/qwidget.h \
+		../../../../Qt/include/QtWidgets/qtwidgetsglobal.h \
 		../../../../Qt/include/QtGui/qtguiglobal.h \
 		../../../../Qt/include/QtGui/qtgui-config.h \
-		../../../../Qt/include/QtCore/qrect.h \
-		../../../../Qt/include/QtCore/qmargins.h \
-		../../../../Qt/include/QtCore/qsize.h \
-		../../../../Qt/include/QtCore/qpoint.h \
-		../../../../Qt/include/QtGui/qpixmap.h \
-		../../../../Qt/include/QtGui/qpaintdevice.h \
+		../../../../Qt/include/QtWidgets/qtwidgets-config.h \
 		../../../../Qt/include/QtGui/qwindowdefs.h \
 		../../../../Qt/include/QtGui/qwindowdefs_win.h \
+		../../../../Qt/include/QtCore/qmargins.h \
+		../../../../Qt/include/QtGui/qpaintdevice.h \
+		../../../../Qt/include/QtCore/qrect.h \
+		../../../../Qt/include/QtCore/qsize.h \
+		../../../../Qt/include/QtCore/qpoint.h \
+		../../../../Qt/include/QtGui/qpalette.h \
 		../../../../Qt/include/QtGui/qcolor.h \
 		../../../../Qt/include/QtGui/qrgb.h \
 		../../../../Qt/include/QtGui/qrgba64.h \
-		../../../../Qt/include/QtGui/qimage.h \
-		../../../../Qt/include/QtGui/qpixelformat.h \
-		../../../../Qt/include/QtGui/qtransform.h \
+		../../../../Qt/include/QtGui/qbrush.h \
+		../../../../Qt/include/QtCore/qvector.h \
 		../../../../Qt/include/QtGui/qmatrix.h \
 		../../../../Qt/include/QtGui/qpolygon.h \
-		../../../../Qt/include/QtCore/qvector.h \
 		../../../../Qt/include/QtGui/qregion.h \
 		../../../../Qt/include/QtCore/qdatastream.h \
 		../../../../Qt/include/QtCore/qiodevice.h \
 		../../../../Qt/include/QtCore/qline.h \
+		../../../../Qt/include/QtGui/qtransform.h \
 		../../../../Qt/include/QtGui/qpainterpath.h \
-		../../../../Qt/include/QtGui/qtextoption.h \
-		../../../../Qt/include/QtGui/qpen.h \
-		../../../../Qt/include/QtGui/qbrush.h \
-		../../../../Qt/include/QtGui/qfontinfo.h \
+		../../../../Qt/include/QtGui/qimage.h \
+		../../../../Qt/include/QtGui/qpixelformat.h \
+		../../../../Qt/include/QtGui/qpixmap.h \
 		../../../../Qt/include/QtGui/qfont.h \
 		../../../../Qt/include/QtGui/qfontmetrics.h \
-		../../../../Qt/include/QtGui/QPaintEvent \
-		../../../../Qt/include/QtGui/qevent.h \
+		../../../../Qt/include/QtGui/qfontinfo.h \
+		../../../../Qt/include/QtWidgets/qsizepolicy.h \
+		../../../../Qt/include/QtGui/qcursor.h \
 		../../../../Qt/include/QtGui/qkeysequence.h \
+		../../../../Qt/include/QtGui/qevent.h \
 		../../../../Qt/include/QtCore/qvariant.h \
 		../../../../Qt/include/QtCore/qmap.h \
 		../../../../Qt/include/QtCore/qdebug.h \
@@ -1130,8 +1456,12 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qfiledevice.h \
 		../../../../Qt/include/QtGui/qvector2d.h \
 		../../../../Qt/include/QtGui/qtouchdevice.h \
+		../../../../Qt/include/QtGui/QPainter \
+		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtGui/qtextoption.h \
+		../../../../Qt/include/QtGui/qpen.h \
+		../../../../Qt/include/QtGui/QPaintEvent \
 		../../../../Qt/include/QtGui/QMouseEvent \
-		../../../../Qt/include/QtGui/QWheelEvent \
 		../../../../Qt/include/QtGui/QPixmap \
 		../../../../Qt/include/QtCore/QVector \
 		../../../../Qt/include/QtCore/QString \
@@ -1140,46 +1470,23 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/QMultiMap \
 		../../../../Qt/include/QtCore/QFlags \
 		../../../../Qt/include/QtCore/QDebug \
+		../../../../Qt/include/QtGui/QVector2D \
 		../../../../Qt/include/QtCore/QStack \
 		../../../../Qt/include/QtCore/qstack.h \
 		../../../../Qt/include/QtCore/QCache \
 		../../../../Qt/include/QtCore/qcache.h \
 		../../../../Qt/include/QtCore/QMargins \
 		../../../../Qt/include/QtCore/qmath.h \
-		../../../../Qt/include/QtGui/QOpenGLContext \
-		../../../../Qt/include/QtGui/qopenglcontext.h \
-		../../../../Qt/include/QtCore/QScopedPointer \
-		../../../../Qt/include/QtGui/QSurfaceFormat \
-		../../../../Qt/include/QtGui/qsurfaceformat.h \
-		../../../../Qt/include/QtGui/qopengl.h \
-		../../../../Qt/include/QtCore/qt_windows.h \
-		../../../../Qt/include/QtGui/qopengles2ext.h \
-		../../../../Qt/include/QtGui/qopenglext.h \
-		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
-		../../../../Qt/include/QtGui/QOpenGLFramebufferObject \
-		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
-		../../../../Qt/include/QtGui/QOffscreenSurface \
-		../../../../Qt/include/QtGui/qoffscreensurface.h \
-		../../../../Qt/include/QtGui/qsurface.h \
-		../../../../Qt/include/QtGui/QWindow \
-		../../../../Qt/include/QtGui/qwindow.h \
-		../../../../Qt/include/QtCore/QEvent \
-		../../../../Qt/include/QtCore/QRect \
-		../../../../Qt/include/QtGui/qicon.h \
-		../../../../Qt/include/QtGui/qcursor.h \
-		../../../../Qt/include/QtOpenGL/QGLPixelBuffer \
-		../../../../Qt/include/QtOpenGL/qglpixelbuffer.h \
-		../../../../Qt/include/QtOpenGL/qgl.h \
-		../../../../Qt/include/QtWidgets/qwidget.h \
-		../../../../Qt/include/QtWidgets/qtwidgetsglobal.h \
-		../../../../Qt/include/QtWidgets/qtwidgets-config.h \
-		../../../../Qt/include/QtGui/qpalette.h \
-		../../../../Qt/include/QtWidgets/qsizepolicy.h \
-		../../../../Qt/include/QtGui/qpaintengine.h \
-		../../../../Qt/include/QtOpenGL/qglcolormap.h \
-		../../../../Qt/include/QtOpenGL/qtopenglglobal.h \
+		../../../../Qt/include/QtPrintSupport/QPrinter \
+		../../../../Qt/include/QtPrintSupport/qprinter.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
+		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
+		../../../../Qt/include/QtGui/qpagelayout.h \
+		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtPrintSupport/QPrintEngine \
+		../../../../Qt/include/QtPrintSupport/qprintengine.h \
 		../../../../Qt/include/QtCore/QtNumeric \
-		../../../../Qt/include/QtWidgets/QWidget \
 		../../../../Qt/include/QtPrintSupport/QtPrintSupport \
 		../../../../Qt/include/QtPrintSupport/QtPrintSupportDepends \
 		../../../../Qt/include/QtCore/QtCore \
@@ -1195,6 +1502,7 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qanimationgroup.h \
 		../../../../Qt/include/QtCore/qarraydataops.h \
 		../../../../Qt/include/QtCore/qarraydatapointer.h \
+		../../../../Qt/include/QtCore/qbasictimer.h \
 		../../../../Qt/include/QtCore/qbitarray.h \
 		../../../../Qt/include/QtCore/qbuffer.h \
 		../../../../Qt/include/QtCore/qbytearraymatcher.h \
@@ -1271,6 +1579,7 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qstringlistmodel.h \
 		../../../../Qt/include/QtCore/qsystemsemaphore.h \
 		../../../../Qt/include/QtCore/qtemporarydir.h \
+		../../../../Qt/include/QtCore/QScopedPointer \
 		../../../../Qt/include/QtCore/qtemporaryfile.h \
 		../../../../Qt/include/QtCore/qtextboundaryfinder.h \
 		../../../../Qt/include/QtCore/qtextcodec.h \
@@ -1278,6 +1587,7 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qthreadpool.h \
 		../../../../Qt/include/QtCore/qthreadstorage.h \
 		../../../../Qt/include/QtCore/qtimeline.h \
+		../../../../Qt/include/QtCore/qtimer.h \
 		../../../../Qt/include/QtCore/qtimezone.h \
 		../../../../Qt/include/QtCore/qtranslator.h \
 		../../../../Qt/include/QtCore/quuid.h \
@@ -1300,6 +1610,12 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtGui/qaccessibleobject.h \
 		../../../../Qt/include/QtGui/qaccessibleplugin.h \
 		../../../../Qt/include/QtGui/qbackingstore.h \
+		../../../../Qt/include/QtGui/qwindow.h \
+		../../../../Qt/include/QtCore/QEvent \
+		../../../../Qt/include/QtCore/QRect \
+		../../../../Qt/include/QtGui/qsurface.h \
+		../../../../Qt/include/QtGui/qsurfaceformat.h \
+		../../../../Qt/include/QtGui/qicon.h \
 		../../../../Qt/include/QtGui/qbitmap.h \
 		../../../../Qt/include/QtGui/qclipboard.h \
 		../../../../Qt/include/QtGui/qdesktopservices.h \
@@ -1319,10 +1635,19 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtGui/qvector4d.h \
 		../../../../Qt/include/QtGui/qquaternion.h \
 		../../../../Qt/include/QtGui/qmovie.h \
+		../../../../Qt/include/QtGui/qoffscreensurface.h \
+		../../../../Qt/include/QtGui/qopengl.h \
+		../../../../Qt/include/QtCore/qt_windows.h \
+		../../../../Qt/include/QtGui/qopengles2ext.h \
+		../../../../Qt/include/QtGui/qopenglext.h \
 		../../../../Qt/include/QtGui/qopenglbuffer.h \
+		../../../../Qt/include/QtGui/qopenglcontext.h \
+		../../../../Qt/include/QtGui/QSurfaceFormat \
+		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
 		../../../../Qt/include/QtGui/qopengldebug.h \
 		../../../../Qt/include/QtGui/qopenglextrafunctions.h \
 		../../../../Qt/include/QtGui/qopenglfunctions.h \
+		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
 		../../../../Qt/include/QtGui/qopenglpaintdevice.h \
 		../../../../Qt/include/QtGui/qopenglpixeltransferoptions.h \
 		../../../../Qt/include/QtCore/QSharedDataPointer \
@@ -1336,11 +1661,11 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtGui/qopenglwindow.h \
 		../../../../Qt/include/QtGui/QPaintDeviceWindow \
 		../../../../Qt/include/QtGui/qpaintdevicewindow.h \
+		../../../../Qt/include/QtGui/QWindow \
 		../../../../Qt/include/QtGui/QPaintDevice \
+		../../../../Qt/include/QtGui/QOpenGLContext \
 		../../../../Qt/include/QtGui/QImage \
-		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
-		../../../../Qt/include/QtGui/qpagelayout.h \
-		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtGui/qpaintengine.h \
 		../../../../Qt/include/QtGui/qpdfwriter.h \
 		../../../../Qt/include/QtGui/qpicture.h \
 		../../../../Qt/include/QtGui/qpictureformatplugin.h \
@@ -1497,13 +1822,9 @@ moc_qcustomplot.cpp: ../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtWidgets/qwidgetaction.h \
 		../../../../Qt/include/QtWidgets/qwizard.h \
 		../../../../Qt/include/QtWidgets/qtwidgetsversion.h \
-		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
-		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
 		../../../../Qt/include/QtPrintSupport/qabstractprintdialog.h \
 		../../../../Qt/include/QtPrintSupport/qpagesetupdialog.h \
 		../../../../Qt/include/QtPrintSupport/qprintdialog.h \
-		../../../../Qt/include/QtPrintSupport/qprintengine.h \
-		../../../../Qt/include/QtPrintSupport/qprinter.h \
 		../../../../Qt/include/QtPrintSupport/qprinterinfo.h \
 		../../../../Qt/include/QtCore/QPair \
 		../../../../Qt/include/QtPrintSupport/qprintpreviewdialog.h \
@@ -1697,6 +2018,334 @@ dialog.o: dialog.cpp dialog.h \
 		../../../../Qt/include/QtCore/QVector \
 		../../../../Qt/include/QtCore/QDir \
 		../../../../Qt/include/QtCore/QFile \
+		qcustomplot.h \
+		../../../../Qt/include/QtCore/QObject \
+		../../../../Qt/include/QtCore/QPointer \
+		../../../../Qt/include/QtCore/qpointer.h \
+		../../../../Qt/include/QtGui/QPainter \
+		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtGui/QPaintEvent \
+		../../../../Qt/include/QtGui/QMouseEvent \
+		../../../../Qt/include/QtGui/QPixmap \
+		../../../../Qt/include/QtCore/QString \
+		../../../../Qt/include/QtCore/QDateTime \
+		../../../../Qt/include/QtCore/qdatetime.h \
+		../../../../Qt/include/QtCore/QMultiMap \
+		../../../../Qt/include/QtCore/QFlags \
+		../../../../Qt/include/QtGui/QVector2D \
+		../../../../Qt/include/QtCore/QStack \
+		../../../../Qt/include/QtCore/qstack.h \
+		../../../../Qt/include/QtCore/QCache \
+		../../../../Qt/include/QtCore/qcache.h \
+		../../../../Qt/include/QtCore/QMargins \
+		../../../../Qt/include/QtCore/qmath.h \
+		../../../../Qt/include/QtPrintSupport/QPrinter \
+		../../../../Qt/include/QtPrintSupport/qprinter.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
+		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
+		../../../../Qt/include/QtGui/qpagelayout.h \
+		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtPrintSupport/QPrintEngine \
+		../../../../Qt/include/QtPrintSupport/qprintengine.h \
+		../../../../Qt/include/QtCore/QtNumeric \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupport \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupportDepends \
+		../../../../Qt/include/QtCore/QtCore \
+		../../../../Qt/include/QtCore/QtCoreDepends \
+		../../../../Qt/include/QtCore/qabstractanimation.h \
+		../../../../Qt/include/QtCore/qabstracteventdispatcher.h \
+		../../../../Qt/include/QtCore/qabstractnativeeventfilter.h \
+		../../../../Qt/include/QtCore/qabstractproxymodel.h \
+		../../../../Qt/include/QtCore/qabstractstate.h \
+		../../../../Qt/include/QtCore/qabstracttransition.h \
+		../../../../Qt/include/QtCore/qanimationgroup.h \
+		../../../../Qt/include/QtCore/qarraydataops.h \
+		../../../../Qt/include/QtCore/qarraydatapointer.h \
+		../../../../Qt/include/QtCore/qbasictimer.h \
+		../../../../Qt/include/QtCore/qbitarray.h \
+		../../../../Qt/include/QtCore/qbuffer.h \
+		../../../../Qt/include/QtCore/qbytearraymatcher.h \
+		../../../../Qt/include/QtCore/qcollator.h \
+		../../../../Qt/include/QtCore/qcommandlineoption.h \
+		../../../../Qt/include/QtCore/qcommandlineparser.h \
+		../../../../Qt/include/QtCore/qcryptographichash.h \
+		../../../../Qt/include/QtCore/qdeadlinetimer.h \
+		../../../../Qt/include/QtCore/qelapsedtimer.h \
+		../../../../Qt/include/QtCore/qdiriterator.h \
+		../../../../Qt/include/QtCore/qeasingcurve.h \
+		../../../../Qt/include/QtCore/qendian.h \
+		../../../../Qt/include/QtCore/qeventtransition.h \
+		../../../../Qt/include/QtCore/qexception.h \
+		../../../../Qt/include/QtCore/qfactoryinterface.h \
+		../../../../Qt/include/QtCore/qfileselector.h \
+		../../../../Qt/include/QtCore/QStringList \
+		../../../../Qt/include/QtCore/qfilesystemwatcher.h \
+		../../../../Qt/include/QtCore/qfinalstate.h \
+		../../../../Qt/include/QtCore/qfuture.h \
+		../../../../Qt/include/QtCore/qfutureinterface.h \
+		../../../../Qt/include/QtCore/qrunnable.h \
+		../../../../Qt/include/QtCore/qresultstore.h \
+		../../../../Qt/include/QtCore/qfuturesynchronizer.h \
+		../../../../Qt/include/QtCore/qfuturewatcher.h \
+		../../../../Qt/include/QtCore/qhistorystate.h \
+		../../../../Qt/include/QtCore/qidentityproxymodel.h \
+		../../../../Qt/include/QtCore/qisenum.h \
+		../../../../Qt/include/QtCore/qjsonarray.h \
+		../../../../Qt/include/QtCore/qjsonvalue.h \
+		../../../../Qt/include/QtCore/qjsondocument.h \
+		../../../../Qt/include/QtCore/qjsonobject.h \
+		../../../../Qt/include/QtCore/qlibrary.h \
+		../../../../Qt/include/QtCore/qlibraryinfo.h \
+		../../../../Qt/include/QtCore/qversionnumber.h \
+		../../../../Qt/include/QtCore/qlinkedlist.h \
+		../../../../Qt/include/QtCore/qlockfile.h \
+		../../../../Qt/include/QtCore/qloggingcategory.h \
+		../../../../Qt/include/QtCore/qmessageauthenticationcode.h \
+		../../../../Qt/include/QtCore/qmetaobject.h \
+		../../../../Qt/include/QtCore/qmimedata.h \
+		../../../../Qt/include/QtCore/qmimedatabase.h \
+		../../../../Qt/include/QtCore/qmimetype.h \
+		../../../../Qt/include/QtCore/qobjectcleanuphandler.h \
+		../../../../Qt/include/QtCore/qparallelanimationgroup.h \
+		../../../../Qt/include/QtCore/qpauseanimation.h \
+		../../../../Qt/include/QtCore/qplugin.h \
+		../../../../Qt/include/QtCore/qpluginloader.h \
+		../../../../Qt/include/QtCore/qprocess.h \
+		../../../../Qt/include/QtCore/qpropertyanimation.h \
+		../../../../Qt/include/QtCore/qvariantanimation.h \
+		../../../../Qt/include/QtCore/qqueue.h \
+		../../../../Qt/include/QtCore/qreadwritelock.h \
+		../../../../Qt/include/QtCore/qresource.h \
+		../../../../Qt/include/QtCore/qsavefile.h \
+		../../../../Qt/include/QtCore/qscopedvaluerollback.h \
+		../../../../Qt/include/QtCore/qsemaphore.h \
+		../../../../Qt/include/QtCore/qsequentialanimationgroup.h \
+		../../../../Qt/include/QtCore/qsettings.h \
+		../../../../Qt/include/QtCore/qsharedmemory.h \
+		../../../../Qt/include/QtCore/qsignalmapper.h \
+		../../../../Qt/include/QtCore/qsignaltransition.h \
+		../../../../Qt/include/QtCore/qsocketnotifier.h \
+		../../../../Qt/include/QtCore/qsortfilterproxymodel.h \
+		../../../../Qt/include/QtCore/qstandardpaths.h \
+		../../../../Qt/include/QtCore/qstate.h \
+		../../../../Qt/include/QtCore/qstatemachine.h \
+		../../../../Qt/include/QtCore/qstorageinfo.h \
+		../../../../Qt/include/QtCore/qstringlistmodel.h \
+		../../../../Qt/include/QtCore/qsystemsemaphore.h \
+		../../../../Qt/include/QtCore/qtemporarydir.h \
+		../../../../Qt/include/QtCore/QScopedPointer \
+		../../../../Qt/include/QtCore/qtemporaryfile.h \
+		../../../../Qt/include/QtCore/qtextboundaryfinder.h \
+		../../../../Qt/include/QtCore/qtextcodec.h \
+		../../../../Qt/include/QtCore/qthreadpool.h \
+		../../../../Qt/include/QtCore/qthreadstorage.h \
+		../../../../Qt/include/QtCore/qtimeline.h \
+		../../../../Qt/include/QtCore/qtimer.h \
+		../../../../Qt/include/QtCore/qtimezone.h \
+		../../../../Qt/include/QtCore/qtranslator.h \
+		../../../../Qt/include/QtCore/quuid.h \
+		../../../../Qt/include/QtCore/qwaitcondition.h \
+		../../../../Qt/include/QtCore/qwineventnotifier.h \
+		../../../../Qt/include/QtCore/qxmlstream.h \
+		../../../../Qt/include/QtCore/qtcoreversion.h \
+		../../../../Qt/include/QtGui/QtGui \
+		../../../../Qt/include/QtGui/QtGuiDepends \
+		../../../../Qt/include/QtGui/qabstracttextdocumentlayout.h \
+		../../../../Qt/include/QtGui/qtextlayout.h \
+		../../../../Qt/include/QtGui/qglyphrun.h \
+		../../../../Qt/include/QtGui/qrawfont.h \
+		../../../../Qt/include/QtGui/qfontdatabase.h \
+		../../../../Qt/include/QtGui/qtextdocument.h \
+		../../../../Qt/include/QtGui/qaccessible.h \
+		../../../../Qt/include/QtGui/qaccessiblebridge.h \
+		../../../../Qt/include/QtGui/qaccessibleobject.h \
+		../../../../Qt/include/QtGui/qaccessibleplugin.h \
+		../../../../Qt/include/QtGui/qbackingstore.h \
+		../../../../Qt/include/QtGui/qwindow.h \
+		../../../../Qt/include/QtCore/QEvent \
+		../../../../Qt/include/QtCore/QRect \
+		../../../../Qt/include/QtGui/qsurface.h \
+		../../../../Qt/include/QtGui/qsurfaceformat.h \
+		../../../../Qt/include/QtGui/qbitmap.h \
+		../../../../Qt/include/QtGui/qclipboard.h \
+		../../../../Qt/include/QtGui/qdesktopservices.h \
+		../../../../Qt/include/QtGui/qdrag.h \
+		../../../../Qt/include/QtGui/qgenericmatrix.h \
+		../../../../Qt/include/QtGui/qgenericplugin.h \
+		../../../../Qt/include/QtGui/qgenericpluginfactory.h \
+		../../../../Qt/include/QtGui/qiconengine.h \
+		../../../../Qt/include/QtGui/qiconengineplugin.h \
+		../../../../Qt/include/QtGui/qimageiohandler.h \
+		../../../../Qt/include/QtGui/qimagereader.h \
+		../../../../Qt/include/QtGui/qimagewriter.h \
+		../../../../Qt/include/QtGui/qmatrix4x4.h \
+		../../../../Qt/include/QtGui/qvector3d.h \
+		../../../../Qt/include/QtGui/qvector4d.h \
+		../../../../Qt/include/QtGui/qquaternion.h \
+		../../../../Qt/include/QtGui/qmovie.h \
+		../../../../Qt/include/QtGui/qoffscreensurface.h \
+		../../../../Qt/include/QtGui/qopengl.h \
+		../../../../Qt/include/QtCore/qt_windows.h \
+		../../../../Qt/include/QtGui/qopengles2ext.h \
+		../../../../Qt/include/QtGui/qopenglext.h \
+		../../../../Qt/include/QtGui/qopenglbuffer.h \
+		../../../../Qt/include/QtGui/qopenglcontext.h \
+		../../../../Qt/include/QtGui/QSurfaceFormat \
+		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
+		../../../../Qt/include/QtGui/qopengldebug.h \
+		../../../../Qt/include/QtGui/qopenglextrafunctions.h \
+		../../../../Qt/include/QtGui/qopenglfunctions.h \
+		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
+		../../../../Qt/include/QtGui/qopenglpaintdevice.h \
+		../../../../Qt/include/QtGui/qopenglpixeltransferoptions.h \
+		../../../../Qt/include/QtCore/QSharedDataPointer \
+		../../../../Qt/include/QtGui/qopenglshaderprogram.h \
+		../../../../Qt/include/QtGui/qopengltexture.h \
+		../../../../Qt/include/QtGui/qopengltextureblitter.h \
+		../../../../Qt/include/QtGui/QMatrix3x3 \
+		../../../../Qt/include/QtGui/QMatrix4x4 \
+		../../../../Qt/include/QtGui/qopengltimerquery.h \
+		../../../../Qt/include/QtGui/qopenglvertexarrayobject.h \
+		../../../../Qt/include/QtGui/qopenglwindow.h \
+		../../../../Qt/include/QtGui/QPaintDeviceWindow \
+		../../../../Qt/include/QtGui/qpaintdevicewindow.h \
+		../../../../Qt/include/QtGui/QWindow \
+		../../../../Qt/include/QtGui/QPaintDevice \
+		../../../../Qt/include/QtGui/QOpenGLContext \
+		../../../../Qt/include/QtGui/QImage \
+		../../../../Qt/include/QtGui/qpaintengine.h \
+		../../../../Qt/include/QtGui/qpdfwriter.h \
+		../../../../Qt/include/QtGui/qpicture.h \
+		../../../../Qt/include/QtGui/qpictureformatplugin.h \
+		../../../../Qt/include/QtGui/qpixmapcache.h \
+		../../../../Qt/include/QtGui/qrasterwindow.h \
+		../../../../Qt/include/QtGui/qscreen.h \
+		../../../../Qt/include/QtCore/QList \
+		../../../../Qt/include/QtCore/QSize \
+		../../../../Qt/include/QtCore/QSizeF \
+		../../../../Qt/include/QtGui/QTransform \
+		../../../../Qt/include/QtGui/qsessionmanager.h \
+		../../../../Qt/include/QtGui/qstandarditemmodel.h \
+		../../../../Qt/include/QtGui/qstatictext.h \
+		../../../../Qt/include/QtGui/qstylehints.h \
+		../../../../Qt/include/QtGui/qsyntaxhighlighter.h \
+		../../../../Qt/include/QtGui/qtextobject.h \
+		../../../../Qt/include/QtGui/qtextdocumentfragment.h \
+		../../../../Qt/include/QtGui/qtextdocumentwriter.h \
+		../../../../Qt/include/QtGui/qtextlist.h \
+		../../../../Qt/include/QtGui/qtexttable.h \
+		../../../../Qt/include/QtGui/qtguiversion.h \
+		../../../../Qt/include/QtWidgets/QtWidgets \
+		../../../../Qt/include/QtWidgets/QtWidgetsDepends \
+		../../../../Qt/include/QtWidgets/qaccessiblewidget.h \
+		../../../../Qt/include/QtWidgets/qaction.h \
+		../../../../Qt/include/QtWidgets/qactiongroup.h \
+		../../../../Qt/include/QtWidgets/qbuttongroup.h \
+		../../../../Qt/include/QtWidgets/qcalendarwidget.h \
+		../../../../Qt/include/QtWidgets/qcolordialog.h \
+		../../../../Qt/include/QtWidgets/qcolormap.h \
+		../../../../Qt/include/QtWidgets/qcolumnview.h \
+		../../../../Qt/include/QtWidgets/qcommandlinkbutton.h \
+		../../../../Qt/include/QtWidgets/qcommonstyle.h \
+		../../../../Qt/include/QtWidgets/qcompleter.h \
+		../../../../Qt/include/QtWidgets/qdatawidgetmapper.h \
+		../../../../Qt/include/QtWidgets/qdatetimeedit.h \
+		../../../../Qt/include/QtWidgets/qdial.h \
+		../../../../Qt/include/QtWidgets/qdialogbuttonbox.h \
+		../../../../Qt/include/QtWidgets/qdirmodel.h \
+		../../../../Qt/include/QtWidgets/qfileiconprovider.h \
+		../../../../Qt/include/QtWidgets/qdockwidget.h \
+		../../../../Qt/include/QtWidgets/qdrawutil.h \
+		../../../../Qt/include/QtWidgets/qerrormessage.h \
+		../../../../Qt/include/QtWidgets/qfilesystemmodel.h \
+		../../../../Qt/include/QtWidgets/qfocusframe.h \
+		../../../../Qt/include/QtWidgets/qfontcombobox.h \
+		../../../../Qt/include/QtWidgets/qfontdialog.h \
+		../../../../Qt/include/QtWidgets/qformlayout.h \
+		../../../../Qt/include/QtWidgets/QLayout \
+		../../../../Qt/include/QtWidgets/qgesture.h \
+		../../../../Qt/include/QtWidgets/qgesturerecognizer.h \
+		../../../../Qt/include/QtWidgets/qgraphicsanchorlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayoutitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicseffect.h \
+		../../../../Qt/include/QtWidgets/qgraphicsgridlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitemanimation.h \
+		../../../../Qt/include/QtWidgets/qgraphicslinearlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsproxywidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicswidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicsscene.h \
+		../../../../Qt/include/QtWidgets/qgraphicssceneevent.h \
+		../../../../Qt/include/QtWidgets/qgraphicstransform.h \
+		../../../../Qt/include/QtGui/QVector3D \
+		../../../../Qt/include/QtWidgets/qgraphicsview.h \
+		../../../../Qt/include/QtWidgets/qscrollarea.h \
+		../../../../Qt/include/QtWidgets/qheaderview.h \
+		../../../../Qt/include/QtWidgets/qinputdialog.h \
+		../../../../Qt/include/QtWidgets/qitemdelegate.h \
+		../../../../Qt/include/QtWidgets/qitemeditorfactory.h \
+		../../../../Qt/include/QtWidgets/qkeyeventtransition.h \
+		../../../../Qt/include/QtWidgets/qkeysequenceedit.h \
+		../../../../Qt/include/QtWidgets/qmainwindow.h \
+		../../../../Qt/include/QtWidgets/qmdiarea.h \
+		../../../../Qt/include/QtWidgets/qmdisubwindow.h \
+		../../../../Qt/include/QtWidgets/qmenu.h \
+		../../../../Qt/include/QtWidgets/qmenubar.h \
+		../../../../Qt/include/QtWidgets/qmessagebox.h \
+		../../../../Qt/include/QtWidgets/qmouseeventtransition.h \
+		../../../../Qt/include/QtWidgets/qopenglwidget.h \
+		../../../../Qt/include/QtWidgets/qplaintextedit.h \
+		../../../../Qt/include/QtWidgets/qtextedit.h \
+		../../../../Qt/include/QtWidgets/qprogressdialog.h \
+		../../../../Qt/include/QtWidgets/qproxystyle.h \
+		../../../../Qt/include/QtWidgets/QCommonStyle \
+		../../../../Qt/include/QtWidgets/qscrollbar.h \
+		../../../../Qt/include/QtWidgets/qscroller.h \
+		../../../../Qt/include/QtCore/QPointF \
+		../../../../Qt/include/QtWidgets/QScrollerProperties \
+		../../../../Qt/include/QtWidgets/qscrollerproperties.h \
+		../../../../Qt/include/QtCore/QMetaType \
+		../../../../Qt/include/QtCore/QVariant \
+		../../../../Qt/include/QtWidgets/qshortcut.h \
+		../../../../Qt/include/QtWidgets/qsizegrip.h \
+		../../../../Qt/include/QtWidgets/qspinbox.h \
+		../../../../Qt/include/QtWidgets/qsplashscreen.h \
+		../../../../Qt/include/QtWidgets/qsplitter.h \
+		../../../../Qt/include/QtWidgets/qstackedlayout.h \
+		../../../../Qt/include/QtWidgets/qstackedwidget.h \
+		../../../../Qt/include/QtWidgets/qstatusbar.h \
+		../../../../Qt/include/QtWidgets/qstyleditemdelegate.h \
+		../../../../Qt/include/QtWidgets/qstylefactory.h \
+		../../../../Qt/include/QtWidgets/qstylepainter.h \
+		../../../../Qt/include/QtWidgets/qstyleplugin.h \
+		../../../../Qt/include/QtWidgets/qsystemtrayicon.h \
+		../../../../Qt/include/QtWidgets/qtableview.h \
+		../../../../Qt/include/QtWidgets/qtablewidget.h \
+		../../../../Qt/include/QtWidgets/qtextbrowser.h \
+		../../../../Qt/include/QtWidgets/qtoolbar.h \
+		../../../../Qt/include/QtWidgets/qtoolbox.h \
+		../../../../Qt/include/QtWidgets/qtoolbutton.h \
+		../../../../Qt/include/QtWidgets/qtooltip.h \
+		../../../../Qt/include/QtWidgets/qtreeview.h \
+		../../../../Qt/include/QtWidgets/qtreewidget.h \
+		../../../../Qt/include/QtWidgets/qtreewidgetitemiterator.h \
+		../../../../Qt/include/QtWidgets/qundogroup.h \
+		../../../../Qt/include/QtWidgets/qundostack.h \
+		../../../../Qt/include/QtWidgets/qundoview.h \
+		../../../../Qt/include/QtWidgets/qwhatsthis.h \
+		../../../../Qt/include/QtWidgets/qwidgetaction.h \
+		../../../../Qt/include/QtWidgets/qwizard.h \
+		../../../../Qt/include/QtWidgets/qtwidgetsversion.h \
+		../../../../Qt/include/QtPrintSupport/qabstractprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qpagesetupdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprinterinfo.h \
+		../../../../Qt/include/QtCore/QPair \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewwidget.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportversion.h \
 		include/alignment.h \
 		include/utility.h \
 		include/feature.h
@@ -1871,12 +2520,344 @@ main.o: main.cpp dialog.h \
 		../../../../Qt/include/QtCore/QVector \
 		../../../../Qt/include/QtCore/QDir \
 		../../../../Qt/include/QtCore/QFile \
+		qcustomplot.h \
+		../../../../Qt/include/QtCore/QObject \
+		../../../../Qt/include/QtCore/QPointer \
+		../../../../Qt/include/QtCore/qpointer.h \
+		../../../../Qt/include/QtGui/QPainter \
+		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtGui/QPaintEvent \
+		../../../../Qt/include/QtGui/QMouseEvent \
+		../../../../Qt/include/QtGui/QPixmap \
+		../../../../Qt/include/QtCore/QString \
+		../../../../Qt/include/QtCore/QDateTime \
+		../../../../Qt/include/QtCore/qdatetime.h \
+		../../../../Qt/include/QtCore/QMultiMap \
+		../../../../Qt/include/QtCore/QFlags \
+		../../../../Qt/include/QtGui/QVector2D \
+		../../../../Qt/include/QtCore/QStack \
+		../../../../Qt/include/QtCore/qstack.h \
+		../../../../Qt/include/QtCore/QCache \
+		../../../../Qt/include/QtCore/qcache.h \
+		../../../../Qt/include/QtCore/QMargins \
+		../../../../Qt/include/QtCore/qmath.h \
+		../../../../Qt/include/QtPrintSupport/QPrinter \
+		../../../../Qt/include/QtPrintSupport/qprinter.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
+		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
+		../../../../Qt/include/QtGui/qpagelayout.h \
+		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtPrintSupport/QPrintEngine \
+		../../../../Qt/include/QtPrintSupport/qprintengine.h \
+		../../../../Qt/include/QtCore/QtNumeric \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupport \
+		../../../../Qt/include/QtPrintSupport/QtPrintSupportDepends \
+		../../../../Qt/include/QtCore/QtCore \
+		../../../../Qt/include/QtCore/QtCoreDepends \
+		../../../../Qt/include/QtCore/qabstractanimation.h \
+		../../../../Qt/include/QtCore/qabstracteventdispatcher.h \
+		../../../../Qt/include/QtCore/qabstractnativeeventfilter.h \
+		../../../../Qt/include/QtCore/qabstractproxymodel.h \
+		../../../../Qt/include/QtCore/qabstractstate.h \
+		../../../../Qt/include/QtCore/qabstracttransition.h \
+		../../../../Qt/include/QtCore/qanimationgroup.h \
+		../../../../Qt/include/QtCore/qarraydataops.h \
+		../../../../Qt/include/QtCore/qarraydatapointer.h \
+		../../../../Qt/include/QtCore/qbasictimer.h \
+		../../../../Qt/include/QtCore/qbitarray.h \
+		../../../../Qt/include/QtCore/qbuffer.h \
+		../../../../Qt/include/QtCore/qbytearraymatcher.h \
+		../../../../Qt/include/QtCore/qcollator.h \
+		../../../../Qt/include/QtCore/qcommandlineoption.h \
+		../../../../Qt/include/QtCore/qcommandlineparser.h \
+		../../../../Qt/include/QtCore/qcryptographichash.h \
+		../../../../Qt/include/QtCore/qdeadlinetimer.h \
+		../../../../Qt/include/QtCore/qelapsedtimer.h \
+		../../../../Qt/include/QtCore/qdiriterator.h \
+		../../../../Qt/include/QtCore/qeasingcurve.h \
+		../../../../Qt/include/QtCore/qendian.h \
+		../../../../Qt/include/QtCore/qeventtransition.h \
+		../../../../Qt/include/QtCore/qexception.h \
+		../../../../Qt/include/QtCore/qfactoryinterface.h \
+		../../../../Qt/include/QtCore/qfileselector.h \
+		../../../../Qt/include/QtCore/QStringList \
+		../../../../Qt/include/QtCore/qfilesystemwatcher.h \
+		../../../../Qt/include/QtCore/qfinalstate.h \
+		../../../../Qt/include/QtCore/qfuture.h \
+		../../../../Qt/include/QtCore/qfutureinterface.h \
+		../../../../Qt/include/QtCore/qrunnable.h \
+		../../../../Qt/include/QtCore/qresultstore.h \
+		../../../../Qt/include/QtCore/qfuturesynchronizer.h \
+		../../../../Qt/include/QtCore/qfuturewatcher.h \
+		../../../../Qt/include/QtCore/qhistorystate.h \
+		../../../../Qt/include/QtCore/qidentityproxymodel.h \
+		../../../../Qt/include/QtCore/qisenum.h \
+		../../../../Qt/include/QtCore/qjsonarray.h \
+		../../../../Qt/include/QtCore/qjsonvalue.h \
+		../../../../Qt/include/QtCore/qjsondocument.h \
+		../../../../Qt/include/QtCore/qjsonobject.h \
+		../../../../Qt/include/QtCore/qlibrary.h \
+		../../../../Qt/include/QtCore/qlibraryinfo.h \
+		../../../../Qt/include/QtCore/qversionnumber.h \
+		../../../../Qt/include/QtCore/qlinkedlist.h \
+		../../../../Qt/include/QtCore/qlockfile.h \
+		../../../../Qt/include/QtCore/qloggingcategory.h \
+		../../../../Qt/include/QtCore/qmessageauthenticationcode.h \
+		../../../../Qt/include/QtCore/qmetaobject.h \
+		../../../../Qt/include/QtCore/qmimedata.h \
+		../../../../Qt/include/QtCore/qmimedatabase.h \
+		../../../../Qt/include/QtCore/qmimetype.h \
+		../../../../Qt/include/QtCore/qobjectcleanuphandler.h \
+		../../../../Qt/include/QtCore/qparallelanimationgroup.h \
+		../../../../Qt/include/QtCore/qpauseanimation.h \
+		../../../../Qt/include/QtCore/qplugin.h \
+		../../../../Qt/include/QtCore/qpluginloader.h \
+		../../../../Qt/include/QtCore/qprocess.h \
+		../../../../Qt/include/QtCore/qpropertyanimation.h \
+		../../../../Qt/include/QtCore/qvariantanimation.h \
+		../../../../Qt/include/QtCore/qqueue.h \
+		../../../../Qt/include/QtCore/qreadwritelock.h \
+		../../../../Qt/include/QtCore/qresource.h \
+		../../../../Qt/include/QtCore/qsavefile.h \
+		../../../../Qt/include/QtCore/qscopedvaluerollback.h \
+		../../../../Qt/include/QtCore/qsemaphore.h \
+		../../../../Qt/include/QtCore/qsequentialanimationgroup.h \
+		../../../../Qt/include/QtCore/qsettings.h \
+		../../../../Qt/include/QtCore/qsharedmemory.h \
+		../../../../Qt/include/QtCore/qsignalmapper.h \
+		../../../../Qt/include/QtCore/qsignaltransition.h \
+		../../../../Qt/include/QtCore/qsocketnotifier.h \
+		../../../../Qt/include/QtCore/qsortfilterproxymodel.h \
+		../../../../Qt/include/QtCore/qstandardpaths.h \
+		../../../../Qt/include/QtCore/qstate.h \
+		../../../../Qt/include/QtCore/qstatemachine.h \
+		../../../../Qt/include/QtCore/qstorageinfo.h \
+		../../../../Qt/include/QtCore/qstringlistmodel.h \
+		../../../../Qt/include/QtCore/qsystemsemaphore.h \
+		../../../../Qt/include/QtCore/qtemporarydir.h \
+		../../../../Qt/include/QtCore/QScopedPointer \
+		../../../../Qt/include/QtCore/qtemporaryfile.h \
+		../../../../Qt/include/QtCore/qtextboundaryfinder.h \
+		../../../../Qt/include/QtCore/qtextcodec.h \
+		../../../../Qt/include/QtCore/qthreadpool.h \
+		../../../../Qt/include/QtCore/qthreadstorage.h \
+		../../../../Qt/include/QtCore/qtimeline.h \
+		../../../../Qt/include/QtCore/qtimer.h \
+		../../../../Qt/include/QtCore/qtimezone.h \
+		../../../../Qt/include/QtCore/qtranslator.h \
+		../../../../Qt/include/QtCore/quuid.h \
+		../../../../Qt/include/QtCore/qwaitcondition.h \
+		../../../../Qt/include/QtCore/qwineventnotifier.h \
+		../../../../Qt/include/QtCore/qxmlstream.h \
+		../../../../Qt/include/QtCore/qtcoreversion.h \
+		../../../../Qt/include/QtGui/QtGui \
+		../../../../Qt/include/QtGui/QtGuiDepends \
+		../../../../Qt/include/QtGui/qabstracttextdocumentlayout.h \
+		../../../../Qt/include/QtGui/qtextlayout.h \
+		../../../../Qt/include/QtGui/qglyphrun.h \
+		../../../../Qt/include/QtGui/qrawfont.h \
+		../../../../Qt/include/QtGui/qfontdatabase.h \
+		../../../../Qt/include/QtGui/qtextdocument.h \
+		../../../../Qt/include/QtGui/qaccessible.h \
+		../../../../Qt/include/QtGui/qaccessiblebridge.h \
+		../../../../Qt/include/QtGui/qaccessibleobject.h \
+		../../../../Qt/include/QtGui/qaccessibleplugin.h \
+		../../../../Qt/include/QtGui/qbackingstore.h \
+		../../../../Qt/include/QtGui/qwindow.h \
+		../../../../Qt/include/QtCore/QEvent \
+		../../../../Qt/include/QtCore/QRect \
+		../../../../Qt/include/QtGui/qsurface.h \
+		../../../../Qt/include/QtGui/qsurfaceformat.h \
+		../../../../Qt/include/QtGui/qbitmap.h \
+		../../../../Qt/include/QtGui/qclipboard.h \
+		../../../../Qt/include/QtGui/qdesktopservices.h \
+		../../../../Qt/include/QtGui/qdrag.h \
+		../../../../Qt/include/QtGui/qgenericmatrix.h \
+		../../../../Qt/include/QtGui/qgenericplugin.h \
+		../../../../Qt/include/QtGui/qgenericpluginfactory.h \
+		../../../../Qt/include/QtGui/qiconengine.h \
+		../../../../Qt/include/QtGui/qiconengineplugin.h \
+		../../../../Qt/include/QtGui/qimageiohandler.h \
+		../../../../Qt/include/QtGui/qimagereader.h \
+		../../../../Qt/include/QtGui/qimagewriter.h \
+		../../../../Qt/include/QtGui/qmatrix4x4.h \
+		../../../../Qt/include/QtGui/qvector3d.h \
+		../../../../Qt/include/QtGui/qvector4d.h \
+		../../../../Qt/include/QtGui/qquaternion.h \
+		../../../../Qt/include/QtGui/qmovie.h \
+		../../../../Qt/include/QtGui/qoffscreensurface.h \
+		../../../../Qt/include/QtGui/qopengl.h \
+		../../../../Qt/include/QtCore/qt_windows.h \
+		../../../../Qt/include/QtGui/qopengles2ext.h \
+		../../../../Qt/include/QtGui/qopenglext.h \
+		../../../../Qt/include/QtGui/qopenglbuffer.h \
+		../../../../Qt/include/QtGui/qopenglcontext.h \
+		../../../../Qt/include/QtGui/QSurfaceFormat \
+		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
+		../../../../Qt/include/QtGui/qopengldebug.h \
+		../../../../Qt/include/QtGui/qopenglextrafunctions.h \
+		../../../../Qt/include/QtGui/qopenglfunctions.h \
+		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
+		../../../../Qt/include/QtGui/qopenglpaintdevice.h \
+		../../../../Qt/include/QtGui/qopenglpixeltransferoptions.h \
+		../../../../Qt/include/QtCore/QSharedDataPointer \
+		../../../../Qt/include/QtGui/qopenglshaderprogram.h \
+		../../../../Qt/include/QtGui/qopengltexture.h \
+		../../../../Qt/include/QtGui/qopengltextureblitter.h \
+		../../../../Qt/include/QtGui/QMatrix3x3 \
+		../../../../Qt/include/QtGui/QMatrix4x4 \
+		../../../../Qt/include/QtGui/qopengltimerquery.h \
+		../../../../Qt/include/QtGui/qopenglvertexarrayobject.h \
+		../../../../Qt/include/QtGui/qopenglwindow.h \
+		../../../../Qt/include/QtGui/QPaintDeviceWindow \
+		../../../../Qt/include/QtGui/qpaintdevicewindow.h \
+		../../../../Qt/include/QtGui/QWindow \
+		../../../../Qt/include/QtGui/QPaintDevice \
+		../../../../Qt/include/QtGui/QOpenGLContext \
+		../../../../Qt/include/QtGui/QImage \
+		../../../../Qt/include/QtGui/qpaintengine.h \
+		../../../../Qt/include/QtGui/qpdfwriter.h \
+		../../../../Qt/include/QtGui/qpicture.h \
+		../../../../Qt/include/QtGui/qpictureformatplugin.h \
+		../../../../Qt/include/QtGui/qpixmapcache.h \
+		../../../../Qt/include/QtGui/qrasterwindow.h \
+		../../../../Qt/include/QtGui/qscreen.h \
+		../../../../Qt/include/QtCore/QList \
+		../../../../Qt/include/QtCore/QSize \
+		../../../../Qt/include/QtCore/QSizeF \
+		../../../../Qt/include/QtGui/QTransform \
+		../../../../Qt/include/QtGui/qsessionmanager.h \
+		../../../../Qt/include/QtGui/qstandarditemmodel.h \
+		../../../../Qt/include/QtGui/qstatictext.h \
+		../../../../Qt/include/QtGui/qstylehints.h \
+		../../../../Qt/include/QtGui/qsyntaxhighlighter.h \
+		../../../../Qt/include/QtGui/qtextobject.h \
+		../../../../Qt/include/QtGui/qtextdocumentfragment.h \
+		../../../../Qt/include/QtGui/qtextdocumentwriter.h \
+		../../../../Qt/include/QtGui/qtextlist.h \
+		../../../../Qt/include/QtGui/qtexttable.h \
+		../../../../Qt/include/QtGui/qtguiversion.h \
+		../../../../Qt/include/QtWidgets/QtWidgets \
+		../../../../Qt/include/QtWidgets/QtWidgetsDepends \
+		../../../../Qt/include/QtWidgets/qaccessiblewidget.h \
+		../../../../Qt/include/QtWidgets/qaction.h \
+		../../../../Qt/include/QtWidgets/qactiongroup.h \
+		../../../../Qt/include/QtWidgets/qbuttongroup.h \
+		../../../../Qt/include/QtWidgets/qcalendarwidget.h \
+		../../../../Qt/include/QtWidgets/qcolordialog.h \
+		../../../../Qt/include/QtWidgets/qcolormap.h \
+		../../../../Qt/include/QtWidgets/qcolumnview.h \
+		../../../../Qt/include/QtWidgets/qcommandlinkbutton.h \
+		../../../../Qt/include/QtWidgets/qcommonstyle.h \
+		../../../../Qt/include/QtWidgets/qcompleter.h \
+		../../../../Qt/include/QtWidgets/qdatawidgetmapper.h \
+		../../../../Qt/include/QtWidgets/qdatetimeedit.h \
+		../../../../Qt/include/QtWidgets/qdial.h \
+		../../../../Qt/include/QtWidgets/qdialogbuttonbox.h \
+		../../../../Qt/include/QtWidgets/qdirmodel.h \
+		../../../../Qt/include/QtWidgets/qfileiconprovider.h \
+		../../../../Qt/include/QtWidgets/qdockwidget.h \
+		../../../../Qt/include/QtWidgets/qdrawutil.h \
+		../../../../Qt/include/QtWidgets/qerrormessage.h \
+		../../../../Qt/include/QtWidgets/qfilesystemmodel.h \
+		../../../../Qt/include/QtWidgets/qfocusframe.h \
+		../../../../Qt/include/QtWidgets/qfontcombobox.h \
+		../../../../Qt/include/QtWidgets/qfontdialog.h \
+		../../../../Qt/include/QtWidgets/qformlayout.h \
+		../../../../Qt/include/QtWidgets/QLayout \
+		../../../../Qt/include/QtWidgets/qgesture.h \
+		../../../../Qt/include/QtWidgets/qgesturerecognizer.h \
+		../../../../Qt/include/QtWidgets/qgraphicsanchorlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicslayoutitem.h \
+		../../../../Qt/include/QtWidgets/qgraphicseffect.h \
+		../../../../Qt/include/QtWidgets/qgraphicsgridlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsitemanimation.h \
+		../../../../Qt/include/QtWidgets/qgraphicslinearlayout.h \
+		../../../../Qt/include/QtWidgets/qgraphicsproxywidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicswidget.h \
+		../../../../Qt/include/QtWidgets/qgraphicsscene.h \
+		../../../../Qt/include/QtWidgets/qgraphicssceneevent.h \
+		../../../../Qt/include/QtWidgets/qgraphicstransform.h \
+		../../../../Qt/include/QtGui/QVector3D \
+		../../../../Qt/include/QtWidgets/qgraphicsview.h \
+		../../../../Qt/include/QtWidgets/qscrollarea.h \
+		../../../../Qt/include/QtWidgets/qheaderview.h \
+		../../../../Qt/include/QtWidgets/qinputdialog.h \
+		../../../../Qt/include/QtWidgets/qitemdelegate.h \
+		../../../../Qt/include/QtWidgets/qitemeditorfactory.h \
+		../../../../Qt/include/QtWidgets/qkeyeventtransition.h \
+		../../../../Qt/include/QtWidgets/qkeysequenceedit.h \
+		../../../../Qt/include/QtWidgets/qmainwindow.h \
+		../../../../Qt/include/QtWidgets/qmdiarea.h \
+		../../../../Qt/include/QtWidgets/qmdisubwindow.h \
+		../../../../Qt/include/QtWidgets/qmenu.h \
+		../../../../Qt/include/QtWidgets/qmenubar.h \
+		../../../../Qt/include/QtWidgets/qmessagebox.h \
+		../../../../Qt/include/QtWidgets/qmouseeventtransition.h \
+		../../../../Qt/include/QtWidgets/qopenglwidget.h \
+		../../../../Qt/include/QtWidgets/qplaintextedit.h \
+		../../../../Qt/include/QtWidgets/qtextedit.h \
+		../../../../Qt/include/QtWidgets/qprogressdialog.h \
+		../../../../Qt/include/QtWidgets/qproxystyle.h \
+		../../../../Qt/include/QtWidgets/QCommonStyle \
+		../../../../Qt/include/QtWidgets/qscrollbar.h \
+		../../../../Qt/include/QtWidgets/qscroller.h \
+		../../../../Qt/include/QtCore/QPointF \
+		../../../../Qt/include/QtWidgets/QScrollerProperties \
+		../../../../Qt/include/QtWidgets/qscrollerproperties.h \
+		../../../../Qt/include/QtCore/QMetaType \
+		../../../../Qt/include/QtCore/QVariant \
+		../../../../Qt/include/QtWidgets/qshortcut.h \
+		../../../../Qt/include/QtWidgets/qsizegrip.h \
+		../../../../Qt/include/QtWidgets/qspinbox.h \
+		../../../../Qt/include/QtWidgets/qsplashscreen.h \
+		../../../../Qt/include/QtWidgets/qsplitter.h \
+		../../../../Qt/include/QtWidgets/qstackedlayout.h \
+		../../../../Qt/include/QtWidgets/qstackedwidget.h \
+		../../../../Qt/include/QtWidgets/qstatusbar.h \
+		../../../../Qt/include/QtWidgets/qstyleditemdelegate.h \
+		../../../../Qt/include/QtWidgets/qstylefactory.h \
+		../../../../Qt/include/QtWidgets/qstylepainter.h \
+		../../../../Qt/include/QtWidgets/qstyleplugin.h \
+		../../../../Qt/include/QtWidgets/qsystemtrayicon.h \
+		../../../../Qt/include/QtWidgets/qtableview.h \
+		../../../../Qt/include/QtWidgets/qtablewidget.h \
+		../../../../Qt/include/QtWidgets/qtextbrowser.h \
+		../../../../Qt/include/QtWidgets/qtoolbar.h \
+		../../../../Qt/include/QtWidgets/qtoolbox.h \
+		../../../../Qt/include/QtWidgets/qtoolbutton.h \
+		../../../../Qt/include/QtWidgets/qtooltip.h \
+		../../../../Qt/include/QtWidgets/qtreeview.h \
+		../../../../Qt/include/QtWidgets/qtreewidget.h \
+		../../../../Qt/include/QtWidgets/qtreewidgetitemiterator.h \
+		../../../../Qt/include/QtWidgets/qundogroup.h \
+		../../../../Qt/include/QtWidgets/qundostack.h \
+		../../../../Qt/include/QtWidgets/qundoview.h \
+		../../../../Qt/include/QtWidgets/qwhatsthis.h \
+		../../../../Qt/include/QtWidgets/qwidgetaction.h \
+		../../../../Qt/include/QtWidgets/qwizard.h \
+		../../../../Qt/include/QtWidgets/qtwidgetsversion.h \
+		../../../../Qt/include/QtPrintSupport/qabstractprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qpagesetupdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprinterinfo.h \
+		../../../../Qt/include/QtCore/QPair \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewdialog.h \
+		../../../../Qt/include/QtPrintSupport/qprintpreviewwidget.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportversion.h \
 		include/alignment.h \
 		include/utility.h \
 		include/feature.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 qcustomplot.o: qcustomplot.cpp qcustomplot.h \
+		../../../../Qt/include/QtCore/QObject \
+		../../../../Qt/include/QtCore/qobject.h \
+		../../../../Qt/include/QtCore/qobjectdefs.h \
+		../../../../Qt/include/QtCore/qnamespace.h \
 		../../../../Qt/include/QtCore/qglobal.h \
 		../../../../Qt/include/QtCore/qconfig-bootstrapped.h \
 		../../../../Qt/include/QtCore/qconfig.h \
@@ -1899,10 +2880,6 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qmutex.h \
 		../../../../Qt/include/QtCore/qnumeric.h \
 		../../../../Qt/include/QtCore/qversiontagging.h \
-		../../../../Qt/include/QtCore/QObject \
-		../../../../Qt/include/QtCore/qobject.h \
-		../../../../Qt/include/QtCore/qobjectdefs.h \
-		../../../../Qt/include/QtCore/qnamespace.h \
 		../../../../Qt/include/QtCore/qobjectdefs_impl.h \
 		../../../../Qt/include/QtCore/qstring.h \
 		../../../../Qt/include/QtCore/qchar.h \
@@ -1931,45 +2908,43 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qshareddata.h \
 		../../../../Qt/include/QtCore/qhash.h \
 		../../../../Qt/include/QtCore/qsharedpointer_impl.h \
-		../../../../Qt/include/QtCore/QSharedPointer \
-		../../../../Qt/include/QtCore/QTimer \
-		../../../../Qt/include/QtCore/qtimer.h \
-		../../../../Qt/include/QtCore/qbasictimer.h \
-		../../../../Qt/include/QtGui/QPainter \
-		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtWidgets/QWidget \
+		../../../../Qt/include/QtWidgets/qwidget.h \
+		../../../../Qt/include/QtWidgets/qtwidgetsglobal.h \
 		../../../../Qt/include/QtGui/qtguiglobal.h \
 		../../../../Qt/include/QtGui/qtgui-config.h \
-		../../../../Qt/include/QtCore/qrect.h \
-		../../../../Qt/include/QtCore/qmargins.h \
-		../../../../Qt/include/QtCore/qsize.h \
-		../../../../Qt/include/QtCore/qpoint.h \
-		../../../../Qt/include/QtGui/qpixmap.h \
-		../../../../Qt/include/QtGui/qpaintdevice.h \
+		../../../../Qt/include/QtWidgets/qtwidgets-config.h \
 		../../../../Qt/include/QtGui/qwindowdefs.h \
 		../../../../Qt/include/QtGui/qwindowdefs_win.h \
+		../../../../Qt/include/QtCore/qmargins.h \
+		../../../../Qt/include/QtGui/qpaintdevice.h \
+		../../../../Qt/include/QtCore/qrect.h \
+		../../../../Qt/include/QtCore/qsize.h \
+		../../../../Qt/include/QtCore/qpoint.h \
+		../../../../Qt/include/QtGui/qpalette.h \
 		../../../../Qt/include/QtGui/qcolor.h \
 		../../../../Qt/include/QtGui/qrgb.h \
 		../../../../Qt/include/QtGui/qrgba64.h \
-		../../../../Qt/include/QtGui/qimage.h \
-		../../../../Qt/include/QtGui/qpixelformat.h \
-		../../../../Qt/include/QtGui/qtransform.h \
+		../../../../Qt/include/QtGui/qbrush.h \
+		../../../../Qt/include/QtCore/qvector.h \
 		../../../../Qt/include/QtGui/qmatrix.h \
 		../../../../Qt/include/QtGui/qpolygon.h \
-		../../../../Qt/include/QtCore/qvector.h \
 		../../../../Qt/include/QtGui/qregion.h \
 		../../../../Qt/include/QtCore/qdatastream.h \
 		../../../../Qt/include/QtCore/qiodevice.h \
 		../../../../Qt/include/QtCore/qline.h \
+		../../../../Qt/include/QtGui/qtransform.h \
 		../../../../Qt/include/QtGui/qpainterpath.h \
-		../../../../Qt/include/QtGui/qtextoption.h \
-		../../../../Qt/include/QtGui/qpen.h \
-		../../../../Qt/include/QtGui/qbrush.h \
-		../../../../Qt/include/QtGui/qfontinfo.h \
+		../../../../Qt/include/QtGui/qimage.h \
+		../../../../Qt/include/QtGui/qpixelformat.h \
+		../../../../Qt/include/QtGui/qpixmap.h \
 		../../../../Qt/include/QtGui/qfont.h \
 		../../../../Qt/include/QtGui/qfontmetrics.h \
-		../../../../Qt/include/QtGui/QPaintEvent \
-		../../../../Qt/include/QtGui/qevent.h \
+		../../../../Qt/include/QtGui/qfontinfo.h \
+		../../../../Qt/include/QtWidgets/qsizepolicy.h \
+		../../../../Qt/include/QtGui/qcursor.h \
 		../../../../Qt/include/QtGui/qkeysequence.h \
+		../../../../Qt/include/QtGui/qevent.h \
 		../../../../Qt/include/QtCore/qvariant.h \
 		../../../../Qt/include/QtCore/qmap.h \
 		../../../../Qt/include/QtCore/qdebug.h \
@@ -1983,8 +2958,12 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qfiledevice.h \
 		../../../../Qt/include/QtGui/qvector2d.h \
 		../../../../Qt/include/QtGui/qtouchdevice.h \
+		../../../../Qt/include/QtGui/QPainter \
+		../../../../Qt/include/QtGui/qpainter.h \
+		../../../../Qt/include/QtGui/qtextoption.h \
+		../../../../Qt/include/QtGui/qpen.h \
+		../../../../Qt/include/QtGui/QPaintEvent \
 		../../../../Qt/include/QtGui/QMouseEvent \
-		../../../../Qt/include/QtGui/QWheelEvent \
 		../../../../Qt/include/QtGui/QPixmap \
 		../../../../Qt/include/QtCore/QVector \
 		../../../../Qt/include/QtCore/QString \
@@ -1993,46 +2972,23 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/QMultiMap \
 		../../../../Qt/include/QtCore/QFlags \
 		../../../../Qt/include/QtCore/QDebug \
+		../../../../Qt/include/QtGui/QVector2D \
 		../../../../Qt/include/QtCore/QStack \
 		../../../../Qt/include/QtCore/qstack.h \
 		../../../../Qt/include/QtCore/QCache \
 		../../../../Qt/include/QtCore/qcache.h \
 		../../../../Qt/include/QtCore/QMargins \
 		../../../../Qt/include/QtCore/qmath.h \
-		../../../../Qt/include/QtGui/QOpenGLContext \
-		../../../../Qt/include/QtGui/qopenglcontext.h \
-		../../../../Qt/include/QtCore/QScopedPointer \
-		../../../../Qt/include/QtGui/QSurfaceFormat \
-		../../../../Qt/include/QtGui/qsurfaceformat.h \
-		../../../../Qt/include/QtGui/qopengl.h \
-		../../../../Qt/include/QtCore/qt_windows.h \
-		../../../../Qt/include/QtGui/qopengles2ext.h \
-		../../../../Qt/include/QtGui/qopenglext.h \
-		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
-		../../../../Qt/include/QtGui/QOpenGLFramebufferObject \
-		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
-		../../../../Qt/include/QtGui/QOffscreenSurface \
-		../../../../Qt/include/QtGui/qoffscreensurface.h \
-		../../../../Qt/include/QtGui/qsurface.h \
-		../../../../Qt/include/QtGui/QWindow \
-		../../../../Qt/include/QtGui/qwindow.h \
-		../../../../Qt/include/QtCore/QEvent \
-		../../../../Qt/include/QtCore/QRect \
-		../../../../Qt/include/QtGui/qicon.h \
-		../../../../Qt/include/QtGui/qcursor.h \
-		../../../../Qt/include/QtOpenGL/QGLPixelBuffer \
-		../../../../Qt/include/QtOpenGL/qglpixelbuffer.h \
-		../../../../Qt/include/QtOpenGL/qgl.h \
-		../../../../Qt/include/QtWidgets/qwidget.h \
-		../../../../Qt/include/QtWidgets/qtwidgetsglobal.h \
-		../../../../Qt/include/QtWidgets/qtwidgets-config.h \
-		../../../../Qt/include/QtGui/qpalette.h \
-		../../../../Qt/include/QtWidgets/qsizepolicy.h \
-		../../../../Qt/include/QtGui/qpaintengine.h \
-		../../../../Qt/include/QtOpenGL/qglcolormap.h \
-		../../../../Qt/include/QtOpenGL/qtopenglglobal.h \
+		../../../../Qt/include/QtPrintSupport/QPrinter \
+		../../../../Qt/include/QtPrintSupport/qprinter.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
+		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
+		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
+		../../../../Qt/include/QtGui/qpagelayout.h \
+		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtPrintSupport/QPrintEngine \
+		../../../../Qt/include/QtPrintSupport/qprintengine.h \
 		../../../../Qt/include/QtCore/QtNumeric \
-		../../../../Qt/include/QtWidgets/QWidget \
 		../../../../Qt/include/QtPrintSupport/QtPrintSupport \
 		../../../../Qt/include/QtPrintSupport/QtPrintSupportDepends \
 		../../../../Qt/include/QtCore/QtCore \
@@ -2048,6 +3004,7 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qanimationgroup.h \
 		../../../../Qt/include/QtCore/qarraydataops.h \
 		../../../../Qt/include/QtCore/qarraydatapointer.h \
+		../../../../Qt/include/QtCore/qbasictimer.h \
 		../../../../Qt/include/QtCore/qbitarray.h \
 		../../../../Qt/include/QtCore/qbuffer.h \
 		../../../../Qt/include/QtCore/qbytearraymatcher.h \
@@ -2124,6 +3081,7 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qstringlistmodel.h \
 		../../../../Qt/include/QtCore/qsystemsemaphore.h \
 		../../../../Qt/include/QtCore/qtemporarydir.h \
+		../../../../Qt/include/QtCore/QScopedPointer \
 		../../../../Qt/include/QtCore/qtemporaryfile.h \
 		../../../../Qt/include/QtCore/qtextboundaryfinder.h \
 		../../../../Qt/include/QtCore/qtextcodec.h \
@@ -2131,6 +3089,7 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtCore/qthreadpool.h \
 		../../../../Qt/include/QtCore/qthreadstorage.h \
 		../../../../Qt/include/QtCore/qtimeline.h \
+		../../../../Qt/include/QtCore/qtimer.h \
 		../../../../Qt/include/QtCore/qtimezone.h \
 		../../../../Qt/include/QtCore/qtranslator.h \
 		../../../../Qt/include/QtCore/quuid.h \
@@ -2153,6 +3112,12 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtGui/qaccessibleobject.h \
 		../../../../Qt/include/QtGui/qaccessibleplugin.h \
 		../../../../Qt/include/QtGui/qbackingstore.h \
+		../../../../Qt/include/QtGui/qwindow.h \
+		../../../../Qt/include/QtCore/QEvent \
+		../../../../Qt/include/QtCore/QRect \
+		../../../../Qt/include/QtGui/qsurface.h \
+		../../../../Qt/include/QtGui/qsurfaceformat.h \
+		../../../../Qt/include/QtGui/qicon.h \
 		../../../../Qt/include/QtGui/qbitmap.h \
 		../../../../Qt/include/QtGui/qclipboard.h \
 		../../../../Qt/include/QtGui/qdesktopservices.h \
@@ -2172,10 +3137,19 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtGui/qvector4d.h \
 		../../../../Qt/include/QtGui/qquaternion.h \
 		../../../../Qt/include/QtGui/qmovie.h \
+		../../../../Qt/include/QtGui/qoffscreensurface.h \
+		../../../../Qt/include/QtGui/qopengl.h \
+		../../../../Qt/include/QtCore/qt_windows.h \
+		../../../../Qt/include/QtGui/qopengles2ext.h \
+		../../../../Qt/include/QtGui/qopenglext.h \
 		../../../../Qt/include/QtGui/qopenglbuffer.h \
+		../../../../Qt/include/QtGui/qopenglcontext.h \
+		../../../../Qt/include/QtGui/QSurfaceFormat \
+		../../../../Qt/include/QtGui/qopenglversionfunctions.h \
 		../../../../Qt/include/QtGui/qopengldebug.h \
 		../../../../Qt/include/QtGui/qopenglextrafunctions.h \
 		../../../../Qt/include/QtGui/qopenglfunctions.h \
+		../../../../Qt/include/QtGui/qopenglframebufferobject.h \
 		../../../../Qt/include/QtGui/qopenglpaintdevice.h \
 		../../../../Qt/include/QtGui/qopenglpixeltransferoptions.h \
 		../../../../Qt/include/QtCore/QSharedDataPointer \
@@ -2189,11 +3163,11 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtGui/qopenglwindow.h \
 		../../../../Qt/include/QtGui/QPaintDeviceWindow \
 		../../../../Qt/include/QtGui/qpaintdevicewindow.h \
+		../../../../Qt/include/QtGui/QWindow \
 		../../../../Qt/include/QtGui/QPaintDevice \
+		../../../../Qt/include/QtGui/QOpenGLContext \
 		../../../../Qt/include/QtGui/QImage \
-		../../../../Qt/include/QtGui/qpagedpaintdevice.h \
-		../../../../Qt/include/QtGui/qpagelayout.h \
-		../../../../Qt/include/QtGui/qpagesize.h \
+		../../../../Qt/include/QtGui/qpaintengine.h \
 		../../../../Qt/include/QtGui/qpdfwriter.h \
 		../../../../Qt/include/QtGui/qpicture.h \
 		../../../../Qt/include/QtGui/qpictureformatplugin.h \
@@ -2350,13 +3324,9 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtWidgets/qwidgetaction.h \
 		../../../../Qt/include/QtWidgets/qwizard.h \
 		../../../../Qt/include/QtWidgets/qtwidgetsversion.h \
-		../../../../Qt/include/QtPrintSupport/qtprintsupportglobal.h \
-		../../../../Qt/include/QtPrintSupport/qtprintsupport-config.h \
 		../../../../Qt/include/QtPrintSupport/qabstractprintdialog.h \
 		../../../../Qt/include/QtPrintSupport/qpagesetupdialog.h \
 		../../../../Qt/include/QtPrintSupport/qprintdialog.h \
-		../../../../Qt/include/QtPrintSupport/qprintengine.h \
-		../../../../Qt/include/QtPrintSupport/qprinter.h \
 		../../../../Qt/include/QtPrintSupport/qprinterinfo.h \
 		../../../../Qt/include/QtCore/QPair \
 		../../../../Qt/include/QtPrintSupport/qprintpreviewdialog.h \
@@ -2364,13 +3334,19 @@ qcustomplot.o: qcustomplot.cpp qcustomplot.h \
 		../../../../Qt/include/QtPrintSupport/qtprintsupportversion.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qcustomplot.o qcustomplot.cpp
 
-alignment.o: lib/alignment.cpp 
+alignment.o: lib/alignment.cpp include/alignment.h \
+		include/utility.h \
+		include/feature.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o alignment.o lib/alignment.cpp
 
-feature.o: lib/feature.cpp 
+feature.o: lib/feature.cpp include/feature.h \
+		include/utility.h \
+		include/alignment.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o feature.o lib/feature.cpp
 
-utility.o: lib/utility.cpp 
+utility.o: lib/utility.cpp include/utility.h \
+		include/alignment.h \
+		include/feature.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utility.o lib/utility.cpp
 
 test-v6-qvector_plugin_import.o: /home/alennex/project/2017_project/qt/test-v6-qvector/test-v6-qvector_plugin_import.cpp 

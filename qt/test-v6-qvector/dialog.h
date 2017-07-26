@@ -92,5 +92,6 @@ class MyWidget : public QWidget{
           void do_plot_histogram();
           void do_alignment();
           void do_feature_extraction();
+          void his_mean_stnd(QVector<double>, double&, double&);
 };
 

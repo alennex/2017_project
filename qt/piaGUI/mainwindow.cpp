@@ -232,7 +232,7 @@ void MyWidget::progress(){
           }
 
           qDebug() << "open image done.";
-
+     
           for(int i=0; i<defImg.size(); ++i){
                if(!defImg[i].data || !refImg[i].data){
                     image_check_switch = false;
@@ -539,12 +539,13 @@ void MyWidget::do_plot_histogram(){
 
      QString name;
      double min_x = 100000.0, max_x = 0.0;
+     double max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
      int sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
 
      double mean_y  = 0.0, stnd_y  = 0.0;
      double mean_y0 = 0.0, stnd_y0 = 0.0;
      double mean_y1 = 0.0, stnd_y1 = 0.0;
-     int bin = 20, interval = 0.0;
+     int bin = 30, interval = 0.0;
 
      QString text;
      QVector<QCustomPlot *> hist, hist2;
@@ -580,7 +581,7 @@ void MyWidget::do_plot_histogram(){
           }
 
 
-          for(int j=0.5*interval; j<(max_x+1); j=j+interval){
+          for(int j=0.5*interval; j<(max_x + interval); j=j+interval){
 
                x.push_back((double)j);
                y.push_back(0.0);
@@ -621,26 +622,44 @@ void MyWidget::do_plot_histogram(){
                
                if(y1[j] == 0) y1[j] = 0;
                else y1[j] = y1[j]/(double)sum_y1;
+          
           }
+
+          for(int j=0; j<x.size(); ++j){
+               max_y = (max_y > y[j])?(max_y):(y[j]);
+               max_y0 = (max_y0 > y0[j])?(max_y0):(y0[j]);
+               max_y1 = (max_y1 > y1[j])?(max_y1):(y1[j]);
+
+          }
+          qDebug() << "x[j]" << x;
+          qDebug() << "y[j]" << y;
+          qDebug() << "y0[j]" << y0;
+          qDebug() << "y1[j]" << y1; 
 
           // ===============================================
           qDebug() << "max/min = "<< min_x << max_x;
 
           hist.push_back(new QCustomPlot(this));
-          hist[i]->addGraph(); 
           hist[i]->legend->setVisible(true);
           hist[i]->legend->setFont(QFont("Helvetica", 9));
 
           hist[i]->resize(800,240);
-          hist[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
+          hist[i]->addGraph();
+          hist[i]->graph(0)->setName("Patch");
+          hist[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,140,70,200),2.5),QBrush(Qt::white),4));
           hist[i]->graph(0)->setData(x,y);
-          
-          hist[i]->xAxis->setLabel("Feature Value");
-          hist[i]->yAxis->setLabel("Num");
 
-          //hist[i]->xAxis->setRange(0, 1.5);
-          //hist[i]->yAxis->setRange(0, 1.2);
+          QCPBars *bar1 = new QCPBars(hist[i]->xAxis,hist[i]->yAxis);
+          bar1->setData(x,y);
+          bar1->setWidth((double)interval);
+          bar1->setPen(Qt::NoPen);
+          bar1->setBrush(QColor(10,140,70,160));
+
+          hist[i]->xAxis->setLabel("Feature Value");
+          hist[i]->yAxis->setLabel("Density");
+
+          hist[i]->xAxis->setRange(0, 1.1*max_x);
+          hist[i]->yAxis->setRange(0, 1.1*max_y);
 
           text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean_y,stnd_y);
           QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
@@ -665,23 +684,34 @@ void MyWidget::do_plot_histogram(){
 
           hist2[i]->resize(800,240);
           hist2[i]->addGraph();
-          hist2[i]->graph(0)->setName("Type 0");
-          hist2[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist2[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
+          hist2[i]->graph(0)->setName("Type0");
+          hist2[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,250,10,200),2.5),QBrush(Qt::white),4));
           hist2[i]->graph(0)->setData(x,y0);
-          
+
+          QCPBars *bar2 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
+          bar2->setData(x,y0);
+          bar2->setWidth((double)interval);
+          bar2->setPen(Qt::NoPen);
+          bar2->setBrush(QColor(10,255,10,160));
+
           hist2[i]->addGraph();
-          hist2[i]->graph(1)->setName("Type 1");
-          hist2[i]->graph(1)->setPen(QPen(Qt::red));
-          hist2[i]->graph(1)->setBrush(QColor(255, 0, 0, 100));
+          hist2[i]->graph(1)->setName("Type1");
+          hist2[i]->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(255,10,10,200),2.5),QBrush(Qt::white),4));
           hist2[i]->graph(1)->setData(x,y1);
+
+          QCPBars *bar3 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
+          bar3->setData(x,y1);
+          bar3->setWidth((double)interval);
+          bar3->setPen(Qt::NoPen);
+          bar3->setBrush(QColor(255,10,10,160));
           
           hist2[i]->xAxis->setLabel("Feature Value");
-          hist2[i]->yAxis->setLabel("Num");
-          //hist2[i]->xAxis->setRange(0, 1.5);
-          //hist2[i]->yAxis->setRange(0, 1.2);
+          hist2[i]->yAxis->setLabel("Density");
+          hist2[i]->xAxis->setRange(0, 1.1*max_x);
+          double yLabelSize = (max_y0>max_y1)?(max_y0):(max_y1);
+          hist2[i]->yAxis->setRange(0, 1.1*yLabelSize);
 
-          text.sprintf("Mean(0) = %.2lf\nMaen(1) = %.2lf\nSTD(0) = %.2lf\nSTD(1) = %.2lf",mean_y0,mean_y1,stnd_y0,stnd_y1);
+          text.sprintf("Mean(Type0) = %.2lf\nMaen(Type1) = %.2lf\nSTD(Type0) = %.2lf\nSTD(Type1) = %.2lf",mean_y0,mean_y1,stnd_y0,stnd_y1);
           phaseTracerText = new QCPItemText(hist2[i]);
           phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
           phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
@@ -702,12 +732,12 @@ void MyWidget::do_plot_histogram(){
 
           max_x = 0.0;
           min_x = 0.0;
+          max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
           sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
           mean_y = 0.0, mean_y0 = 0.0, mean_y1 = 0.0;
           stnd_y = 0.0, stnd_y0 = 0.0, stnd_y1 = 0.0;
           
           sb_val += 100./feCal.size();
-          qDebug() << sb_val;
           SB_pbar->setValue(sb_val+1);
      }
      
@@ -741,85 +771,6 @@ void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
 
 
 /*
-
-void MyWidget::do_plot_histogram(){
-
-     QString name;
-     double min_x = 100000.0, max_x = 0.0, max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
-     double mean_y  = 0.0, stnd_y  = 0.0;
-     double mean_y0 = 0.0, stnd_y0 = 0.0;
-     double mean_y1 = 0.0, stnd_y1 = 0.0;
-     int bin = 20;
-
-     QString text;
-     QVector<QCustomPlot *> hist, hist2;
-     QVector<double> feCal_0, feCal_1;
-     QVector<double> x;
-     QVector<double> y, y0, y1;
-     
-     float sb_val = 0.0;
-     int type_col = 0;
-     bool ok = true;
-
-     for(int i=0; i<inFile[0].size(); ++i){
-          if(inFile[0].at(i).contains("Type",Qt::CaseSensitive)){
-               type_col = i;
-               break;
-          }
-     }
-
-     qDebug() << "Type_col = " << type_col;
-    
-     for(int i=0; i<feCal.size(); ++i){
-          
-          for(int j=0; j<feCal[i].size(); ++j){
-               max_x = (max_x > feCal[i][j])?(max_x):(feCal[i][j]);
-               min_x = (min_x < feCal[i][j])?(min_x):(feCal[i][j]);
-          }
-
-          for(int j=0; j<(max_x+1); ++j){
-               x.push_back((double)j);
-               y.push_back(0.0);
-               y0.push_back(0.0);
-               y1.push_back(0.0);
-          }
-     
-          for(int j=0; j<feCal[i].size(); ++j){
-
-               y[ feCal[i][j] ]++;
-
-               if(inFile[j+1].at(type_col).toInt(&ok,10) == 0){
-                    y0[ feCal[i][j] ]++;
-                    feCal_0.push_back(feCal[i][j]);
-               }
-               else if(inFile[j+1 ].at(type_col).toInt(&ok,10) == 1){
-                    y1[ feCal[i][j] ]++;
-                    feCal_1.push_back(feCal[i][j]);
-               }
-          }
-       
-          his_mean_stnd(feCal[i],  mean_y,  stnd_y );
-          his_mean_stnd(feCal_0, mean_y0, stnd_y0);
-          his_mean_stnd(feCal_1, mean_y1, stnd_y1);
-
-          for(int j=0; j<(max_x+1); ++j){
-               max_y  = (max_y  > y[j] )?(max_y ):(y[j] );
-               max_y0 = (max_y0 > y0[j])?(max_y0):(y0[j]);
-               max_y1 = (max_y1 > y1[j])?(max_y1):(y1[j]);
-          }
-
-          max_x = max_x + 0.0001;
-          max_y = max_y + 0.0001;
-          max_y0 = max_y0 + 0.0001;
-          max_y1 = max_y1 + 0.0001;
-
-          for(int j=0; j<(max_x+1); ++j){
-               x[j] = x[j]/max_x;
-               y[j] = y[j]/max_y;
-               y0[j] = y0[j]/max_y0;
-               y1[j] = y1[j]/max_y1;
-          }
-
           // ===============================================
           qDebug() << "max/min = "<< min_x << max_x;
 
@@ -829,6 +780,7 @@ void MyWidget::do_plot_histogram(){
           hist[i]->legend->setFont(QFont("Helvetica", 9));
 
           hist[i]->resize(800,240);
+          hist[i]->setName("patch");
           hist[i]->graph(0)->setPen(QPen(Qt::blue));
           hist[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
           hist[i]->graph(0)->setData(x,y);
@@ -836,8 +788,8 @@ void MyWidget::do_plot_histogram(){
           hist[i]->xAxis->setLabel("Feature Value");
           hist[i]->yAxis->setLabel("Num");
 
-          hist[i]->xAxis->setRange(0, 1.5);
-          hist[i]->yAxis->setRange(0, 1.2);
+          //hist[i]->xAxis->setRange(0, 1.5);
+          //hist[i]->yAxis->setRange(0, 1.2);
 
           text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean_y,stnd_y);
           QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
@@ -893,48 +845,5 @@ void MyWidget::do_plot_histogram(){
           hist2[i]->savePng(name,800,240,1);
           _PI_image2.push_back(QImage(name));
      
-          x.clear(); y.clear(); y0.clear(); y1.clear();
-          feCal_0.clear();
-          feCal_1.clear();
-
-          max_x = 0.0, max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
-          mean_y = 0.0, mean_y0 = 0.0, mean_y1 = 0.0;
-          stnd_y = 0.0, stnd_y0 = 0.0, stnd_y1 = 0.0;
-          
-          sb_val += 100./feCal.size();
-          qDebug() << sb_val;
-          SB_pbar->setValue(sb_val+1);
-     }
-     
-     qDebug() << "FE_index.size() = "   << FE_index.size();
-     qDebug() << "IA_index.size() = "   << IA_index.size();
-     qDebug() << "feCal.size() = "   << feCal.size();
-     qDebug() << "feCal[0].size() = "   << feCal[0].size();
-     qDebug() << "inFile.size() = "   << inFile.size();
-     qDebug() << "inFile[0].size() = "  << inFile[0].size();
-     SB_pbar->setValue(100);
-}
-
-void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
-     double sum = 0;
-     double sum_diff = 0;
-     
-     for(int i=0; i<inVal.size(); ++i){
-          sum += inVal[i];
-     }
-
-     mean = sum/(double)inVal.size();
-
-     for(int i=0; i<inVal.size(); ++i){
-          sum_diff += pow((inVal[i] - mean),2);
-     }
-     stnd = sqrt(sum_diff/(double)inVal.size()); 
-
-     qDebug() << "sum/mean/stnd = " << sum << mean << stnd;
-}
-
 
 */
-
-
-

@@ -559,7 +559,7 @@ void MyWidget::do_plot_histogram(){
                }
                else if(inFile[j+1 ].at(type_col).toInt(&ok,10) == 1){
                     y1[ feCal[i][j] ]++;
-                    feCal_1.push_back(feCal_1[i][j]);
+                    feCal_1.push_back(feCal[i][j]);
                }
           }
        
@@ -686,33 +686,25 @@ void MyWidget::do_plot_histogram(){
 
 }
 
-/*
-
 void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
      double sum = 0;
      double sum_diff = 0;
-     double _N = 0.0;
      
-     QVector<double> _inVal;
      for(int i=0; i<inVal.size(); ++i){
-          _inVal.push_back(inVal[i] * i);
-          N += inVal[i];
+          sum += inVal[i];
      }
 
-     for(int i=0; i<_inVal.size(); ++i){
-          sum += _inVal[i];
-     }
+     mean = sum/(double)inVal.size();
 
-     mean = sum/_N;
-
-     for(int i=0; i<_inVal.size(); ++i){
-          sum_diff += pow((_inVal[i] - mean),2);
+     for(int i=0; i<inVal.size(); ++i){
+          sum_diff += pow((inVal[i] - mean),2);
      }
-     stnd = sqrt(sum_diff/(double)_inVal.size()); 
+     stnd = sqrt(sum_diff/(double)inVal.size()); 
+
      qDebug() << "sum/mean/stnd = " << sum << mean << stnd;
 }
 
 
 
 
-*/
+

@@ -8,7 +8,7 @@ QWidget(parent){
      FE_check_switch = false;
      ST_check_switch = true;
 
-     char name[20];
+     QString name;
 
      // ========= File Open
 
@@ -39,7 +39,8 @@ QWidget(parent){
      IA_line->setAlignment(Qt::AlignCenter);
 
      for(int i=0; i<AlignmentN; ++i){
-          sprintf(name, "Alignment-%d", i);
+          QString Aname = alignmentName(i);
+          name.sprintf("Alignment-%d(%s)",i,qPrintable(Aname));
           IA_combo->insertItem(i,name);
      }
     
@@ -55,7 +56,8 @@ QWidget(parent){
      QGridLayout* FE_layout = new QGridLayout(this);
 
      for(int i=0; i<FeatureN; ++i){
-          sprintf(name, "Feature-%d", i);
+          QString Fname = featureName(i);
+          name.sprintf("Feature-%d(%s)", i,qPrintable(Fname));
           FE_ch.push_back(new QCheckBox(name, this));
      }
 
@@ -64,7 +66,7 @@ QWidget(parent){
      }
 
      for(int i=0; i<FeatureN; ++i){
-          FE_layout->addWidget(FE_ch.at(i), (i/4) ,(i%4));
+          FE_layout->addWidget(FE_ch.at(i), (i/2) ,(i%2));
      }
 
      FeatureExtraction->setLayout(FE_layout);
@@ -95,6 +97,7 @@ QWidget(parent){
      QVBoxLayout* LR_layout = new QVBoxLayout(this);
 
      LR_list = new QListWidget(this);
+     LR_list->setIconSize(QSize(300,200));
      connect(LR_list, SIGNAL(itemPressed(QListWidgetItem*)),this, SLOT(previewImg()));
 
      LR_layout->addWidget(LR_list);
@@ -108,12 +111,12 @@ QWidget(parent){
      PI_label = new QLabel(this);
      PI_label2 = new QLabel(this);
 
-     QImage PI_image = QImage(800,240,QImage::Format_RGB888);
-     PI_label->resize(800,240);
+     QImage PI_image = QImage(640,240,QImage::Format_RGB888);
+     PI_label->resize(640,240);
      PI_label->setPixmap(QPixmap::fromImage(PI_image));
 
-     QImage PI_image2 = QImage(800,240,QImage::Format_RGB888);
-     PI_label2->resize(800,240);
+     QImage PI_image2 = QImage(640,240,QImage::Format_RGB888);
+     PI_label2->resize(640,240);
      PI_label2->setPixmap(QPixmap::fromImage(PI_image2));
 
      PI_layout->addWidget(PI_label);
@@ -126,10 +129,9 @@ QWidget(parent){
      mainLayout->addWidget(ImageAlignment,0,1);
      mainLayout->addWidget(FeatureExtraction,0,2);
      mainLayout->addWidget(StartButton,0,3);
-     mainLayout->addWidget(ListResult,2,0);
-     mainLayout->addWidget(PreviewImage,2,1,2,3);
+     mainLayout->addWidget(ListResult,2,0,1,2);
+     mainLayout->addWidget(PreviewImage,2,2,1,2);
      setLayout(mainLayout);
-
 }
 
 void MyWidget::previewImg(){
@@ -139,11 +141,13 @@ void MyWidget::previewImg(){
 }
 
 void MyWidget::build_list(){
-     char name[20];
+     QString name;
 
      for(int i=0; i<FE_index.size(); ++i){
-          sprintf(name, "Feature-%d", FE_index[i]);
-          LR_list->insertItem(i,tr(name));
+          QString fname = featureName(FE_index[i]);
+          name.sprintf("(%d,%d,%d)Feature-%d(%s)", overArea[i*3],overArea[i*3+1],overArea[i*3+2], 
+               FE_index[i],qPrintable(fname));
+          LR_list->insertItem(i,name);
      }
 }
 
@@ -170,7 +174,7 @@ void MyWidget::IA_check(int combo_index){
 
      IA_index.clear();
      qDebug() << "combo_index = " << combo_index;
-     line.sprintf("Alignment-%d",combo_index);
+     line.sprintf("Calibration-%d",combo_index);
      IA_line->setText(line);
      
      IA_index.push_back(combo_index);
@@ -241,6 +245,9 @@ void MyWidget::progress(){
                     exit(-1);
                }
           }
+
+          defName.clear();
+          refName.clear();
      }
 
      qDebug() << "image_check_switch = "<< image_check_switch;
@@ -249,7 +256,7 @@ void MyWidget::progress(){
      if(image_check_switch && ST_check_switch){
           qDebug() << "tag-0-(ImPro)";
 
-          ST_state->setText("Alignment ...");
+          ST_state->setText("Calibration ...");
           do_alignment();
 
           QVector<double> _feCal;
@@ -257,21 +264,23 @@ void MyWidget::progress(){
                _feCal.push_back(0.0);
           for(int i=0; i<FE_index.size(); ++i)
                feCal.push_back(_feCal);
+          _feCal.clear();
 
           qDebug() << "tag-1-(ImPro)";          
           ST_state->setText("Feature Extraction ...");
           do_feature_extraction();
 
           qDebug() << "tag-2-(ImPro)";
-          ST_state->setText("Build List ...");
-          build_list();
-
-          qDebug() << "tag-3-(ImPro)";
           ST_state->setText("Output csv ...");
           writefile();
 
+          qDebug() << "tag-3-(ImPro)";
           ST_state->setText("Ploting ...");
           do_plot_histogram();
+
+
+          ST_state->setText("Build List ...");
+          build_list();
       
           ST_state->setText("Finish ...");
           ST_check_switch = false;
@@ -347,6 +356,7 @@ void MyWidget::writefile(){
           }
           sb_val += 100./inFile.size();
           SB_pbar->setValue(sb_val+1);
+          qDebug() << i <<  outFile[i];
      }   
 
      for(int i=0; i<outFile.size(); ++i){
@@ -357,6 +367,7 @@ void MyWidget::writefile(){
      }
 
      file.close();
+     outFile.clear();
 }
 
 void MyWidget::do_alignment(){
@@ -460,6 +471,55 @@ void MyWidget::do_alignment(){
      }
 }
 
+QString MyWidget::alignmentName(int index){
+     QString name;
+
+     switch(index){
+          case 0:
+               name.sprintf("alignECC_Translation");
+               break;
+          case 1:
+               name.sprintf("alignECC_Euclidean");
+               break;
+          case 2:
+               name.sprintf("alignECC_Affine");
+               break;
+          case 3:
+               name.sprintf("alignECC_Homography");
+               break;
+          case 4:
+               name.sprintf("alignDCT");
+               break;
+          case 5:
+               name.sprintf("alignDFT");
+               break;
+          case 6:
+               name.sprintf("histogramEqualization");
+               break;
+          case 7:
+               name.sprintf("threshOtsu");
+               break;
+          case 8:
+               name.sprintf("threshBinary");
+               break;
+          case 9:
+               name.sprintf("threshBinaryINV");
+               break;
+          case 10:
+               name.sprintf("threshTrunc");
+               break;
+          case 11:
+               name.sprintf("threshToZero");
+               break;
+          case 12:
+               name.sprintf("threshToZeroINV");
+               break;
+          default:
+               break;
+     }
+     return name;
+}
+
 void MyWidget::do_feature_extraction(){
      float  sb_val = 0.0;
      float sb_step = 100./FE_index.size()*defImg.size();
@@ -513,6 +573,7 @@ void MyWidget::do_feature_extraction(){
                          sb_val += sb_step;
                          SB_pbar->setValue(sb_val+1);
                     }
+                    break;
                case 6:
                     for(int j=0; j<defImg.size(); ++j){
                          Feature feI(defImg[j], refImg[j]);
@@ -533,6 +594,42 @@ void MyWidget::do_feature_extraction(){
                     break;
           }
      }
+     defImg.clear();
+     refImg.clear();
+}
+
+QString MyWidget::featureName(int index){
+     QString name;
+
+          switch(index){
+               case 0:
+                    name.sprintf("diffGlobalMean");
+                    break;
+               case 1:
+                    name.sprintf("diffPixelsCount");
+                    break;
+               case 2:
+                    name.sprintf("getPSNR");
+                    break;
+               case 3:
+                    name.sprintf("localmeanSSE");
+                    break;
+               case 4:
+                    name.sprintf("localmeanSAE");
+                    break;
+               case 5:
+                    name.sprintf("maxNumBlackPixelsInBlock");
+                    break;
+               case 6:
+                    name.sprintf("maxNumBlackPixelsInBlock");
+                    break;
+               case 7:
+                    name.sprintf("maxNumDiffPixelsInBlock");
+                    break;
+               default:
+                    break;
+          }
+     return name;
 }
 
 void MyWidget::do_plot_histogram(){
@@ -540,11 +637,14 @@ void MyWidget::do_plot_histogram(){
      QString name;
      double min_x = 100000.0, max_x = 0.0;
      double max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
-     int sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
+     double sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
 
      double mean_y  = 0.0, stnd_y  = 0.0;
      double mean_y0 = 0.0, stnd_y0 = 0.0;
      double mean_y1 = 0.0, stnd_y1 = 0.0;
+     QVector<double> overlap(4,0.0);
+
+
      int bin = 30, interval = 0.0;
 
      QString text;
@@ -575,6 +675,8 @@ void MyWidget::do_plot_histogram(){
 
           if((max_x - min_x) == 0){
                interval = 1;
+               qDebug() << "error: interval = 1";
+               exit(-1);
           }
           else{
                interval = (max_x - min_x)/bin;
@@ -582,7 +684,6 @@ void MyWidget::do_plot_histogram(){
 
 
           for(int j=0.5*interval; j<(max_x + interval); j=j+interval){
-
                x.push_back((double)j);
                y.push_back(0.0);
                y0.push_back(0.0);
@@ -611,17 +712,24 @@ void MyWidget::do_plot_histogram(){
                sum_y  += y[j];
                sum_y0 += y0[j];
                sum_y1 += y1[j];
+               if(y0[j]>0&&y1[j]>0){
+                    overlap[3] += (y0[j]<y1[j])?(y0[j]):(y1[j]);
+               }
           }
+
+          overlap[0] = 100.0*overlap[3]/(sum_y0 +sum_y1);
+          overlap[1] = 100.0*overlap[3]/sum_y0;
+          overlap[2] = 100.0*overlap[3]/sum_y1;
 
           for(int j=0; j<x.size(); ++j){
                if(y[j] == 0) y[j] = 0;
-               else y[j] = y[j]/(double)sum_y;
+               else y[j] = y[j]/sum_y;
 
                if(y0[j] == 0) y0[j] = 0;
-               else y0[j] = y0[j]/(double)sum_y0;
+               else y0[j] = y0[j]/sum_y0;
                
                if(y1[j] == 0) y1[j] = 0;
-               else y1[j] = y1[j]/(double)sum_y1;
+               else y1[j] = y1[j]/sum_y1;
           
           }
 
@@ -643,7 +751,7 @@ void MyWidget::do_plot_histogram(){
           hist[i]->legend->setVisible(true);
           hist[i]->legend->setFont(QFont("Helvetica", 9));
 
-          hist[i]->resize(800,240);
+          hist[i]->resize(640,240);
           hist[i]->addGraph();
           hist[i]->graph(0)->setName("Patch");
           hist[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,140,70,200),2.5),QBrush(Qt::white),4));
@@ -674,7 +782,7 @@ void MyWidget::do_plot_histogram(){
           hist[i]->replot();
  
           name.sprintf("Feature-%d.png",FE_index[i]);
-          hist[i]->savePng(name,800,240,1);
+          hist[i]->savePng(name,640,240,1);
           _PI_image.push_back(QImage(name));
           // ===============================================
 
@@ -682,7 +790,7 @@ void MyWidget::do_plot_histogram(){
           hist2[i]->legend->setVisible(true);
           hist2[i]->legend->setFont(QFont("Helvetica", 9));
 
-          hist2[i]->resize(800,240);
+          hist2[i]->resize(640,240);
           hist2[i]->addGraph();
           hist2[i]->graph(0)->setName("Type0");
           hist2[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,250,10,200),2.5),QBrush(Qt::white),4));
@@ -711,7 +819,8 @@ void MyWidget::do_plot_histogram(){
           double yLabelSize = (max_y0>max_y1)?(max_y0):(max_y1);
           hist2[i]->yAxis->setRange(0, 1.1*yLabelSize);
 
-          text.sprintf("Mean(Type0) = %.2lf\nMaen(Type1) = %.2lf\nSTD(Type0) = %.2lf\nSTD(Type1) = %.2lf",mean_y0,mean_y1,stnd_y0,stnd_y1);
+          text.sprintf("Mean(Type0) = %.2lf\nMaen(Type1) = %.2lf\nSTD(Type0) = %.2lf\nSTD(Type1) = %.2lf\nOverlapping(Type0+1) = %.2lf%%\nOverlapping(Type0) = %.2lf%%\nOverlapping(Type1) = %.2lf%%",
+               mean_y0,mean_y1,stnd_y0,stnd_y1,overlap[0],overlap[1],overlap[2]);
           phaseTracerText = new QCPItemText(hist2[i]);
           phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
           phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
@@ -723,12 +832,18 @@ void MyWidget::do_plot_histogram(){
 
           hist2[i]->replot();
           name.sprintf("Feature2-%d.png",FE_index[i]);
-          hist2[i]->savePng(name,800,240,1);
+          hist2[i]->savePng(name,640,240,1);
           _PI_image2.push_back(QImage(name));
      
           x.clear(); y.clear(); y0.clear(); y1.clear();
           feCal_0.clear();
           feCal_1.clear();
+
+          overArea.push_back(overlap[0]);
+          overArea.push_back(overlap[1]);
+          overArea.push_back(overlap[2]);
+          for(int j=0; j<overlap.size(); ++j)
+               overlap[j] = 0.0;
 
           max_x = 0.0;
           min_x = 0.0;
@@ -736,6 +851,7 @@ void MyWidget::do_plot_histogram(){
           sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
           mean_y = 0.0, mean_y0 = 0.0, mean_y1 = 0.0;
           stnd_y = 0.0, stnd_y0 = 0.0, stnd_y1 = 0.0;
+         
           
           sb_val += 100./feCal.size();
           SB_pbar->setValue(sb_val+1);
@@ -768,82 +884,3 @@ void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
      qDebug() << "sum/mean/stnd = " << sum << mean << stnd;
 }
 
-
-
-/*
-          // ===============================================
-          qDebug() << "max/min = "<< min_x << max_x;
-
-          hist.push_back(new QCustomPlot(this));
-          hist[i]->addGraph(); 
-          hist[i]->legend->setVisible(true);
-          hist[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist[i]->resize(800,240);
-          hist[i]->setName("patch");
-          hist[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
-          hist[i]->graph(0)->setData(x,y);
-          
-          hist[i]->xAxis->setLabel("Feature Value");
-          hist[i]->yAxis->setLabel("Num");
-
-          //hist[i]->xAxis->setRange(0, 1.5);
-          //hist[i]->yAxis->setRange(0, 1.2);
-
-          text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean_y,stnd_y);
-          QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist[i]->replot();
- 
-          name.sprintf("Feature-%d.png",FE_index[i]);
-          hist[i]->savePng(name,800,240,1);
-          _PI_image.push_back(QImage(name));
-          // ===============================================
-
-          hist2.push_back(new QCustomPlot(this));
-          hist2[i]->legend->setVisible(true);
-          hist2[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist2[i]->resize(800,240);
-          hist2[i]->addGraph();
-          hist2[i]->graph(0)->setName("Type 0");
-          hist2[i]->graph(0)->setPen(QPen(Qt::blue));
-          hist2[i]->graph(0)->setBrush(QColor(0, 0, 255, 100));
-          hist2[i]->graph(0)->setData(x,y0);
-          
-          hist2[i]->addGraph();
-          hist2[i]->graph(1)->setName("Type 1");
-          hist2[i]->graph(1)->setPen(QPen(Qt::red));
-          hist2[i]->graph(1)->setBrush(QColor(255, 0, 0, 100));
-          hist2[i]->graph(1)->setData(x,y1);
-          
-          hist2[i]->xAxis->setLabel("Feature Value");
-          hist2[i]->yAxis->setLabel("Num");
-          hist2[i]->xAxis->setRange(0, 1.5);
-          hist2[i]->yAxis->setRange(0, 1.2);
-
-          text.sprintf("Mean(0) = %.2lf\nMaen(1) = %.2lf\nSTD(0) = %.2lf\nSTD(1) = %.2lf",mean_y0,mean_y1,stnd_y0,stnd_y1);
-          phaseTracerText = new QCPItemText(hist2[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist2[i]->replot();
-          name.sprintf("Feature2-%d.png",FE_index[i]);
-          hist2[i]->savePng(name,800,240,1);
-          _PI_image2.push_back(QImage(name));
-     
-
-*/

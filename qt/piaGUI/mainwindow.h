@@ -67,6 +67,7 @@ class MyWidget : public QWidget{
 
           QVector<int> IA_index;
           QVector<int> FE_index;
+          QVector<int> overArea;
           QVector<Mat> defImg;
           QVector<Mat> refImg;
           QVector<QVector<double>> feCal;
@@ -93,5 +94,8 @@ class MyWidget : public QWidget{
           void do_alignment();
           void do_feature_extraction();
           void his_mean_stnd(QVector<double>, double&, double&);
+          QString alignmentName(int);
+          QString featureName(int);
+
 };
 

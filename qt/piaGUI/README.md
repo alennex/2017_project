@@ -1,7 +1,11 @@
 
 /* Patch Image Analysist */
 
-Versions: V1.0
+Versions: V2.0
+Update: 1. Feature Extraction Area add scroll bar.
+	2. Feature Extraction Area add all selection icon.
+	3. solved the bad_alloc problem.
+
 
 Q:how to install?
 Linux system:

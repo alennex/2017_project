@@ -21,6 +21,9 @@
 #include <QtCore/QVector>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
+#include <QtCore/QDate>
+#include <QtCore/QTime>
+//#pragmaexecution_character_set("utf-8")
 #include "qcustomplot.h"
 
 #include "include/alignment.h"
@@ -57,6 +60,7 @@ class MyWidget : public QWidget{
 
           QLineEdit* IA_line;
           QComboBox* IA_combo;
+          QCheckBox* allSelect;
           
           QVector<QCheckBox*> FE_ch;
           QListWidget* LR_list;
@@ -83,6 +87,7 @@ class MyWidget : public QWidget{
           void showfile();
           void readfile(QString);
           void writefile();
+          void allSelectFunc();
 
           void IA_check(int);
           void FE_check();

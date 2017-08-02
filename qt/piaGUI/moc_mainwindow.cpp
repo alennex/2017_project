@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MyWidget_t {
-    QByteArrayData data[19];
-    char stringdata0[218];
+    QByteArrayData data[16];
+    char stringdata0[195];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,32 +33,28 @@ struct qt_meta_stringdata_MyWidget_t {
 static const qt_meta_stringdata_MyWidget_t qt_meta_stringdata_MyWidget = {
     {
 QT_MOC_LITERAL(0, 0, 8), // "MyWidget"
-QT_MOC_LITERAL(1, 9, 8), // "showfile"
-QT_MOC_LITERAL(2, 18, 0), // ""
-QT_MOC_LITERAL(3, 19, 8), // "readfile"
-QT_MOC_LITERAL(4, 28, 9), // "writefile"
-QT_MOC_LITERAL(5, 38, 13), // "allSelectFunc"
-QT_MOC_LITERAL(6, 52, 8), // "IA_check"
-QT_MOC_LITERAL(7, 61, 8), // "FE_check"
-QT_MOC_LITERAL(8, 70, 10), // "build_list"
-QT_MOC_LITERAL(9, 81, 8), // "progress"
-QT_MOC_LITERAL(10, 90, 10), // "previewImg"
-QT_MOC_LITERAL(11, 101, 17), // "do_plot_histogram"
-QT_MOC_LITERAL(12, 119, 12), // "do_alignment"
-QT_MOC_LITERAL(13, 132, 21), // "do_feature_extraction"
-QT_MOC_LITERAL(14, 154, 13), // "his_mean_stnd"
-QT_MOC_LITERAL(15, 168, 15), // "QVector<double>"
-QT_MOC_LITERAL(16, 184, 7), // "double&"
-QT_MOC_LITERAL(17, 192, 13), // "alignmentName"
-QT_MOC_LITERAL(18, 206, 11) // "featureName"
+QT_MOC_LITERAL(1, 9, 16), // "overAreaCal_Type"
+QT_MOC_LITERAL(2, 26, 0), // ""
+QT_MOC_LITERAL(3, 27, 15), // "QVector<double>"
+QT_MOC_LITERAL(4, 43, 16), // "QVector<double>&"
+QT_MOC_LITERAL(5, 60, 11), // "overAreaCal"
+QT_MOC_LITERAL(6, 72, 8), // "openfile"
+QT_MOC_LITERAL(7, 81, 8), // "readfile"
+QT_MOC_LITERAL(8, 90, 9), // "writefile"
+QT_MOC_LITERAL(9, 100, 13), // "allSelectFunc"
+QT_MOC_LITERAL(10, 114, 8), // "IA_check"
+QT_MOC_LITERAL(11, 123, 8), // "progress"
+QT_MOC_LITERAL(12, 132, 14), // "do_calibration"
+QT_MOC_LITERAL(13, 147, 21), // "do_feature_extraction"
+QT_MOC_LITERAL(14, 169, 13), // "alignmentName"
+QT_MOC_LITERAL(15, 183, 11) // "featureName"
 
     },
-    "MyWidget\0showfile\0\0readfile\0writefile\0"
-    "allSelectFunc\0IA_check\0FE_check\0"
-    "build_list\0progress\0previewImg\0"
-    "do_plot_histogram\0do_alignment\0"
-    "do_feature_extraction\0his_mean_stnd\0"
-    "QVector<double>\0double&\0alignmentName\0"
+    "MyWidget\0overAreaCal_Type\0\0QVector<double>\0"
+    "QVector<double>&\0overAreaCal\0openfile\0"
+    "readfile\0writefile\0allSelectFunc\0"
+    "IA_check\0progress\0do_calibration\0"
+    "do_feature_extraction\0alignmentName\0"
     "featureName"
 };
 #undef QT_MOC_LITERAL
@@ -69,7 +65,7 @@ static const uint qt_meta_data_MyWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      15,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -77,23 +73,22 @@ static const uint qt_meta_data_MyWidget[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   89,    2, 0x09 /* Protected */,
-       3,    1,   90,    2, 0x09 /* Protected */,
-       4,    0,   93,    2, 0x09 /* Protected */,
-       5,    0,   94,    2, 0x09 /* Protected */,
-       6,    1,   95,    2, 0x09 /* Protected */,
-       7,    0,   98,    2, 0x09 /* Protected */,
-       8,    0,   99,    2, 0x09 /* Protected */,
-       9,    0,  100,    2, 0x09 /* Protected */,
-      10,    0,  101,    2, 0x09 /* Protected */,
-      11,    0,  102,    2, 0x09 /* Protected */,
-      12,    0,  103,    2, 0x09 /* Protected */,
-      13,    0,  104,    2, 0x09 /* Protected */,
-      14,    3,  105,    2, 0x09 /* Protected */,
-      17,    1,  112,    2, 0x09 /* Protected */,
-      18,    1,  115,    2, 0x09 /* Protected */,
+       1,    3,   74,    2, 0x09 /* Protected */,
+       5,    0,   81,    2, 0x09 /* Protected */,
+       6,    0,   82,    2, 0x09 /* Protected */,
+       7,    1,   83,    2, 0x09 /* Protected */,
+       8,    0,   86,    2, 0x09 /* Protected */,
+       9,    0,   87,    2, 0x09 /* Protected */,
+      10,    1,   88,    2, 0x09 /* Protected */,
+      11,    0,   91,    2, 0x09 /* Protected */,
+      12,    0,   92,    2, 0x09 /* Protected */,
+      13,    0,   93,    2, 0x09 /* Protected */,
+      14,    1,   94,    2, 0x09 /* Protected */,
+      15,    1,   97,    2, 0x09 /* Protected */,
 
  // slots: parameters
+    QMetaType::Void, 0x80000000 | 3, 0x80000000 | 3, 0x80000000 | 4,    2,    2,    2,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,    2,
     QMetaType::Void,
@@ -102,11 +97,6 @@ static const uint qt_meta_data_MyWidget[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 15, 0x80000000 | 16, 0x80000000 | 16,    2,    2,    2,
     QMetaType::QString, QMetaType::Int,    2,
     QMetaType::QString, QMetaType::Int,    2,
 
@@ -119,31 +109,29 @@ void MyWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         MyWidget *_t = static_cast<MyWidget *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->showfile(); break;
-        case 1: _t->readfile((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 2: _t->writefile(); break;
-        case 3: _t->allSelectFunc(); break;
-        case 4: _t->IA_check((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 5: _t->FE_check(); break;
-        case 6: _t->build_list(); break;
+        case 0: _t->overAreaCal_Type((*reinterpret_cast< QVector<double>(*)>(_a[1])),(*reinterpret_cast< QVector<double>(*)>(_a[2])),(*reinterpret_cast< QVector<double>(*)>(_a[3]))); break;
+        case 1: _t->overAreaCal(); break;
+        case 2: _t->openfile(); break;
+        case 3: _t->readfile((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 4: _t->writefile(); break;
+        case 5: _t->allSelectFunc(); break;
+        case 6: _t->IA_check((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 7: _t->progress(); break;
-        case 8: _t->previewImg(); break;
-        case 9: _t->do_plot_histogram(); break;
-        case 10: _t->do_alignment(); break;
-        case 11: _t->do_feature_extraction(); break;
-        case 12: _t->his_mean_stnd((*reinterpret_cast< QVector<double>(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2])),(*reinterpret_cast< double(*)>(_a[3]))); break;
-        case 13: { QString _r = _t->alignmentName((*reinterpret_cast< int(*)>(_a[1])));
+        case 8: _t->do_calibration(); break;
+        case 9: _t->do_feature_extraction(); break;
+        case 10: { QString _r = _t->alignmentName((*reinterpret_cast< int(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 14: { QString _r = _t->featureName((*reinterpret_cast< int(*)>(_a[1])));
+        case 11: { QString _r = _t->featureName((*reinterpret_cast< int(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<int*>(_a[0]) = -1; break;
-        case 12:
+        case 0:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 1:
             case 0:
                 *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QVector<double> >(); break;
             }
@@ -177,13 +165,13 @@ int MyWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 15)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 12;
     }
     return _id;
 }

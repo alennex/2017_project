@@ -29,8 +29,8 @@
 #include "include/alignment.h"
 #include "include/feature.h"
 
-//#include <opencv2/core/core.hpp>
-//#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
 
 #define FeatureN 8
 #define AlignmentN 13
@@ -52,55 +52,41 @@ class MyWidget : public QWidget{
      signals:
      
      protected:
-          QLineEdit* FO_line;
           QLineEdit* ST_state;
           QProgressBar* SB_pbar;
           QVector<QStringList> inFile;
           QVector<QStringList> outFile;
 
-          QLineEdit* IA_line;
           QComboBox* IA_combo;
-          QCheckBox* allSelect;
-          
-          QVector<QCheckBox*> FE_ch;
-          QListWidget* LR_list;
-          QLabel* PI_label;
-          QLabel* PI_label2;
-          QVector<QImage> _PI_image;
-          QVector<QImage> _PI_image2;
 
           QVector<int> IA_index;
           QVector<int> FE_index;
-          QVector<int> overArea;
           QVector<Mat> defImg;
           QVector<Mat> refImg;
           QVector<QVector<double>> feCal;
+          QVector<QVector<double>> feOverArea;
           
-          QCustomPlot * preImg;
-
           bool FO_check_switch;
           bool IA_check_switch;
           bool FE_check_switch;
           bool ST_check_switch;
 
      protected slots:
-          void showfile();
+          void overAreaCal_Type(QVector<double>, QVector<double>, QVector<double>&);
+          void overAreaCal();
+          
+          void openfile();
           void readfile(QString);
           void writefile();
           void allSelectFunc();
 
           void IA_check(int);
-          void FE_check();
-          void build_list();
           void progress();
-          void previewImg();
 
-          void do_plot_histogram();
-          void do_alignment();
+          void do_calibration();
           void do_feature_extraction();
-          void his_mean_stnd(QVector<double>, double&, double&);
+
           QString alignmentName(int);
           QString featureName(int);
-
 };
 

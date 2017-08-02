@@ -2,248 +2,133 @@
 
 MyWidget::MyWidget(QWidget *parent):
 QWidget(parent){
-     
+
      FO_check_switch = false;
      IA_check_switch = false;
-     FE_check_switch = false;
      ST_check_switch = true;
 
      QString name;
-
      // ========= File Open
+     QPushButton* FO_bu = new QPushButton("Open CSV",this);     
+     connect(FO_bu, SIGNAL(clicked()), this,SLOT(openfile()));
 
-     QGroupBox* FileOpen = new QGroupBox("Step 1: File Open", this);
-     QVBoxLayout* FO_layout = new QVBoxLayout(this);
-    
-     QPushButton* FO_bu = new QPushButton("open CSV file",this);
-     FO_line =  new QLineEdit(this);
-
-     FO_line->setReadOnly(true);
-     
-     connect(FO_bu, SIGNAL(clicked()), this,SLOT(showfile()));
-     
-     FO_layout->addWidget(FO_bu);
-     FO_layout->addWidget(FO_line);
-     FileOpen->setLayout(FO_layout);
-
-     // ========= Image Alignment
-
-     QGroupBox* ImageAlignment = new QGroupBox("Step 2: Image Alignment", this);
-     QVBoxLayout* IA_layout = new QVBoxLayout(this);
-
-     IA_line = new QLineEdit(this);
+     // ========= Image Calibration
      IA_combo = new QComboBox(this);
-
      IA_combo->setEditable(false);
-     IA_line->setReadOnly(true);
-     IA_line->setAlignment(Qt::AlignCenter);
-
      for(int i=0; i<AlignmentN; ++i){
           QString Aname = alignmentName(i);
-          name.sprintf("Alignment-%d(%s)",i,qPrintable(Aname));
+          name.sprintf("Cal-%03d(%s)",i,qPrintable(Aname));
           IA_combo->insertItem(i,name);
-     }
-    
+     }     
      connect(IA_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(IA_check(int)));
 
-     IA_layout->addWidget(IA_combo);
-     IA_layout->addWidget(IA_line);
-     ImageAlignment->setLayout(IA_layout);
-
-     // ========= Feature Extraction
-
-     QGroupBox* FeatureExtraction = new QGroupBox("Step 3: Feature Extraction", this);
-     QGridLayout* FE_layout = new QGridLayout(this);
-
-     QListWidget* FE_list = new QListWidget(this);
-     QVector<QListWidgetItem*> FE_item;
-     allSelect = new QCheckBox("All", this);
-
-     for(int i=0; i<FeatureN; ++i){
-          QString Fname = featureName(i);
-          name.sprintf("Feature-%d(%s)", i,qPrintable(Fname));      
-          FE_ch.push_back(new QCheckBox(name, this));
-     }
-
-     connect(allSelect, SIGNAL(stateChanged(int)), this, SLOT(allSelectFunc()));
-     
-     for(int i=0; i<FeatureN; ++i){
-          connect(FE_ch[i], SIGNAL(stateChanged(int)), this, SLOT(FE_check()));
-     }
-
-     for(int i=0; i<(1+FE_ch.size()); ++i){
-          
-          FE_item.push_back(new QListWidgetItem);
-          FE_list->addItem(FE_item[i]);
-          
-          if(i==0)
-               FE_list->setItemWidget(FE_item[i], allSelect);
-          else          
-               FE_list->setItemWidget(FE_item[i], FE_ch[i-1]);
-     }
-
-     FE_layout->addWidget(FE_list);
-     FeatureExtraction->setLayout(FE_layout);
-
-     // ========= Start Button
-
-     QGroupBox* StartButton = new QGroupBox("Step 4: Start", this);
-     QVBoxLayout* SB_layout = new QVBoxLayout(this);
-    
-     ST_state = new QLineEdit(this);
+     // ========== start button
      QPushButton* SB_bu = new QPushButton("Start",this);
-     SB_pbar = new QProgressBar(this);
-     
+     connect(SB_bu, SIGNAL(clicked()), this,SLOT(progress()));
+
+     // ========== State win
+     ST_state = new QLineEdit(this);
      ST_state->setReadOnly(true);
      ST_state->setAlignment(Qt::AlignCenter);
+
+     // ========== progress bar
+     SB_pbar = new QProgressBar(this);     
      SB_pbar->setRange(0,100);
      SB_pbar->setValue(0);
-     connect(SB_bu, SIGNAL(clicked()), this,SLOT(progress()));
-     
-     SB_layout->addWidget(SB_bu);
-     SB_layout->addWidget(SB_pbar);
-     SB_layout->addWidget(ST_state);
-     StartButton->setLayout(SB_layout);
 
-     // ========= List Widget of result
+     // ========== scrollBar Area
+     QScrollArea *scrollArea = new QScrollArea(this);
+     QWidget *client = new QWidget(this);      
+     QGridLayout *t_Layout = new QGridLayout(this);
+     QGridLayout *t_in_Layout = new QGridLayout(this);
+     QGroupBox *t_grpbox = new QGroupBox("testing", this);
+     QLabel *t_line = new QLabel(this);
 
-     QGroupBox* ListResult = new QGroupBox("List of Result", this);
-     QVBoxLayout* LR_layout = new QVBoxLayout(this);
+     t_line->setText("testing");
 
-     LR_list = new QListWidget(this);
-     //LR_list->setIconSize(QSize(300,200));
-     connect(LR_list, SIGNAL(itemPressed(QListWidgetItem*)),this, SLOT(previewImg()));
+     QProgressBar *t_pbar = new QProgressBar(this);     
+     t_pbar->setRange(0,100);
+     t_pbar->setValue(0);
 
-     LR_layout->addWidget(LR_list);
-     ListResult->setLayout(LR_layout);
+     t_in_Layout->addWidget(t_line,0,0);
+     t_in_Layout->addWidget(t_pbar,0,1);
+     t_grpbox->setLayout(t_in_Layout);
+     t_Layout->addWidget(t_grpbox,0,0);
+     client->setLayout(t_Layout);
 
-     // ========== preview Img
+     scrollArea->setWidget(client);
 
-     QGroupBox* PreviewImage = new QGroupBox("Preview Image", this);
-     QVBoxLayout* PI_layout = new QVBoxLayout(this);
-
-     PI_label = new QLabel(this);
-     PI_label2 = new QLabel(this);
-
-     QImage PI_image = QImage(640,240,QImage::Format_RGB888);
-     PI_label->resize(640,240);
-     PI_label->setPixmap(QPixmap::fromImage(PI_image));
-
-     QImage PI_image2 = QImage(640,240,QImage::Format_RGB888);
-     PI_label2->resize(640,240);
-     PI_label2->setPixmap(QPixmap::fromImage(PI_image2));
-
-     PI_layout->addWidget(PI_label);
-     PI_layout->addWidget(PI_label2);
-     PreviewImage->setLayout(PI_layout);
 
      // ========= Mainmenu Layout
      QGridLayout *mainLayout = new QGridLayout(this);
-     mainLayout->addWidget(FileOpen,0,0);
-     mainLayout->addWidget(ImageAlignment,0,1);
-     mainLayout->addWidget(FeatureExtraction,0,2);
-     mainLayout->addWidget(StartButton,0,3);
-     mainLayout->addWidget(ListResult,2,0,1,1);
-     mainLayout->addWidget(PreviewImage,2,1,1,3);
+     mainLayout->addWidget(FO_bu,0,0,Qt::AlignTop);
+     mainLayout->addWidget(IA_combo,0,1,Qt::AlignTop);
+     mainLayout->addWidget(SB_bu,0,2,Qt::AlignTop);
+     mainLayout->addWidget(ST_state,0,3,Qt::AlignTop);
+     mainLayout->addWidget(SB_pbar,0,4,Qt::AlignTop);
+     mainLayout->addWidget(scrollArea,1,0);
      setLayout(mainLayout);
 }
 
-void MyWidget::previewImg(){
-     int currentRow = LR_list->currentRow();
-     PI_label->setPixmap(QPixmap::fromImage(_PI_image[currentRow]));
-     PI_label2->setPixmap(QPixmap::fromImage(_PI_image2[currentRow]));
-}
-
-void MyWidget::build_list(){
-     QString name;
-
-     for(int i=0; i<FE_index.size(); ++i){
-          QString fname = featureName(FE_index[i]);
-          name.sprintf("(%d,%d,%d)Feature-%d(%s)", overArea[i*3],overArea[i*3+1],overArea[i*3+2], 
-               FE_index[i],qPrintable(fname));
-          LR_list->insertItem(i,name);
-     }
-}
-
-void MyWidget::allSelectFunc(){
-     bool check = false;
-     FE_index.clear();
-
-     if(allSelect->isChecked()){
-          for(int i=0; i<FeatureN; ++i){
-               check = true;
-               FE_index.push_back(i);
-               FE_ch[i]->setChecked(true);
-          }
-     }
-
-     else{
-          for(int i=0; i<FeatureN; ++i)
-               FE_ch[i]->setChecked(false);
-     }
+void MyWidget::openfile(){
+     qDebug()<<"---- openfile";
      
-     if(check)
-          FE_check_switch = true;
-     else
-          FE_check_switch = false;     
-     //qDebug() << "FE_index"<<FE_index;
+     QFileDialog myFileDialog(this);
+     QString fileName = myFileDialog.getOpenFileName(this, "Open File",
+               QDir::currentPath (), "CSV Files (*.csv *.xls)");
+
+     if (fileName.isEmpty()) {
+          ST_state->setText ("No csv file...");
+     } else {
+          FO_check_switch = true;
+          readfile(fileName);
+     }
 }
 
-void MyWidget::FE_check(){
-     bool check = false;
-     FE_index.clear();
+void MyWidget::readfile(QString _fileName){
+     QFile file(_fileName);
 
-     for(int i=0; i<FeatureN; ++i){
-          if(FE_ch[i]->isChecked()){
-               check = true;
-               FE_index.push_back(i);
-          }
+     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+          qDebug() << "Cannot open file for reading: " << qPrintable(file.errorString());
+          exit(0);
      }
 
-     if(check)
-          FE_check_switch = true;
-     else
-          FE_check_switch = false;
-     //qDebug() << "FE_index"<<FE_index;
-     
+     QStringList list;
+     list.clear();
+     QTextStream in(&file);
+
+     while(!in.atEnd()){
+          QString fileLine = in.readLine();
+          list = fileLine.split(",", QString::SkipEmptyParts);
+          inFile.push_back(list);
+     }
+     file.close();
 }
 
 void MyWidget::IA_check(int combo_index){     
-     QString line;
-
+     qDebug() << "combo_index = " << combo_index;     
      IA_index.clear();
-     //qDebug() << "combo_index = " << combo_index;
-     line.sprintf("Calibration-%d",combo_index);
-     IA_line->setText(line);
-     
      IA_index.push_back(combo_index);
      IA_check_switch = true;
 }
 
 void MyWidget::progress(){
-
      bool image_check_switch = true;
      
      // check
      if(!FO_check_switch){
-          //qDebug()<<"error: csv file not open.";
+          qDebug()<<"error: csv file not open.";
           ST_state->setText("error: csv file not open.");
      }
      else if (!IA_check_switch){
-          //qDebug()<<"error: Alignment not select.";
+          qDebug()<<"error: Alignment not select.";
           ST_state->setText("error: Alignment not select.");
-     }
-     else if (!FE_check_switch){
-          //qDebug()<<"error: Extraction not select.";
-          ST_state->setText("error: Extraction not select.");
      }
      else if(ST_check_switch){
 
-          // image open
           float  sb_val = 0.0;
-          int defCol = 0;
-          int refCol = 0;
 
+          int defCol = 0, refCol = 0;
           for(int i=0; i<inFile[0].size(); ++i){
                if(inFile[0].at(i).contains("DEF",Qt::CaseSensitive))
                     defCol = i;
@@ -251,8 +136,8 @@ void MyWidget::progress(){
                     refCol = i;
           }
 
-          //qDebug() << "defCol = " << defCol;
-          //qDebug() << "refCol = " << refCol;
+          qDebug() << "defCol = " << defCol;
+          qDebug() << "refCol = " << refCol;
 
           QString defName, refName;
           ST_state->setText("Open Image ...");
@@ -272,33 +157,25 @@ void MyWidget::progress(){
                
                sb_val += 100./inFile.size();
                SB_pbar->setValue(sb_val+1);
-               //qDebug() << refName << defName;
+               qDebug() << refName << defName;
           }
-
-          //qDebug() << "open image done.";
      
           for(int i=0; i<defImg.size(); ++i){
                if(!defImg[i].data || !refImg[i].data){
                     image_check_switch = false;
                     ST_state->setText("error: image is not open ...");
-                    //qDebug() << "error: NO."<< i << " image is not open ...";
+                    qDebug() << "error: NO."<< i << " image is not open ...";
                     exit(-1);
                }
           }
-
-          defName.clear();
-          refName.clear();
      }
 
-     //qDebug() << "image_check_switch = "<< image_check_switch;
-     //qDebug() << "ST_check_switch = " << ST_check_switch;
-
      if(image_check_switch && ST_check_switch){
-          //qDebug() << "tag-0-(ImPro)";
+          qDebug() << "tag-0-(ImPro)";
 
           ST_state->setText("Calibration ...");
-          do_alignment();
-
+          do_calibration();
+     
           QVector<double> _feCal;
           for(int j=1; j<inFile.size(); ++j)
                _feCal.push_back(0.0);
@@ -306,63 +183,27 @@ void MyWidget::progress(){
                feCal.push_back(_feCal);
           _feCal.clear();
 
-          //qDebug() << "tag-1-(ImPro)";          
+          allSelectFunc();
+          qDebug() << "tag-1-(ImPro)";          
           ST_state->setText("Feature Extraction ...");
           do_feature_extraction();
 
-          //qDebug() << "tag-2-(ImPro)";
+          qDebug() << "tag-2-(ImPro)";
           ST_state->setText("Output csv ...");
           writefile();
 
-          //qDebug() << "tag-3-(ImPro)";
-          ST_state->setText("Ploting ...");
-          do_plot_histogram();
-
-
-          ST_state->setText("Build List ...");
-          build_list();
+          qDebug() << "tag-3-(ImPro)";
+          overAreaCal();
       
           ST_state->setText("Finish ...");
           ST_check_switch = false;
      }
 }
 
-void MyWidget::showfile(){
-     //qDebug()<<"---- showfile";
-     
-     QFileDialog myFileDialog(this);
-     QString fileName = myFileDialog.getOpenFileName(this, "Open File",
-               QDir::currentPath (), "CSV Files (*.csv *.xls)");
-
-     if (fileName.isEmpty()) {
-          FO_line->setText (myFileDialog.directory().absolutePath());
-     } else {
-          FO_line->setText (fileName);
-          FO_check_switch = true;
-          readfile(fileName);
-     }
-}
-
-void MyWidget::readfile(QString _fileName){
- 
-     QFile file(_fileName);
-
-     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-          //qDebug() << "Cannot open file for reading: " << qPrintable(file.errorString());
-          exit(0);
-     }
-
-     QStringList list;
-     
-     list.clear();
-     QTextStream in(&file);
-
-     while(!in.atEnd()){
-          QString fileLine = in.readLine();
-          list = fileLine.split(",", QString::SkipEmptyParts);
-          inFile.push_back(list);
-     }
-     file.close();
+void MyWidget::allSelectFunc(){
+     FE_index.clear();
+     for(int i=0; i<FeatureN; ++i)
+          FE_index.push_back(i);
 }
 
 void MyWidget::writefile(){
@@ -409,7 +250,7 @@ void MyWidget::writefile(){
           }
           sb_val += 100./inFile.size();
           SB_pbar->setValue(sb_val+1);
-          //qDebug() << i <<  outFile[i];
+          qDebug() << i <<  outFile[i];
      }   
 
      for(int i=0; i<outFile.size(); ++i){
@@ -423,7 +264,123 @@ void MyWidget::writefile(){
      outFile.clear();
 }
 
-void MyWidget::do_alignment(){
+void MyWidget::overAreaCal(){
+     QVector<QString> SpName;
+     QVector<int> SpIndex;
+     QVector<double> rst;
+
+     SpName.push_back("Type");
+     SpName.push_back("TEST");
+     SpName.push_back("SCANTESTID");
+     bool ok = true;
+
+     QVector<double> t0Value;
+     QVector<double> t1Value;
+
+     QVector<double> _feOverArea;
+     for(int i=0; i<3*SpName.size(); ++i)
+          _feOverArea.push_back(0.0);
+
+     for(int i=0; i<feCal.size(); ++i)
+         feOverArea.push_back(_feOverArea);
+
+     for(int i=0; i<SpName.size(); ++i){
+          if(i==0){
+               for(int j=0; j<inFile[0].size(); ++j){
+                    if(inFile[0].at(j).contains(SpName[0],Qt::CaseSensitive)){
+                         SpIndex.push_back(j);
+                         break;
+                    }
+                    qDebug() << "SpIndex" << SpIndex;
+               }
+
+               for(int j=0; j<feCal.size(); ++j){
+                    for(int k=0; k<feCal[0].size(); ++k){
+                         if(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 0){
+                              t0Value.push_back(feCal[j][k]);
+                         }
+                         if(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 1){
+                              t1Value.push_back(feCal[j][k]);
+                         }
+                    }
+                    overAreaCal_Type(t0Value, t1Value, rst);
+                    feOverArea[j][i*3+0] = rst[0];
+                    feOverArea[j][i*3+1] = rst[1];
+                    feOverArea[j][i*3+2] = rst[2];
+               }      
+          }
+          else{
+               
+               for(int j=0; j<inFile[0].size(); ++j){
+                    if(inFile[0].at(j).contains(SpName[0],Qt::CaseSensitive)){
+                         SpIndex.push_back(j);
+                    }
+               }
+               
+               for(int j=0; j<inFile[0].size(); ++j){
+                    if(inFile[0].at(j).contains(SpName[i],Qt::CaseSensitive)){
+                         SpIndex.push_back(j);
+                    }
+               }
+
+               for(int j=0; j<feCal.size(); ++j){
+                    for(int k=0; k<feCal[0].size(); ++k){
+                         if((inFile[k+1].at(SpIndex[i]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 0)){
+                              t0Value.push_back(feCal[j][k]);
+                         }
+                         if((inFile[k+1].at(SpIndex[i]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 1)){
+                              t1Value.push_back(feCal[j][k]);
+                         }
+                    }
+                    overAreaCal_Type(t0Value, t1Value, rst);
+                    feOverArea[j][i*3+0] = rst[0];
+                    feOverArea[j][i*3+1] = rst[1];
+                    feOverArea[j][i*3+2] = rst[2];
+               }    
+          }
+          t0Value.clear();
+          t1Value.clear();
+          SpIndex.clear();
+     }
+}
+
+void MyWidget::overAreaCal_Type(QVector<double> t0Value, QVector<double> t1Value, QVector<double>& rst){
+     rst.clear();
+     QVector<int> overArea;
+     QVector<int> t0Area;
+     QVector<int> t1Area;
+     QVector<int> sum(3,0);
+     double max = 0;
+
+     for(int i=0;i<t0Value.size(); ++i)
+          max = (max>t0Value[i])?max:t0Value[i];
+
+     for(int i=0;i<t1Value.size(); ++i)
+          max = (max>t1Value[i])?max:t1Value[i];
+
+     for(int i=0; i<max; ++i){
+          overArea.push_back(0); t0Area.push_back(0); t1Area.push_back(0);
+     }
+
+     for(int i=0; i<t0Value.size(); ++i)
+          t0Area[round(t0Value[i])]++;
+
+     for(int i=0; i<t1Value.size(); ++i)
+          t1Area[round(t1Value[i])]++;
+     
+     for(int i=0; i<max; ++i)
+          overArea[i] = (t0Area[i]<t1Area[i])?(t0Area[i]):(t1Area[i]);
+     
+     for(int i=0; i<max; ++i){
+          sum[0] += overArea[i]; sum[1] += t0Area[i]; sum[2] += t1Area[i];
+     }
+
+     rst.push_back(100.*(double)sum[0]/(double)sum[1]);
+     rst.push_back(100.*(double)sum[0]/(double)sum[2]);
+     rst.push_back(100.*(double)sum[0]/(double)(sum[1]+sum[2]-sum[0]));
+}
+
+void MyWidget::do_calibration(){
      float  sb_val = 0.0;
      float sb_step = 100./defImg.size();
      double thresh = 128;
@@ -576,7 +533,9 @@ QString MyWidget::alignmentName(int index){
 void MyWidget::do_feature_extraction(){
      float  sb_val = 0.0;
      float sb_step = 100./FE_index.size()*defImg.size();
+     
      Feature fe,feI(defImg[0],refImg[0]);
+     
      int color_gap = 3;
      int pool_size = 4;
      int thresh = 128;
@@ -685,494 +644,22 @@ QString MyWidget::featureName(int index){
      return name;
 }
 
-void MyWidget::do_plot_histogram(){
-
-     QString name;
-     QVector<double> overlap(4,0);
-
-     int bin = 30, interval = 0.0;
-
-     QVector<double> MaxMin(5,0);  // y, y0, y1, x, xmin
-     QVector<double> sum(3,0);     // y, y0, y1
-     QVector<double> mean(3,0);    // y, y0, y1
-     QVector<double> stnd(3,0);    // y, y0, y1
-
-     QString text;
-     QVector<QCustomPlot *> hist, hist2;
-     QVector<double> feCal_0, feCal_1;
-     QVector<double> x, y, y0, y1;
-     
-     float sb_val = 0.0;
-     int type_col = 0;
-     bool ok = true;
-
-     for(int i=0; i<inFile[0].size(); ++i){
-          if(inFile[0].at(i).contains("Type",Qt::CaseSensitive)){
-               type_col = i;
-               break;
-          }
-     }
-
-     qDebug() << "Type_col" << type_col;
-    
-     for(int i=0; i<feCal.size(); ++i){
-          
-          for(int j=0; j<feCal[i].size(); ++j){
-               MaxMin[3] = (MaxMin[3] > feCal[i][j])?(MaxMin[3]):(feCal[i][j]);
-               MaxMin[4] = (MaxMin[4] < feCal[i][j])?(MaxMin[4]):(feCal[i][j]);
-          }
-
-          qDebug() << "max/min" <<MaxMin[3]<<MaxMin[4];
-
-          interval = abs((MaxMin[3] - MaxMin[4])/bin) + 1;
-          
-          qDebug() << "interval" <<interval;
-          
-          for(int j=0; j<(MaxMin[3] + interval); j=j+interval){
-               x.push_back((double)j);
-               y.push_back(0.0);
-               y0.push_back(0.0);
-               y1.push_back(0.0);
-          }
-     
-          for(int j=0; j<feCal[i].size(); ++j){
-               
-               int buf = abs(feCal[i][j]/interval);
-               y[ buf ]++;
-
-               if(inFile[j+1].at(type_col).toInt(&ok,10) == 0){
-                    y0[ buf ]++;
-                    feCal_0.push_back(feCal[i][j]);
-               }
-               else if(inFile[j+1 ].at(type_col).toInt(&ok,10) == 1){
-                    y1[ buf ]++;
-                    feCal_1.push_back(feCal[i][j]);
-               }
-          }
-       
-          his_mean_stnd(feCal[i], mean[0], stnd[0]);
-          his_mean_stnd(feCal_0,  mean[1], stnd[1]);
-          his_mean_stnd(feCal_1,  mean[2], stnd[2]);
-
-          qDebug() <<"mean"<< mean;
-          qDebug() << "stnd"<< stnd;
-
-          for(int j=0; j<x.size(); ++j){
-               sum[0] += y[j];
-               sum[1] += y0[j];
-               sum[2] += y1[j];
-               if(y0[j]>0&&y1[j]>0){
-                    overlap[3] += (y0[j]<y1[j])?(y0[j]):(y1[j]);
-               }
-          }
-
-          overlap[0] = 100.0*overlap[3]/sum[0];
-          overlap[1] = 100.0*overlap[3]/sum[1];
-          overlap[2] = 100.0*overlap[3]/sum[2];
-
-          for(int j=0; j<x.size(); ++j){
-               if(y[j] == 0) y[j] = 0;
-               else y[j] = y[j]/sum[0];
-
-               if(y0[j] == 0) y0[j] = 0;
-               else y0[j] = y0[j]/sum[1];
-               
-               if(y1[j] == 0) y1[j] = 0;
-               else y1[j] = y1[j]/sum[2];
-          }
-
-          for(int j=0; j<x.size(); ++j){
-               MaxMin[0] = (MaxMin[0] > y[j])?(MaxMin[0]):(y[j]);
-               MaxMin[1] = (MaxMin[1] > y0[j])?(MaxMin[1]):(y0[j]);
-               MaxMin[2] = (MaxMin[2] > y1[j])?(MaxMin[2]):(y1[j]);
-          }
-
-          qDebug() << "x[j]" << x;
-          qDebug() << "y[j]" << y;
-          qDebug() << "y0[j]" << y0;
-          qDebug() << "y1[j]" << y1; 
-          qDebug() << "max/min = "<< MaxMin[3] << MaxMin[4];
-
-          // ===============================================
-          
-          hist.push_back(new QCustomPlot(this));
-          hist[i]->legend->setVisible(true);
-          hist[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist[i]->resize(640,240);
-          hist[i]->addGraph();
-          hist[i]->graph(0)->setName("Patch");
-          hist[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,140,70,200),2.5),QBrush(Qt::white),4));
-          hist[i]->graph(0)->setData(x,y);
-
-          QCPBars *bar1 = new QCPBars(hist[i]->xAxis,hist[i]->yAxis);
-          bar1->setData(x,y);
-          bar1->setWidth((double)interval);
-          bar1->setPen(Qt::NoPen);
-          bar1->setBrush(QColor(10,140,70,160));
-
-          hist[i]->xAxis->setLabel("Feature Value");
-          hist[i]->yAxis->setLabel("Density");
-
-          hist[i]->xAxis->setRange(0, 1.1*MaxMin[3]);
-          hist[i]->yAxis->setRange(0, 1.1*MaxMin[0]);
-
-          text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean[0],stnd[0]);
-          QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist[i]->replot();
- 
-          name.sprintf("Feature-%d.png",FE_index[i]);
-          hist[i]->savePng(name,640,240,1);
-          _PI_image.push_back(QImage(name));
-          // ===============================================
-
-          hist2.push_back(new QCustomPlot(this));
-          hist2[i]->legend->setVisible(true);
-          hist2[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist2[i]->resize(640,240);
-          hist2[i]->addGraph();
-          hist2[i]->graph(0)->setName("Type0");
-          hist2[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,250,10,200),2.5),QBrush(Qt::white),4));
-          hist2[i]->graph(0)->setData(x,y0);
-
-          QCPBars *bar2 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
-          bar2->setData(x,y0);
-          bar2->setWidth((double)interval);
-          bar2->setPen(Qt::NoPen);
-          bar2->setBrush(QColor(10,255,10,160));
-
-          hist2[i]->addGraph();
-          hist2[i]->graph(1)->setName("Type1");
-          hist2[i]->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(255,10,10,200),2.5),QBrush(Qt::white),4));
-          hist2[i]->graph(1)->setData(x,y1);
-
-          QCPBars *bar3 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
-          bar3->setData(x,y1);
-          bar3->setWidth((double)interval);
-          bar3->setPen(Qt::NoPen);
-          bar3->setBrush(QColor(255,10,10,160));
-          
-          hist2[i]->xAxis->setLabel("Feature Value");
-          hist2[i]->yAxis->setLabel("Density");
-          hist2[i]->xAxis->setRange(0, 1.1*MaxMin[3]);
-
-          double yLabelSize = (MaxMin[1]>MaxMin[2])?(MaxMin[1]):(MaxMin[2]);
-          hist2[i]->yAxis->setRange(0, 1.1*yLabelSize);
-
-          text.sprintf("Mean(Type0) = %.2lf\nMaen(Type1) = %.2lf\nSTD(Type0) = %.2lf\nSTD(Type1) = %.2lf\nOverlapping(Type0+1) = %.2lf%%\nOverlapping(Type0) = %.2lf%%\nOverlapping(Type1) = %.2lf%%",
-               mean[1],mean[2],stnd[1],stnd[2],overlap[0],overlap[1],overlap[2]);
-          phaseTracerText = new QCPItemText(hist2[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist2[i]->replot();
-          name.sprintf("Feature2-%d.png",FE_index[i]);
-          hist2[i]->savePng(name,640,240,1);
-          _PI_image2.push_back(QImage(name));
-     
-          x.clear(); y.clear(); y0.clear(); y1.clear();
-          feCal_0.clear();
-          feCal_1.clear();
-
-          overArea.push_back(overlap[0]);
-          overArea.push_back(overlap[1]);
-          overArea.push_back(overlap[2]);
-          
-          for(int j=0; j<overlap.size(); ++j)
-               overlap[j] = 0.0;
-
-          for(int j=0;j<MaxMin.size(); ++j)
-               MaxMin[j] = 0.0;
-          MaxMin[MaxMin.size()-1] = 100000.0;
-
-          for(int j=0;j<mean.size(); ++j){
-               sum[j] = 0.0;
-               mean[j] = 0.0;
-               stnd[j] = 0.0;
-          }
-
-          sb_val += 100./feCal.size();
-          SB_pbar->setValue(sb_val+1);
-     }
-     
-     //qDebug() << "FE_index.size() = "   << FE_index.size();
-     //qDebug() << "IA_index.size() = "   << IA_index.size();
-     //qDebug() << "feCal.size() = "   << feCal.size();
-     //qDebug() << "feCal[0].size() = "   << feCal[0].size();
-     //qDebug() << "inFile.size() = "   << inFile.size();
-     //qDebug() << "inFile[0].size() = "  << inFile[0].size();
-     SB_pbar->setValue(100);
-}
-
-void MyWidget::his_mean_stnd(QVector<double> inVal, double& mean, double& stnd){
-     double sum = 0;
-     double sum_diff = 0;
-     
-     for(int i=0; i<inVal.size(); ++i){
-          sum += inVal[i];
-     }
-
-     mean = sum/(double)inVal.size();
-
-     for(int i=0; i<inVal.size(); ++i){
-          sum_diff += pow((inVal[i] - mean),2);
-     }
-     stnd = sqrt(sum_diff/(double)inVal.size()); 
-
-     //qDebug() << "sum/mean/stnd = " << sum << mean << stnd;
-}
-
-
-
-/*
-
-void MyWidget::do_plot_histogram(){
-
-     QString name;
-     double min_x = 100000.0, max_x = 0.0;
-     double max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
-     double sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
-
-     double mean_y  = 0.0, stnd_y  = 0.0;
-     double mean_y0 = 0.0, stnd_y0 = 0.0;
-     double mean_y1 = 0.0, stnd_y1 = 0.0;
-     QVector<double> overlap(4,0.0);
-
-     int bin = 30, interval = 0.0;
-
-     QString text;
-     QVector<QCustomPlot *> hist, hist2;
-     QVector<double> feCal_0, feCal_1;
-     QVector<double> x;
-     QVector<double> y, y0, y1;
-     
-     float sb_val = 0.0;
-     int type_col = 0;
-     bool ok = true;
-
-     for(int i=0; i<inFile[0].size(); ++i){
-          if(inFile[0].at(i).contains("Type",Qt::CaseSensitive)){
-               type_col = i;
-               break;
-          }
-     }
-
-     //qDebug() << "Type_col = " << type_col;
-    
-     for(int i=0; i<feCal.size(); ++i){
-          
-          for(int j=0; j<feCal[i].size(); ++j){
-               max_x = (max_x > feCal[i][j])?(max_x):(feCal[i][j]);
-               min_x = (min_x < feCal[i][j])?(min_x):(feCal[i][j]);
-          }
-
-          if((max_x - min_x) == 0){
-               interval = 1;
-               //qDebug() << "error: interval = 1";
-               exit(-1);
-          }
-          else{
-               interval = (max_x - min_x)/bin;
-          }
-
-
-          for(int j=0.5*interval; j<(max_x + interval); j=j+interval){
-               x.push_back((double)j);
-               y.push_back(0.0);
-               y0.push_back(0.0);
-               y1.push_back(0.0);
-          }
-     
-          for(int j=0; j<feCal[i].size(); ++j){
-               int buf = abs(feCal[i][j]/interval);
-               y[ buf ]++;
-
-               if(inFile[j+1].at(type_col).toInt(&ok,10) == 0){
-                    y0[ buf ]++;
-                    feCal_0.push_back(feCal[i][j]);
-               }
-               else if(inFile[j+1 ].at(type_col).toInt(&ok,10) == 1){
-                    y1[ buf ]++;
-                    feCal_1.push_back(feCal[i][j]);
-               }
-          }
-       
-          his_mean_stnd(feCal[i],  mean_y,  stnd_y );
-          his_mean_stnd(feCal_0,   mean_y0, stnd_y0);
-          his_mean_stnd(feCal_1,   mean_y1, stnd_y1);
-
-          for(int j=0; j<x.size(); ++j){
-               sum_y  += y[j];
-               sum_y0 += y0[j];
-               sum_y1 += y1[j];
-               if(y0[j]>0&&y1[j]>0){
-                    overlap[3] += (y0[j]<y1[j])?(y0[j]):(y1[j]);
-               }
-          }
-
-          overlap[0] = 100.0*overlap[3]/(sum_y0 +sum_y1);
-          overlap[1] = 100.0*overlap[3]/sum_y0;
-          overlap[2] = 100.0*overlap[3]/sum_y1;
-
-          for(int j=0; j<x.size(); ++j){
-               if(y[j] == 0) y[j] = 0;
-               else y[j] = y[j]/sum_y;
-
-               if(y0[j] == 0) y0[j] = 0;
-               else y0[j] = y0[j]/sum_y0;
-               
-               if(y1[j] == 0) y1[j] = 0;
-               else y1[j] = y1[j]/sum_y1;
-          
-          }
-
-          for(int j=0; j<x.size(); ++j){
-               max_y = (max_y > y[j])?(max_y):(y[j]);
-               max_y0 = (max_y0 > y0[j])?(max_y0):(y0[j]);
-               max_y1 = (max_y1 > y1[j])?(max_y1):(y1[j]);
-
-          }
-          //qDebug() << "x[j]" << x;
-          //qDebug() << "y[j]" << y;
-          //qDebug() << "y0[j]" << y0;
-          //qDebug() << "y1[j]" << y1; 
-
-          // ===============================================
-          //qDebug() << "max/min = "<< min_x << max_x;
-
-          hist.push_back(new QCustomPlot(this));
-          hist[i]->legend->setVisible(true);
-          hist[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist[i]->resize(640,240);
-          hist[i]->addGraph();
-          hist[i]->graph(0)->setName("Patch");
-          hist[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,140,70,200),2.5),QBrush(Qt::white),4));
-          hist[i]->graph(0)->setData(x,y);
-
-          QCPBars *bar1 = new QCPBars(hist[i]->xAxis,hist[i]->yAxis);
-          bar1->setData(x,y);
-          bar1->setWidth((double)interval);
-          bar1->setPen(Qt::NoPen);
-          bar1->setBrush(QColor(10,140,70,160));
-
-          hist[i]->xAxis->setLabel("Feature Value");
-          hist[i]->yAxis->setLabel("Density");
-
-          hist[i]->xAxis->setRange(0, 1.1*max_x);
-          hist[i]->yAxis->setRange(0, 1.1*max_y);
-
-          text.sprintf("Mean = %.2lf\nSTD = %.2lf",mean_y,stnd_y);
-          QCPItemText *phaseTracerText = new QCPItemText(hist[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist[i]->replot();
- 
-          name.sprintf("Feature-%d.png",FE_index[i]);
-          hist[i]->savePng(name,640,240,1);
-          _PI_image.push_back(QImage(name));
-          // ===============================================
-
-          hist2.push_back(new QCustomPlot(this));
-          hist2[i]->legend->setVisible(true);
-          hist2[i]->legend->setFont(QFont("Helvetica", 9));
-
-          hist2[i]->resize(640,240);
-          hist2[i]->addGraph();
-          hist2[i]->graph(0)->setName("Type0");
-          hist2[i]->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(10,250,10,200),2.5),QBrush(Qt::white),4));
-          hist2[i]->graph(0)->setData(x,y0);
-
-          QCPBars *bar2 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
-          bar2->setData(x,y0);
-          bar2->setWidth((double)interval);
-          bar2->setPen(Qt::NoPen);
-          bar2->setBrush(QColor(10,255,10,160));
-
-          hist2[i]->addGraph();
-          hist2[i]->graph(1)->setName("Type1");
-          hist2[i]->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QPen(QColor(255,10,10,200),2.5),QBrush(Qt::white),4));
-          hist2[i]->graph(1)->setData(x,y1);
-
-          QCPBars *bar3 = new QCPBars(hist2[i]->xAxis,hist2[i]->yAxis);
-          bar3->setData(x,y1);
-          bar3->setWidth((double)interval);
-          bar3->setPen(Qt::NoPen);
-          bar3->setBrush(QColor(255,10,10,160));
-          
-          hist2[i]->xAxis->setLabel("Feature Value");
-          hist2[i]->yAxis->setLabel("Density");
-          hist2[i]->xAxis->setRange(0, 1.1*max_x);
-          double yLabelSize = (max_y0>max_y1)?(max_y0):(max_y1);
-          hist2[i]->yAxis->setRange(0, 1.1*yLabelSize);
-
-          text.sprintf("Mean(Type0) = %.2lf\nMaen(Type1) = %.2lf\nSTD(Type0) = %.2lf\nSTD(Type1) = %.2lf\nOverlapping(Type0+1) = %.2lf%%\nOverlapping(Type0) = %.2lf%%\nOverlapping(Type1) = %.2lf%%",
-               mean_y0,mean_y1,stnd_y0,stnd_y1,overlap[0],overlap[1],overlap[2]);
-          phaseTracerText = new QCPItemText(hist2[i]);
-          phaseTracerText->position->setType(QCPItemPosition::ptAxisRectRatio);
-          phaseTracerText->setPositionAlignment(Qt::AlignRight|Qt::AlignBottom);
-          phaseTracerText->position->setCoords(1.0, 0.95); // lower right corner of axis rect
-          phaseTracerText->setText(text);
-          phaseTracerText->setTextAlignment(Qt::AlignLeft);
-          phaseTracerText->setFont(QFont(font().family(), 9));
-          phaseTracerText->setPadding(QMargins(8, 0, 0, 0));
-
-          hist2[i]->replot();
-          name.sprintf("Feature2-%d.png",FE_index[i]);
-          hist2[i]->savePng(name,640,240,1);
-          _PI_image2.push_back(QImage(name));
-     
-          x.clear(); y.clear(); y0.clear(); y1.clear();
-          feCal_0.clear();
-          feCal_1.clear();
-
-          overArea.push_back(overlap[0]);
-          overArea.push_back(overlap[1]);
-          overArea.push_back(overlap[2]);
-          for(int j=0; j<overlap.size(); ++j)
-               overlap[j] = 0.0;
-
-          max_x = 0.0;
-          min_x = 0.0;
-          max_y = 0.0, max_y0 = 0.0, max_y1 = 0.0;
-          sum_y = 0.0, sum_y0 = 0.0, sum_y1 = 0.0;
-          mean_y = 0.0, mean_y0 = 0.0, mean_y1 = 0.0;
-          stnd_y = 0.0, stnd_y0 = 0.0, stnd_y1 = 0.0;
-         
-          
-          sb_val += 100./feCal.size();
-          SB_pbar->setValue(sb_val+1);
-     }
-     
-     //qDebug() << "FE_index.size() = "   << FE_index.size();
-     //qDebug() << "IA_index.size() = "   << IA_index.size();
-     //qDebug() << "feCal.size() = "   << feCal.size();
-     //qDebug() << "feCal[0].size() = "   << feCal[0].size();
-     //qDebug() << "inFile.size() = "   << inFile.size();
-     //qDebug() << "inFile[0].size() = "  << inFile[0].size();
-     SB_pbar->setValue(100);
-}
-
-
-
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

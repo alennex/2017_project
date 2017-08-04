@@ -56,6 +56,12 @@ class MyWidget : public QWidget{
           QProgressBar* SB_pbar;
           QVector<QStringList> inFile;
           QVector<QStringList> outFile;
+          QVector<QString> SpName;
+
+          QVector<QLabel*> infoLabel;
+          QVector<QProgressBar*> infoBar;
+          QVector<QGridLayout*> infoLayout;
+          QVector<QGroupBox*> infoGroup;
 
           QComboBox* IA_combo;
 
@@ -65,7 +71,8 @@ class MyWidget : public QWidget{
           QVector<Mat> refImg;
           QVector<QVector<double>> feCal;
           QVector<QVector<double>> feOverArea;
-          
+          QVector<QVector<QString>> feOverAreaSortFname;
+
           bool FO_check_switch;
           bool IA_check_switch;
           bool FE_check_switch;
@@ -74,7 +81,7 @@ class MyWidget : public QWidget{
      protected slots:
           void overAreaCal_Type(QVector<double>, QVector<double>, QVector<double>&);
           void overAreaCal();
-          
+
           void openfile();
           void readfile(QString);
           void writefile();
@@ -85,6 +92,8 @@ class MyWidget : public QWidget{
 
           void do_calibration();
           void do_feature_extraction();
+          void swap(double&, double&, QString&, QString&);
+          void selectMin();
 
           QString alignmentName(int);
           QString featureName(int);

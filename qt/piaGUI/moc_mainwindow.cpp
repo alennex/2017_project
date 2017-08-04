@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MyWidget_t {
-    QByteArrayData data[16];
-    char stringdata0[195];
+    QByteArrayData data[20];
+    char stringdata0[227];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -46,15 +46,20 @@ QT_MOC_LITERAL(10, 114, 8), // "IA_check"
 QT_MOC_LITERAL(11, 123, 8), // "progress"
 QT_MOC_LITERAL(12, 132, 14), // "do_calibration"
 QT_MOC_LITERAL(13, 147, 21), // "do_feature_extraction"
-QT_MOC_LITERAL(14, 169, 13), // "alignmentName"
-QT_MOC_LITERAL(15, 183, 11) // "featureName"
+QT_MOC_LITERAL(14, 169, 4), // "swap"
+QT_MOC_LITERAL(15, 174, 7), // "double&"
+QT_MOC_LITERAL(16, 182, 8), // "QString&"
+QT_MOC_LITERAL(17, 191, 9), // "selectMin"
+QT_MOC_LITERAL(18, 201, 13), // "alignmentName"
+QT_MOC_LITERAL(19, 215, 11) // "featureName"
 
     },
     "MyWidget\0overAreaCal_Type\0\0QVector<double>\0"
     "QVector<double>&\0overAreaCal\0openfile\0"
     "readfile\0writefile\0allSelectFunc\0"
     "IA_check\0progress\0do_calibration\0"
-    "do_feature_extraction\0alignmentName\0"
+    "do_feature_extraction\0swap\0double&\0"
+    "QString&\0selectMin\0alignmentName\0"
     "featureName"
 };
 #undef QT_MOC_LITERAL
@@ -65,7 +70,7 @@ static const uint qt_meta_data_MyWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      12,   14, // methods
+      14,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -73,18 +78,20 @@ static const uint qt_meta_data_MyWidget[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    3,   74,    2, 0x09 /* Protected */,
-       5,    0,   81,    2, 0x09 /* Protected */,
-       6,    0,   82,    2, 0x09 /* Protected */,
-       7,    1,   83,    2, 0x09 /* Protected */,
-       8,    0,   86,    2, 0x09 /* Protected */,
-       9,    0,   87,    2, 0x09 /* Protected */,
-      10,    1,   88,    2, 0x09 /* Protected */,
-      11,    0,   91,    2, 0x09 /* Protected */,
-      12,    0,   92,    2, 0x09 /* Protected */,
-      13,    0,   93,    2, 0x09 /* Protected */,
-      14,    1,   94,    2, 0x09 /* Protected */,
-      15,    1,   97,    2, 0x09 /* Protected */,
+       1,    3,   84,    2, 0x09 /* Protected */,
+       5,    0,   91,    2, 0x09 /* Protected */,
+       6,    0,   92,    2, 0x09 /* Protected */,
+       7,    1,   93,    2, 0x09 /* Protected */,
+       8,    0,   96,    2, 0x09 /* Protected */,
+       9,    0,   97,    2, 0x09 /* Protected */,
+      10,    1,   98,    2, 0x09 /* Protected */,
+      11,    0,  101,    2, 0x09 /* Protected */,
+      12,    0,  102,    2, 0x09 /* Protected */,
+      13,    0,  103,    2, 0x09 /* Protected */,
+      14,    4,  104,    2, 0x09 /* Protected */,
+      17,    0,  113,    2, 0x09 /* Protected */,
+      18,    1,  114,    2, 0x09 /* Protected */,
+      19,    1,  117,    2, 0x09 /* Protected */,
 
  // slots: parameters
     QMetaType::Void, 0x80000000 | 3, 0x80000000 | 3, 0x80000000 | 4,    2,    2,    2,
@@ -96,6 +103,8 @@ static const uint qt_meta_data_MyWidget[] = {
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 15, 0x80000000 | 15, 0x80000000 | 16, 0x80000000 | 16,    2,    2,    2,    2,
     QMetaType::Void,
     QMetaType::QString, QMetaType::Int,    2,
     QMetaType::QString, QMetaType::Int,    2,
@@ -119,9 +128,11 @@ void MyWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         case 7: _t->progress(); break;
         case 8: _t->do_calibration(); break;
         case 9: _t->do_feature_extraction(); break;
-        case 10: { QString _r = _t->alignmentName((*reinterpret_cast< int(*)>(_a[1])));
+        case 10: _t->swap((*reinterpret_cast< double(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2])),(*reinterpret_cast< QString(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4]))); break;
+        case 11: _t->selectMin(); break;
+        case 12: { QString _r = _t->alignmentName((*reinterpret_cast< int(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
-        case 11: { QString _r = _t->featureName((*reinterpret_cast< int(*)>(_a[1])));
+        case 13: { QString _r = _t->featureName((*reinterpret_cast< int(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QString*>(_a[0]) = _r; }  break;
         default: ;
         }
@@ -165,13 +176,13 @@ int MyWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 14;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 14)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 14;
     }
     return _id;
 }

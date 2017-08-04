@@ -8,6 +8,13 @@ QWidget(parent){
      ST_check_switch = true;
 
      QString name;
+     SpName.push_back("Type");
+     SpName.push_back("TEST");
+     SpName.push_back("SCANTESTID");
+
+     QGridLayout *mainLayout = new QGridLayout(this);
+
+
      // ========= File Open
      QPushButton* FO_bu = new QPushButton("Open CSV",this);     
      connect(FO_bu, SIGNAL(clicked()), this,SLOT(openfile()));
@@ -37,37 +44,194 @@ QWidget(parent){
      SB_pbar->setValue(0);
 
      // ========== scrollBar Area
-     QScrollArea *scrollArea = new QScrollArea(this);
-     QWidget *client = new QWidget(this);      
-     QGridLayout *t_Layout = new QGridLayout(this);
-     QGridLayout *t_in_Layout = new QGridLayout(this);
-     QGroupBox *t_grpbox = new QGroupBox("testing", this);
-     QLabel *t_line = new QLabel(this);
 
-     t_line->setText("testing");
+     QScrollArea *scrollArea= new QScrollArea(this);
+     QWidget *client= new QWidget(scrollArea);;      
+     QGridLayout* infoLayoutall= new QGridLayout(client);;
 
-     QProgressBar *t_pbar = new QProgressBar(this);     
-     t_pbar->setRange(0,100);
-     t_pbar->setValue(0);
+     for(int i=0; i<4*SpName.size(); ++i){
+          
+          if(i%4 == 0){
+               name.sprintf("Attribute-%s",qPrintable(SpName[i/4]));
+          
+               infoGroup.push_back(new QGroupBox(name,this));
+               infoLayout.push_back(new QGridLayout(infoGroup[i]));
+               infoLabel.push_back(new QLabel(this));
+               infoBar.push_back(new QProgressBar);
 
-     t_in_Layout->addWidget(t_line,0,0);
-     t_in_Layout->addWidget(t_pbar,0,1);
-     t_grpbox->setLayout(t_in_Layout);
-     t_Layout->addWidget(t_grpbox,0,0);
-     client->setLayout(t_Layout);
+               infoLabel[10*(i/4)]->setText("No info");
+               infoLayout[i]->addWidget(infoLabel[10*(i/4)],0,0);
+               infoGroup[i]->setLayout(infoLayout[i]);
+          
+          }
+          else{
+               if(i%4 == 1)
+                    name.sprintf("%s-overlap/type0",qPrintable(SpName[i/4]));
+               if(i%4 == 2)
+                    name.sprintf("%s-overlap/type1",qPrintable(SpName[i/4]));
+               if(i%4 == 3)
+                    name.sprintf("%s-overlap/(type0+type1)",qPrintable(SpName[i/4]));
+               
+               infoGroup.push_back(new QGroupBox(name,this));
+               infoLayout.push_back(new QGridLayout(infoGroup[i]));
 
+               for(int j=0; j<3; ++j){
+                    infoLabel.push_back(new QLabel(this));
+                    infoBar.push_back(new QProgressBar(this));
+               }
+
+               infoLabel[10*(i/4)+3*(i%4)-2]->setText("No info");
+               infoLabel[10*(i/4)+3*(i%4)-1]->setText("No info");
+               infoLabel[10*(i/4)+3*(i%4)-0]->setText("No info");
+               infoBar[10*(i/4)+3*(i%4)-2]->setRange(0,100);
+               infoBar[10*(i/4)+3*(i%4)-1]->setRange(0,100);
+               infoBar[10*(i/4)+3*(i%4)-0]->setRange(0,100);
+               infoBar[10*(i/4)+3*(i%4)-2]->setValue(0);
+               infoBar[10*(i/4)+3*(i%4)-1]->setValue(0);
+               infoBar[10*(i/4)+3*(i%4)-0]->setValue(0);
+               
+               infoLayout[i]->addWidget(infoLabel[10*(i/4)+3*(i%4)-2],0,0);
+               infoLayout[i]->addWidget(infoLabel[10*(i/4)+3*(i%4)-1],1,0);
+               infoLayout[i]->addWidget(infoLabel[10*(i/4)+3*(i%4)-0],2,0);
+               infoLayout[i]->addWidget(infoBar[10*(i/4)+3*(i%4)-2],0,1);
+               infoLayout[i]->addWidget(infoBar[10*(i/4)+3*(i%4)-1],1,1);
+               infoLayout[i]->addWidget(infoBar[10*(i/4)+3*(i%4)-0],2,1);
+               infoGroup[i]->setLayout(infoLayout[i]);
+          }
+     }
+     
+     for(int i=0; i<infoGroup.size(); ++i){
+          infoLayoutall->addWidget(infoGroup[i],(i/4),(i%4));
+     }
+          
+     client->setLayout(infoLayoutall);
      scrollArea->setWidget(client);
 
-
      // ========= Mainmenu Layout
-     QGridLayout *mainLayout = new QGridLayout(this);
      mainLayout->addWidget(FO_bu,0,0,Qt::AlignTop);
      mainLayout->addWidget(IA_combo,0,1,Qt::AlignTop);
      mainLayout->addWidget(SB_bu,0,2,Qt::AlignTop);
      mainLayout->addWidget(ST_state,0,3,Qt::AlignTop);
      mainLayout->addWidget(SB_pbar,0,4,Qt::AlignTop);
-     mainLayout->addWidget(scrollArea,1,0);
+     mainLayout->addWidget(scrollArea,1,0,1,5);
      setLayout(mainLayout);
+
+}
+
+void MyWidget::selectMin(){
+
+     QVector<QString> _feOverAreaSortFname;
+     QString name;
+
+     for(int k=0; k<feOverArea.size(); ++k){
+          //name.sprintf("%03d(%s)",k,qPrintable(featureName(k)));
+          name.sprintf("F%03d",k);
+          
+          _feOverAreaSortFname.clear();
+          for(int i=0; i<feOverArea[0].size(); ++i)
+               _feOverAreaSortFname.push_back(name);
+          feOverAreaSortFname.push_back(_feOverAreaSortFname);
+     }
+
+     //qDebug() << feOverArea;
+     //qDebug() << feOverAreaSortFname;
+
+     for(int k=0; k<feOverArea[0].size(); ++k){
+          for(int i=0; i<feOverArea.size(); ++i){
+               for(int j=i+1; j<feOverArea.size(); ++j){
+                    if(feOverArea[i][k]>feOverArea[j][k]){
+                         swap(feOverArea[i][k], feOverArea[j][k], feOverAreaSortFname[i][k], feOverAreaSortFname[j][k]);
+                    }
+               }
+          }
+     }
+     
+     //qDebug() << feOverArea;
+     //qDebug() << feOverAreaSortFname;
+     QVector<QString> feNameTop(feOverArea.size());
+     QVector<QString> feNameTopOut(feOverArea[0].size()/3);
+     QVector<double> feValTop(feOverArea.size(),0);
+     QVector<bool> feCheck(feOverArea.size(),false);
+     double min_buf = 0;
+
+     for(int i=0; i<feOverArea.size(); ++i){
+          name.sprintf("F%03d",i);
+          feNameTop[i].sprintf("%s",qPrintable(name));
+     }
+
+     qDebug() << "feNameTop" << feNameTop;
+     qDebug() << "feNameTopOut" << feNameTopOut;
+     qDebug() << "feValTop" << feValTop;
+ 
+
+     for(int i=0; i<feOverArea[0].size()/3; ++i){
+          for(int j=0; j<3; ++j){
+               for(int k=0; k<feOverArea.size(); ++k){
+                    if(feOverAreaSortFname[j][i*3+0] == feNameTop[k]){
+                         feValTop[k] += feOverArea[j][i*3+0];
+                         feCheck[k] = true;
+                    }
+                    if(feOverAreaSortFname[j][i*3+1] == feNameTop[k]){
+                         feValTop[k] += feOverArea[j][i*3+1];
+                         feCheck[k] = true;
+                    }
+                    if(feOverAreaSortFname[j][i*3+1] == feNameTop[k]){
+                         feValTop[k] += feOverArea[j][i*3+1];
+                         feCheck[k] = true;
+                    }
+               }
+          }
+
+          for(int j=0; j<feOverArea.size(); ++j){
+               if(feCheck[j]==true){
+                    min_buf = feValTop[j];
+                    feNameTopOut[i].sprintf("%s(%s)",qPrintable(feNameTop[j]),qPrintable(featureName(j))); 
+                    break;
+               }
+          }
+
+          for(int j=0; j<feOverArea.size(); ++j){
+               if((feCheck[j]==true)&&(feValTop[j] < min_buf)){
+                    min_buf = feValTop[j];
+                    feNameTopOut[i].sprintf("%s(%s)",qPrintable(feNameTop[j]),qPrintable(featureName(j)));
+               }
+          }
+
+          for(int j=0; j<feOverArea.size(); ++j){
+               feCheck[j] = false;
+               feValTop[j] = 0;
+          }
+     }
+
+     qDebug() << "feNameTop" << feNameTop;
+     qDebug() << "feNameTopOut" << feNameTopOut;
+     qDebug() << "feValTop" << feValTop;
+
+     for(int i=0; i<4*SpName.size(); ++i){
+          if(i%4 != 0){
+               infoLabel[10*(i/4)+3*(i%4)-2]->setText(feOverAreaSortFname[0][i-1-(i/4)]);
+               infoLabel[10*(i/4)+3*(i%4)-1]->setText(feOverAreaSortFname[1][i-1-(i/4)]);
+               infoLabel[10*(i/4)+3*(i%4)-0]->setText(feOverAreaSortFname[2][i-1-(i/4)]);
+               
+               infoBar[10*(i/4)+3*(i%4)-2]->setValue(feOverArea[0][i-1-(i/4)]);
+               infoBar[10*(i/4)+3*(i%4)-1]->setValue(feOverArea[1][i-1-(i/4)]);
+               infoBar[10*(i/4)+3*(i%4)-0]->setValue(feOverArea[2][i-1-(i/4)]);
+          }
+          else{
+               infoLabel[10*(i/4)]->setText(feNameTopOut[i/4]);
+          }
+     }
+
+}
+
+void MyWidget::swap(double& v1, double& v2, QString& n1, QString& n2){
+     double tmp = 0;
+     QString tmpN;
+     tmp = v1; v1 = v2; v2 = tmp;
+     tmpN.sprintf("%s",qPrintable(n1)); 
+     n1.sprintf("%s",qPrintable(n2)); 
+     n2.sprintf("%s",qPrintable(tmpN));
+   
 }
 
 void MyWidget::openfile(){
@@ -176,6 +340,8 @@ void MyWidget::progress(){
           ST_state->setText("Calibration ...");
           do_calibration();
      
+          allSelectFunc();
+
           QVector<double> _feCal;
           for(int j=1; j<inFile.size(); ++j)
                _feCal.push_back(0.0);
@@ -183,8 +349,6 @@ void MyWidget::progress(){
                feCal.push_back(_feCal);
           _feCal.clear();
 
-          allSelectFunc();
-          qDebug() << "tag-1-(ImPro)";          
           ST_state->setText("Feature Extraction ...");
           do_feature_extraction();
 
@@ -249,8 +413,7 @@ void MyWidget::writefile(){
                }
           }
           sb_val += 100./inFile.size();
-          SB_pbar->setValue(sb_val+1);
-          qDebug() << i <<  outFile[i];
+          SB_pbar->setValue(sb_val+1);    
      }   
 
      for(int i=0; i<outFile.size(); ++i){
@@ -265,13 +428,9 @@ void MyWidget::writefile(){
 }
 
 void MyWidget::overAreaCal(){
-     QVector<QString> SpName;
      QVector<int> SpIndex;
      QVector<double> rst;
 
-     SpName.push_back("Type");
-     SpName.push_back("TEST");
-     SpName.push_back("SCANTESTID");
      bool ok = true;
 
      QVector<double> t0Value;
@@ -289,9 +448,9 @@ void MyWidget::overAreaCal(){
                for(int j=0; j<inFile[0].size(); ++j){
                     if(inFile[0].at(j).contains(SpName[0],Qt::CaseSensitive)){
                          SpIndex.push_back(j);
+                         //qDebug() << i << j << SpName[0];
                          break;
                     }
-                    qDebug() << "SpIndex" << SpIndex;
                }
 
                for(int j=0; j<feCal.size(); ++j){
@@ -307,6 +466,9 @@ void MyWidget::overAreaCal(){
                     feOverArea[j][i*3+0] = rst[0];
                     feOverArea[j][i*3+1] = rst[1];
                     feOverArea[j][i*3+2] = rst[2];
+                    
+                    t0Value.clear();
+                    t1Value.clear();
                }      
           }
           else{
@@ -314,21 +476,22 @@ void MyWidget::overAreaCal(){
                for(int j=0; j<inFile[0].size(); ++j){
                     if(inFile[0].at(j).contains(SpName[0],Qt::CaseSensitive)){
                          SpIndex.push_back(j);
+                         break;
                     }
                }
                
                for(int j=0; j<inFile[0].size(); ++j){
                     if(inFile[0].at(j).contains(SpName[i],Qt::CaseSensitive)){
                          SpIndex.push_back(j);
+                         break;
                     }
                }
-
                for(int j=0; j<feCal.size(); ++j){
                     for(int k=0; k<feCal[0].size(); ++k){
-                         if((inFile[k+1].at(SpIndex[i]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 0)){
+                         if((inFile[k+1].at(SpIndex[1]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 0)){
                               t0Value.push_back(feCal[j][k]);
                          }
-                         if((inFile[k+1].at(SpIndex[i]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 1)){
+                         if((inFile[k+1].at(SpIndex[1]).toInt(&ok,10) == 1)&&(inFile[k+1].at(SpIndex[0]).toInt(&ok,10) == 1)){
                               t1Value.push_back(feCal[j][k]);
                          }
                     }
@@ -336,28 +499,33 @@ void MyWidget::overAreaCal(){
                     feOverArea[j][i*3+0] = rst[0];
                     feOverArea[j][i*3+1] = rst[1];
                     feOverArea[j][i*3+2] = rst[2];
+                    
+                    t0Value.clear();
+                    t1Value.clear();
                }    
           }
-          t0Value.clear();
-          t1Value.clear();
+
           SpIndex.clear();
      }
+     selectMin();
+//     qDebug() << "feOverArea" << feOverArea;
 }
 
 void MyWidget::overAreaCal_Type(QVector<double> t0Value, QVector<double> t1Value, QVector<double>& rst){
      rst.clear();
+
      QVector<int> overArea;
      QVector<int> t0Area;
      QVector<int> t1Area;
      QVector<int> sum(3,0);
-     double max = 0;
+     double max = 0.0;
 
      for(int i=0;i<t0Value.size(); ++i)
           max = (max>t0Value[i])?max:t0Value[i];
 
      for(int i=0;i<t1Value.size(); ++i)
           max = (max>t1Value[i])?max:t1Value[i];
-
+     max = max + 5;
      for(int i=0; i<max; ++i){
           overArea.push_back(0); t0Area.push_back(0); t1Area.push_back(0);
      }
@@ -375,9 +543,27 @@ void MyWidget::overAreaCal_Type(QVector<double> t0Value, QVector<double> t1Value
           sum[0] += overArea[i]; sum[1] += t0Area[i]; sum[2] += t1Area[i];
      }
 
-     rst.push_back(100.*(double)sum[0]/(double)sum[1]);
-     rst.push_back(100.*(double)sum[0]/(double)sum[2]);
-     rst.push_back(100.*(double)sum[0]/(double)(sum[1]+sum[2]-sum[0]));
+
+     if(sum[0] == 0){
+          rst.push_back(0);
+          rst.push_back(0);
+          rst.push_back(0);          
+     }
+     else if(sum[1] == 0){
+          rst.push_back(0);
+          rst.push_back(100.*(double)sum[0]/(double)sum[2]);
+          rst.push_back(100.*(double)sum[0]/(double)(sum[1]+sum[2]-sum[0]));
+     }
+     else if(sum[2] == 0){
+          rst.push_back(100.*(double)sum[0]/(double)sum[1]);
+          rst.push_back(0);
+          rst.push_back(100.*(double)sum[0]/(double)(sum[1]+sum[2]-sum[0]));          
+     }
+     else{
+          rst.push_back(100.*(double)sum[0]/(double)sum[1]);
+          rst.push_back(100.*(double)sum[0]/(double)sum[2]);
+          rst.push_back(100.*(double)sum[0]/(double)(sum[1]+sum[2]-sum[0]));    
+     }
 }
 
 void MyWidget::do_calibration(){
@@ -541,7 +727,7 @@ void MyWidget::do_feature_extraction(){
      int thresh = 128;
      int block_size = 16;
 
-     for(int i=0; i<FE_index.size(); ++i){
+     for(int i=0; i<FE_index.size(); ++i){  
           switch(FE_index[i]){
                case 0:
                     for(int j=0; j<defImg.size(); ++j){

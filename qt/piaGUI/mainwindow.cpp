@@ -44,8 +44,9 @@ QWidget(parent){
      SB_pbar->setValue(0);
 
      // ========== scrollBar Area
+/*
 
-     QScrollArea *scrollArea= new QScrollArea(this);
+    QScrollArea *scrollArea= new QScrollArea(this);
      QWidget *client= new QWidget(scrollArea);;      
      QGridLayout* infoLayoutall= new QGridLayout(client);;
 
@@ -107,15 +108,49 @@ QWidget(parent){
      client->setLayout(infoLayoutall);
      scrollArea->setWidget(client);
 
+
+*/
+ 
      // ========= Mainmenu Layout
      mainLayout->addWidget(FO_bu,0,0,Qt::AlignTop);
      mainLayout->addWidget(IA_combo,0,1,Qt::AlignTop);
      mainLayout->addWidget(SB_bu,0,2,Qt::AlignTop);
      mainLayout->addWidget(ST_state,0,3,Qt::AlignTop);
      mainLayout->addWidget(SB_pbar,0,4,Qt::AlignTop);
-     mainLayout->addWidget(scrollArea,1,0,1,5);
+//     mainLayout->addWidget(scrollArea,1,0,1,5);
      setLayout(mainLayout);
 
+}
+
+void MyWidget::collectAttribute(){
+     // QVector<QStringList> inFile;
+
+     QVector<QVector<QString>> attribute;
+     QVector<QString> _attribute;
+     
+     for(int i=0; i<5; ++i)
+          _attribute.push_back("");
+
+     for(int i=0; i<inFile[0].size(); ++i){
+          if(inFile[0].at(i).contains("DEFECTID",Qt::CaseSensitive) ||
+           inFile[0].at(i).contains("DEF_IMAGE",Qt::CaseSensitive)||
+           inFile[0].at(i).contains("REF_IMAGE",Qt::CaseSensitive))
+               continue;
+          
+          attribute.push_back(_attribute);
+          attribute[i][0].sprintf("%s",qPrintable(inFile[0].at(i)));
+          
+          for(int j=1; j<inFile.size(); ++j){
+               for(int k=1; k<attribute[i].size(); ++k){
+                    if(inFile[j].at(i)==attribute[i][k])
+                         break;
+                    else if(attribute[i][k] == "")
+                         attribute[i][k].sprintf("%s",qPrintable(inFile[j].at(i)));
+                    else
+                         continue;
+               }
+          }
+     }
 }
 
 void MyWidget::selectMin(){

@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <time.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -44,15 +45,20 @@ void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vec
 void sortswap(double&, double&, string&, string&);
 
 void showRank( vector<string>, vector<string>, vector< vector<string> >, vector< vector<string> >, vector< vector<string> >,
-  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >);
+  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<string>&);
 
 string feName(int);
 string int2string(int);
 vector<string> split(const string& , const char& );
+string currentDateTime();
+void writeTxt(vector<string>);
 
 
 int main(int argc, char* argv[]){
 
+	cout << currentDateTime();
+	cout << endl;
+/*
 	vector< vector<string> > inFile;
 	char* fileName = argv[1];
 	openCSV(fileName, inFile);
@@ -82,7 +88,9 @@ int main(int argc, char* argv[]){
 	vector< vector<double> > sorVON, sorVOD, sorVOA;		
 	sortOAreaTb(oAttCol, oAttRow, oArea, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
 
-	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
+	vector<string> outfile;
+	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA, outfile);
+*/
 /*
 	for(int i=0; i<attTable.size(); ++i){
 		for(int  j=0; j<attTable[0].size(); ++j){
@@ -683,8 +691,129 @@ void sortswap(double& val0, double& val1, string& tex0, string& tex1){
 }
 
 void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<string> > _sorfON, vector< vector<string> > _sorfOD, vector< vector<string> > _sorfOA,
-  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA){
+  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA, vector<string> _outfile){
 	
+	_outfileIndex = 0;
+
+	_outfile.push_back("\t\t\t" + "/* --- overlap/N ---*/" + "\t\t\t\n");
+	_outfile.push_back("\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
+			_outfile.push_back(_oAttCol[i] + "\t\t");
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
+			_outfile.push_back(_oAttCol[i] +"\t\t\t");
+		else if(_oAttCol[i].size() < 7)
+			_outfile.push_back(_oAttCol[i] +"\t\t\t\t");
+		else
+			_outfile.push_back(_oAttCol[i] +"\t\n");
+		_outfile.push_back( _sorfON[i][0] + "(" + _sorVON[i][0] + "%)" + "\t");
+		_outfile.push_back( _sorfON[i][1] + "(" + _sorVON[i][1] + "%)" + "\t");
+		_outfile.push_back( _sorfON[i][2] + "("<< _sorVON[i][2] + "%)" + "\t");
+		_outfile.push_back("\n");
+	}
+
+	_outfile.push_back( "\t\t\t" + "/* --- overlap/D ---*/" + "\t\t\t\n");
+	_outfile.push_back( "\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
+			_outfile.push_back( _oAttCol[i] + "\t\t");
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
+			_outfile.push_back( _oAttCol[i] + "\t\t\t");
+		else if(_oAttCol[i].size() < 7)
+			_outfile.push_back( _oAttCol[i] + "\t\t\t\t");
+		else
+			_outfile.push_back( _oAttCol[i] + "\t");
+		_outfile.push_back( _sorfOD[i][0] + "(" + _sorVOD[i][0] + "%)" + "\t");
+		_outfile.push_back( _sorfOD[i][1] + "(" + _sorVOD[i][1] + "%)" + "\t");
+		_outfile.push_back( _sorfOD[i][2] + "(" + _sorVOD[i][2] + "%)" + "\t");
+		_outfile.push_back("\n");
+	}
+
+	_outfile.push_back( "\t\t\t" + "/* --- overlap/ALL ---*/" + "\t\t\t" + "\n");
+	_outfile.push_back( "\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
+			_outfile.push_back( _oAttCol[i] + "\t\t");
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
+			_outfile.push_back( _oAttCol[i] + "\t\t\t");
+		else if(_oAttCol[i].size() < 7)
+			_outfile.push_back( _oAttCol[i] + "\t\t\t\t");
+		else
+			_outfile.push_back( _oAttCol[i] + "\t");
+		_outfile.push_back( _sorfOA[i][0] + "(" + _sorVOA[i][0] + "%)" + "\t");
+		_outfile.push_back( _sorfOA[i][1] + "(" + _sorVOA[i][1] + "%)" + "\t");
+		_outfile.push_back( _sorfOA[i][2] + "(" + _sorVOA[i][2] + "%)" + "\t");
+		_outfile.push_back("\n");
+	}
+
+	vector<double> feCount;
+	vector<string> feSort;
+	for(int i=0; i<_oAttRow.size(); ++i){
+		feCount.push_back(0);
+		feSort.push_back(_oAttRow[i]);
+	}
+		
+	int firstThree = 2;
+
+	for(int i=0; i<_oAttCol.size(); ++i){
+		for(int j=0; j<firstThree; ++j){
+			for(int k=0; k<_oAttRow.size(); ++k){
+				if(_sorfON[i][j] == _oAttRow[k])
+					++feCount[k];
+				if(_sorfOD[i][j] == _oAttRow[k])
+					++feCount[k];
+				if(_sorfOA[i][j] == _oAttRow[k])
+					++feCount[k];
+			}
+		}
+	}
+
+	for(int i=0; i<_oAttRow.size(); ++i){
+		for(int j=i; j<_oAttRow.size(); ++j){
+			if(feCount[i]<feCount[j]){
+				sortswap(feCount[i], feCount[j], feSort[i], feSort[j]);
+			}
+		}
+	}
+
+	_outfile.push_back( "Best Feature: ");
+	for(int i=0; i<firstThree; ++i)
+		_outfile.push_back( feSort[i] + " ");
+	_outfile.push_back("\n");
+
+}
+
+string currentDateTime(){
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    return buf;
+}
+
+void writeTxt(vector<string> _in){
+	fstream file;
+	string name = currentDateTime() + ".txt";
+	file.open(name, ios::out);
+
+	if(!file){
+		cout << "Error: TXT file not open."<< endl;
+		exit(0);
+	}
+	else{
+		for(int i=0; i<_in.size(); ++i){
+			file << _in[i] << endl;
+		}
+	}
+}
+
+
+
+/*
+
+
 	cout << "\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
 	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
 	for(int i=0; i<_oAttCol.size(); ++i){
@@ -774,12 +903,4 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 	cout << endl;
 
 
-	
-
-
-
-
-
-
-}
-
+*/

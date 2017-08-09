@@ -1,4 +1,13 @@
 
+/*
+version v1.0
+date: 2017/08/10
+purpose: to verify feature effect work on defect image.
+usage: ./out {csv path} {calibration Name}
+
+to do thing: check Fecal[i][j] in j all == 0
+*/
+
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -22,7 +31,8 @@ typedef struct _overArea{
 }overArea;
 
 typedef struct _ndnum{
-	int nNum = 0;
+    string attName;
+    int nNum = 0;
 	int dNum = 0;
 	int nd = nNum + dNum;
 }ndNum;
@@ -38,6 +48,7 @@ void overlap(vector< vector<string> >, vector< vector<string> >, vector< vector<
 void overlap_col	(vector< vector<string> >, vector<string>&);
 void overlap_row(vector<int>, vector<string>&);
 void calOverArea(vector<string>, vector<double>, overArea&);
+void countND(string, vector<string>, ndNum&);
 
 void sortOAreaTb(vector<string>, vector<string>, vector< vector<overArea> >,
  vector< vector<string> >&, vector< vector<string> >&, vector< vector<string> >&,
@@ -47,7 +58,7 @@ void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vec
 void sortswap(double&, double&, string&, string&);
 
 void showRank( vector<string>, vector<string>, vector< vector<string> >, vector< vector<string> >, vector< vector<string> >,
-  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >);
+  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<ndNum>&);
 void changeAttName(vector<string>&);
 
 void help();
@@ -104,7 +115,7 @@ int main(int argc, char* argv[]){
 	vector< vector<double> > sorVON, sorVOD, sorVOA;		
 	sortOAreaTb(oAttCol, oAttRow, oArea, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
 
-	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
+	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA, ndCount);
 */
 	return 0;
 }
@@ -124,7 +135,7 @@ void openCSV(char* _fileName, vector< vector<string> >& _inFile){
 	ifstream theFile(_fileName);
 
 	 if(!theFile.is_open()){
-	 	cout << "Error: csv file is not open..\nmain.out file.csv"<< endl;
+	 	cout << "Error in opencsv: csv file is not open..\nmain.out file.csv"<< endl;
 	 }
 	
 	while (getline(theFile, str1)) {
@@ -143,7 +154,7 @@ void openCSV(char* _fileName, vector< vector<string> >& _inFile){
 
 void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>& _refImg){
 
-	int defCol, refCol, keptImg;
+	int defCol = 0, refCol = 0, keptImg = 0;
 
 	for(int i=0; i<_inFile[0].size(); ++i){
 		if(_inFile[0][i].find("DEF_IMAGE") != std::string::npos)
@@ -152,6 +163,10 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 			refCol = i;
 		if(_inFile[0][i].find("ECC_result") != std::string::npos)
 			refCol = i;
+	}
+	if(defCol == 0|| refCol == 0|| keptImg == 0){
+		cout << "Error in openImg: defCol == 0|| refCol == 0|| keptImg == 0" << endl;
+		exit(0);
 	}
 	string defName;
 	string refName;
@@ -168,12 +183,12 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 		_refImg.push_back(imread(refName,CV_LOAD_IMAGE_GRAYSCALE));
 		
 		if(!_defImg[i-1].data){
-			cout << "Error: DEF image " << i << " is not open."<< endl;
+			cout << "Error in openImg: DEF image " << i << " is not open."<< endl;
 			cout << "defName Path:" << defName << endl;
 			exit(0);
 		}
 		else if(!_refImg[i-1].data){
-			cout << "Error: REF image " << i << " is not open."<< endl;
+			cout << "Error in openImg: REF image " << i << " is not open."<< endl;
 			cout << "refName Path:" << refName << endl;
 			exit(0);
 		}		
@@ -335,9 +350,10 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 			}
 				break;
 			default:
-				cout << "Error: no match case in overlap" << endl;
+				cout << "Error in overlap: no match case in overlap" << endl;
 				break;
 		}
+		countND(_oAttCol[i], TypeRow, _ndCount[i]);
 	}
 	progressBar("overlap area", _oAttCol.size(), _oAttCol.size(),true);
 }
@@ -404,10 +420,34 @@ vector<string> split(const string& source, const char& delim){
     return ans;
 }
 
+void countND(string label, vector<string> _typeRow, ndNum& rst){
+
+    if(_typeRow.size() != _typeVal.size()){
+		cout << "Error in countND: _typeRow.size() != _typeVal.size()" << endl;
+		exit(0);
+	}
+
+	int nSum = 0, dSum = 0;
+	for(int i=0; i<_typeRow.size(); i++){
+		if(_typeRow[i] == "0")
+			++nSum;
+		else if (_typeRow[i] == "1")
+			++dSum;
+		else{
+			cout << "Error in countND: the type more than 2 kind of value." << endl;
+			exit(0);
+		}
+	}
+
+	rst.attName = label;
+	rst.nSum = nSum;
+	rst.dSum = dSum;
+}
+
 void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst){
 
 	if(_typeRow.size() != _typeVal.size()){
-		cout << "Error: in calOverArea, _typeRow.size() != _typeVal.size()" << endl;
+		cout << "Error in calOverArea: in calOverArea, _typeRow.size() != _typeVal.size()" << endl;
 		exit(0);
 	}
 
@@ -420,7 +460,7 @@ void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst
 			type1Val.push_back(_typeVal[i]);
 		}
 		else{
-			cout << "Error: the type more than 2 kind of value." << endl;
+			cout << "Error in calOverArea: the type more than 2 kind of value." << endl;
 			exit(0);
 		}
 	}
@@ -545,7 +585,7 @@ void sortswap(double& val0, double& val1, string& tex0, string& tex1){
 }
 
 void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<string> > _sorfON, vector< vector<string> > _sorfOD, vector< vector<string> > _sorfOA,
-  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA){
+  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA, vector<ndNum> _ndCount){
 	
 	fstream file;
 	string name = currentDateTime() + ".txt";
@@ -662,7 +702,7 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 		feSort.push_back(_oAttRow[i]);
 	}
 		
-	int feFirstThree = 2;
+	int feFirstThree = 3;
 
 	for(int i=0; i<_oAttCol.size(); ++i){
 		for(int j=0; j<feFirstThree; ++j){
@@ -732,6 +772,42 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 	cout << endl;
 	file << endl;
 
+	/* --- ND count show --- */
+	cout << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"N num"<<"\t\t"<<"D num"<<"\t\t"<<"total"<<endl; 
+	file << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"N num"<<"\t\t"<<"D num"<<"\t\t"<<"total"<<endl; 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}
+
+		cout <<  _ndCount[i].nNum << "\t";
+		cout <<  _ndCount[i].dNum << "\t";
+		cout <<  _ndCount[i].nd << "\t";
+		cout <<  _ndCount[i].attName;
+		cout << endl;
+
+		file <<  _ndCount[i].nNum << "\t";
+		file <<  _ndCount[i].dNum << "\t";
+		file <<  _ndCount[i].nd << "\t";
+		file <<  _ndCount[i].attName;
+		file << endl;
+	}
+
 	cout.unsetf( ios::fixed );
 	file.unsetf( ios::fixed );
 	file.close();
@@ -798,7 +874,6 @@ void changeAttName(vector<string>& __oAttCol){
 		att.clear();
 	}
 }
-
 
 void featureExtraction(vector<int> _index, vector<Mat> _defImg, vector<Mat> _refImg, vector< vector<double> >& _feCal){
 

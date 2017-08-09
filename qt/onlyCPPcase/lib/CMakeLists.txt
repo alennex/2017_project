@@ -6,6 +6,7 @@ ADD_LIBRARY(utility SHARED utility.cpp)
 TARGET_LINK_LIBRARIES(alignment ${OpenCV_LIBS})
 TARGET_LINK_LIBRARIES(feature ${OpenCV_LIBS})
 TARGET_LINK_LIBRARIES(utility ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(feature alignment)
 
 set_target_properties(utility PROPERTIES
     CXX_STANDARD 11

@@ -1,20 +1,16 @@
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <vector>
-#include <string.h>
-#include <math.h>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <fstream>
-#include <time.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 
 #include "include/alignment.h"
 #include "include/feature.h"
+#define FeatureN 51
 
 using namespace cv;
 using namespace std;
@@ -25,14 +21,20 @@ typedef struct _overArea{
 	double OA = 0.0;	// over/all
 }overArea;
 
+typedef struct _ndnum{
+	int nNum = 0;
+	int dNum = 0;
+	int nd = nNum + dNum;
+}ndNum;
+
 void openCSV(char*, vector< vector<string> >&);
 void openImg(vector< vector<string> > ,vector<Mat>&, vector<Mat>&);
-void calibration(int, vector<Mat>&, vector<Mat>&);
+void calibration(char*, char*, string&);
 void featureExtraction(vector<int>, vector<Mat>, vector<Mat>, vector< vector<double> >&);
 void collectAttribute(vector< vector<string> >, vector< vector<string> >&);
 
 void overlap(vector< vector<string> >, vector< vector<string> >, vector< vector<double> >, 
-	vector<int>, vector<string>&, vector<string>&, vector< vector<overArea> >&);
+	vector<int>, vector<string>&, vector<string>&, vector< vector<overArea> >&, vector<ndNum>&);
 void overlap_col	(vector< vector<string> >, vector<string>&);
 void overlap_row(vector<int>, vector<string>&);
 void calOverArea(vector<string>, vector<double>, overArea&);
@@ -45,33 +47,46 @@ void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vec
 void sortswap(double&, double&, string&, string&);
 
 void showRank( vector<string>, vector<string>, vector< vector<string> >, vector< vector<string> >, vector< vector<string> >,
-  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<string>&);
+  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >);
+void changeAttName(vector<string>&);
 
+void help();
+void openAllFe(int, vector<int>&);
 string feName(int);
 string int2string(int);
 vector<string> split(const string& , const char& );
 string currentDateTime();
-void writeTxt(vector<string>);
-
+void progressBar(string, int, int, bool);
 
 int main(int argc, char* argv[]){
+	
 
-	cout << currentDateTime();
-	cout << endl;
-/*
-	vector< vector<string> > inFile;
+	if(argc!=3){ help(); exit(0);}
+
 	char* fileName = argv[1];
-	openCSV(fileName, inFile);
+	char* calN = argv[2];
 
+	string outfile;
+	calibration(calN, fileName, outfile);
+
+	char* _fileName = &outfile[0u];
+
+
+	vector< vector<string> > inFile;
+	openCSV(_fileName, inFile);
+
+	for(int i=0; i<inFile.size(); ++i){
+		for(int j=0; j<inFile[0].size(); ++j){
+			cout << inFile[i][j] << " ";
+		}
+		cout << endl;
+	}
+/*
 	vector<Mat> defImg, refImg;
 	openImg(inFile, defImg, refImg);
-
-	calibration(5, defImg, refImg);
 	
 	vector<int> feIndex;
-	feIndex.push_back(1);
-	feIndex.push_back(3);
-	feIndex.push_back(5);
+	openAllFe(FeatureN, feIndex);
 	
 	vector< vector<double> > feCal;
 	featureExtraction(feIndex, defImg, refImg, feCal);
@@ -81,25 +96,26 @@ int main(int argc, char* argv[]){
 	
 	vector<string> oAttCol, oAttRow;
 	vector< vector<overArea> > oArea;
+	vector<ndNum> ndCount;
 
-	overlap(inFile, attTable, feCal, feIndex, oAttCol, oAttRow, oArea);
+	overlap(inFile, attTable, feCal, feIndex, oAttCol, oAttRow, oArea, ndCount);
 
 	vector< vector<string> > sorfON, sorfOD, sorfOA;
 	vector< vector<double> > sorVON, sorVOD, sorVOA;		
 	sortOAreaTb(oAttCol, oAttRow, oArea, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
 
-	vector<string> outfile;
-	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA, outfile);
-*/
-/*
-	for(int i=0; i<attTable.size(); ++i){
-		for(int  j=0; j<attTable[0].size(); ++j){
-			cout << attTable[i][j] << " ";
-		}
-		cout << endl;
-	}
+	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
 */
 	return 0;
+}
+
+
+void calibration(char* _calName, char* _fileName, string& _outfile){
+	
+	Alignment a;
+	int num_kept_defect, num_kept_nuisance;
+	// ICFilter(calibration_Name, csv_in_path, csv_out_path, num_kept_defect, num_kept_nuisance, true:not show fail data, false: show in csv(ECC_label=-1))
+	a.ICFilter(_calName, 0.9, _fileName, _outfile, num_kept_defect, num_kept_nuisance, false);
 }
 
 void openCSV(char* _fileName, vector< vector<string> >& _inFile){
@@ -127,18 +143,25 @@ void openCSV(char* _fileName, vector< vector<string> >& _inFile){
 
 void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>& _refImg){
 
-	int defCol, refCol;
+	int defCol, refCol, keptImg;
 
 	for(int i=0; i<_inFile[0].size(); ++i){
 		if(_inFile[0][i].find("DEF_IMAGE") != std::string::npos)
 			defCol = i;
 		if(_inFile[0][i].find("REF_IMAGE") != std::string::npos)
 			refCol = i;
+		if(_inFile[0][i].find("ECC_result") != std::string::npos)
+			refCol = i;
 	}
 	string defName;
 	string refName;
 
 	for(int i=1; i<_inFile.size(); ++i){
+		if(_inFile[i][keptImg] != "0"){
+			cout << "kept" << i << endl;
+			continue;
+		}
+
 		defName = _inFile[i][defCol];
 		refName = _inFile[i][refCol];
 		_defImg.push_back(imread(defName,CV_LOAD_IMAGE_GRAYSCALE));
@@ -157,148 +180,6 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 	}
 }
 
-void calibration(int _index, vector<Mat>& _defImg, vector<Mat>& _refImg){
-	double thresh = 128;
-	double max_value = 255;
-	Alignment af;
-	
-	switch(_index){
-          case 0:
-               for(int i=0; i<_defImg.size();++i){
-               	af.alignECC_Translation(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 1:
-               for(int i=0; i<_defImg.size();++i){
-                    af.alignECC_Euclidean(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 2:
-               for(int i=0; i<_defImg.size();++i){
-                    af.alignECC_Affine(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 3:
-               for(int i=0; i<_defImg.size();++i){
-                    af.alignECC_Homography(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 4:
-               for(int i=0; i<_defImg.size();++i){
-                    af.alignDCT(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 5:
-               for(int i=0; i<_defImg.size();++i){
-                    af.alignDFT(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 6:
-               for(int i=0; i<_defImg.size();++i){
-                    af.histogramEqualization(_defImg[i],_refImg[i]);
-               } 
-               break;
-          case 7:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshOtsu(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          case 8:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshBinary(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          case 9:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshBinaryINV(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          case 10:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshTrunc(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          case 11:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshToZero(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          case 12:
-               for(int i=0; i<_defImg.size();++i){
-                    af.threshToZeroINV(_defImg[i],_refImg[i], thresh, max_value);
-               } 
-               break;
-          default:
-               break;
-     }
-}
-
-void featureExtraction(vector<int> _index, vector<Mat> _defImg, vector<Mat> _refImg, vector< vector<double> >& _feCal){
-
-	vector<double> __feCal;
-	for(int i=0; i<_defImg.size(); ++i)
-		__feCal.push_back(0);
-	for(int i=0; i<_index.size(); ++i)
-		_feCal.push_back(__feCal);
-
-	int color_gap = 3;
-     int pool_size = 4;
-     int thresh = 128;
-     int block_size = 16;
-
-     Feature fe,feI(_defImg[0],_refImg[0]);
-
-	for(int i=0; i<_index.size(); ++i){  
-          switch(_index[i]){
-               case 0:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         _feCal[i][j] = (double)fe.diffGlobalMean(_defImg[j], _refImg[j]);   
-                    } 
-                    break;
-               case 1:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         _feCal[i][j] = (double)fe.diffPixelsCount(_defImg[j], _refImg[j], color_gap);
-                    }
-                    break;
-               case 2:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         _feCal[i][j] = fe.getPSNR(_defImg[j], _refImg[j]);
-                    }
-                    break;
-               case 3:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         _feCal[i][j] = fe.localmeanSSE(_defImg[j], _refImg[j], pool_size);
-                    }
-                    break;
-               case 4:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         _feCal[i][j] = fe.localmeanSAE(_defImg[j], _refImg[j], pool_size);
-                    }
-                    break;
-               case 5:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         Feature feI(_defImg[j], _refImg[j]);
-                         _feCal[i][j] = feI.maxNumBlackPixelsInBlock(thresh, block_size);
-                    }
-                    break;
-               case 6:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         Feature feI(_defImg[j], _refImg[j]);
-                         _feCal[i][j] = feI.maxNumBlackPixelsInBlock(_defImg[j],thresh, block_size);
-                    }
-                    break;
-               case 7:
-                    for(int j=0; j<_defImg.size(); ++j){
-                         Feature feI(_defImg[j], _refImg[j]);
-                         _feCal[i][j] = feI.maxNumDiffPixelsInBlock(thresh, block_size);
-                    }
-                    break;
-               default:
-                    break;
-          }
-     }
-}
-
 void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >& _attTable){
 
 	vector<string> __attTable;
@@ -311,7 +192,8 @@ void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >
 	for(int i=0; i<_inFile[0].size(); ++i){
 		if(_inFile[0][i].find("DEF_IMAGE") != std::string::npos || 
 			_inFile[0][i].find("REF_IMAGE") != std::string::npos || 
-			_inFile[0][i].find("DEFECTID") != std::string::npos)
+			_inFile[0][i].find("DEFECTID") != std::string::npos||
+			_inFile[0][i].find("ECC_result") != std::string::npos)
 			continue;
 		else{
 			++typeID;
@@ -336,7 +218,7 @@ void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >
 
 void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTable, 
 	vector< vector<double> > _feCal, vector<int> _feIndex, 
-	vector<string>& _oAttCol, vector<string>& _oAttRow, vector< vector<overArea> >& _oArea){
+	vector<string>& _oAttCol, vector<string>& _oAttRow, vector< vector<overArea> >& _oArea, vector<ndNum>& _ndCount ){
 
 	overlap_col(_attTable, _oAttCol);
 	overlap_row(_feIndex, _oAttRow);
@@ -348,12 +230,17 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 	for(int i=0; i<_oAttCol.size(); ++i)
 		_oArea.push_back(__oArea);
 
+	ndNum tmp2;
+	for(int i=0; i<_oAttRow.size(); ++i)
+		_ndCount.push_back(tmp2);
+
 	vector<string> TypeRow;	// collect ID = 0 or 1
 	vector<double> TypeVal;	// collect TyepVal
 	vector<string> typeID;
 	int TypeCol0 = 0, TypeCol1 = 0, TypeCol2 = 0;
 
 	for(int i=0; i<_oAttCol.size(); ++i){
+		progressBar("overlap area", i, _oAttCol.size(),false);
 
 		TypeCol0 = 0; TypeCol1 = 0; TypeCol2 = 0;
 		typeID.clear();
@@ -452,6 +339,7 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 				break;
 		}
 	}
+	progressBar("overlap area", _oAttCol.size(), _oAttCol.size(),true);
 }
 
 void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol ){
@@ -494,40 +382,6 @@ void overlap_row(vector<int> __feIndex, vector<string>& __oAttRow){
 		string buf = "fe-" + int2string(__feIndex[i]);
 		__oAttRow.push_back(buf);
 	}
-}
-
-string feName(int _index){
-	string name;
-
-          switch(_index){
-               case 0:
-                    name = ("diffGlobalMean");
-                    break;
-               case 1:
-                    name = ("diffPixelsCount");
-                    break;
-               case 2:
-                    name = ("getPSNR");
-                    break;
-               case 3:
-                    name = ("localmeanSSE");
-                    break;
-               case 4:
-                    name = ("localmeanSAE");
-                    break;
-               case 5:
-                    name = ("maxNumBlackPixelsInBlock");
-                    break;
-               case 6:
-                    name = ("maxNumBlackPixelsInBlock");
-                    break;
-               case 7:
-                    name = ("maxNumDiffPixelsInBlock");
-                    break;
-               default:
-                    break;
-          }
-     return name;
 }
 
 string int2string(int _in){
@@ -691,61 +545,116 @@ void sortswap(double& val0, double& val1, string& tex0, string& tex1){
 }
 
 void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<string> > _sorfON, vector< vector<string> > _sorfOD, vector< vector<string> > _sorfOA,
-  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA, vector<string> _outfile){
+  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA){
 	
-	_outfileIndex = 0;
+	fstream file;
+	string name = currentDateTime() + ".txt";
+	file.open(name, ios::out);
 
-	_outfile.push_back("\t\t\t" + "/* --- overlap/N ---*/" + "\t\t\t\n");
-	_outfile.push_back("\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	changeAttName(_oAttCol);
+	cout << fixed  <<  setprecision(2);
+	file << fixed  <<  setprecision(2);
+
+	cout << "\n\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+	file << "\n\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl;
 	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			_outfile.push_back(_oAttCol[i] + "\t\t");
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			_outfile.push_back(_oAttCol[i] +"\t\t\t");
-		else if(_oAttCol[i].size() < 7)
-			_outfile.push_back(_oAttCol[i] +"\t\t\t\t");
-		else
-			_outfile.push_back(_oAttCol[i] +"\t\n");
-		_outfile.push_back( _sorfON[i][0] + "(" + _sorVON[i][0] + "%)" + "\t");
-		_outfile.push_back( _sorfON[i][1] + "(" + _sorVON[i][1] + "%)" + "\t");
-		_outfile.push_back( _sorfON[i][2] + "("<< _sorVON[i][2] + "%)" + "\t");
-		_outfile.push_back("\n");
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}	
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}	
+		cout <<  _sorfON[i][0] << "("<< _sorVON[i][0]<< "%)"<<"\t";
+		cout <<  _sorfON[i][1] << "("<< _sorVON[i][1]<< "%)"<<"\t";
+		cout <<  _sorfON[i][2] << "("<< _sorVON[i][2]<< "%)"<<"\t";
+		cout << endl;
+
+		file <<  _sorfON[i][0] << "("<< _sorVON[i][0]<< "%)"<<"\t";
+		file <<  _sorfON[i][1] << "("<< _sorVON[i][1]<< "%)"<<"\t";
+		file <<  _sorfON[i][2] << "("<< _sorVON[i][2]<< "%)"<<"\t";
+		file << endl;
 	}
 
-	_outfile.push_back( "\t\t\t" + "/* --- overlap/D ---*/" + "\t\t\t\n");
-	_outfile.push_back( "\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	cout << "\n\t\t\t" << "/* --- overlap/D ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+	file << "\n\t\t\t" << "/* --- overlap/D ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+
 	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			_outfile.push_back( _oAttCol[i] + "\t\t");
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			_outfile.push_back( _oAttCol[i] + "\t\t\t");
-		else if(_oAttCol[i].size() < 7)
-			_outfile.push_back( _oAttCol[i] + "\t\t\t\t");
-		else
-			_outfile.push_back( _oAttCol[i] + "\t");
-		_outfile.push_back( _sorfOD[i][0] + "(" + _sorVOD[i][0] + "%)" + "\t");
-		_outfile.push_back( _sorfOD[i][1] + "(" + _sorVOD[i][1] + "%)" + "\t");
-		_outfile.push_back( _sorfOD[i][2] + "(" + _sorVOD[i][2] + "%)" + "\t");
-		_outfile.push_back("\n");
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}	
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}	
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}
+			
+		cout <<  _sorfOD[i][0] << "("<< _sorVOD[i][0]<< "%)"<<"\t";
+		cout <<  _sorfOD[i][1] << "("<< _sorVOD[i][1]<< "%)"<<"\t";
+		cout <<  _sorfOD[i][2] << "("<< _sorVOD[i][2]<< "%)"<<"\t";
+		cout << endl;
+
+		file <<  _sorfOD[i][0] << "("<< _sorVOD[i][0]<< "%)"<<"\t";
+		file <<  _sorfOD[i][1] << "("<< _sorVOD[i][1]<< "%)"<<"\t";
+		file <<  _sorfOD[i][2] << "("<< _sorVOD[i][2]<< "%)"<<"\t";
+		file << endl;
 	}
 
-	_outfile.push_back( "\t\t\t" + "/* --- overlap/ALL ---*/" + "\t\t\t" + "\n");
-	_outfile.push_back( "\tAttribute\t" + "\t" + "NO.1" + "\t\t" + "NO.2" + "\t\t" + "NO.3" + "\n"); 
+	cout << "\n\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+	file << "\n\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
 	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			_outfile.push_back( _oAttCol[i] + "\t\t");
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			_outfile.push_back( _oAttCol[i] + "\t\t\t");
-		else if(_oAttCol[i].size() < 7)
-			_outfile.push_back( _oAttCol[i] + "\t\t\t\t");
-		else
-			_outfile.push_back( _oAttCol[i] + "\t");
-		_outfile.push_back( _sorfOA[i][0] + "(" + _sorVOA[i][0] + "%)" + "\t");
-		_outfile.push_back( _sorfOA[i][1] + "(" + _sorVOA[i][1] + "%)" + "\t");
-		_outfile.push_back( _sorfOA[i][2] + "(" + _sorVOA[i][2] + "%)" + "\t");
-		_outfile.push_back("\n");
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}
+			
+		cout <<  _sorfOA[i][0] << "("<< _sorVOA[i][0]<< "%)"<<"\t";
+		cout <<  _sorfOA[i][1] << "("<< _sorVOA[i][1]<< "%)"<<"\t";
+		cout <<  _sorfOA[i][2] << "("<< _sorVOA[i][2]<< "%)"<<"\t";
+		cout << endl;
+
+		file <<  _sorfOA[i][0] << "("<< _sorVOA[i][0]<< "%)"<<"\t";
+		file <<  _sorfOA[i][1] << "("<< _sorVOA[i][1]<< "%)"<<"\t";
+		file <<  _sorfOA[i][2] << "("<< _sorVOA[i][2]<< "%)"<<"\t";
+		file << endl;
 	}
 
+	/* --- rank fe --- */
 	vector<double> feCount;
 	vector<string> feSort;
 	for(int i=0; i<_oAttRow.size(); ++i){
@@ -753,10 +662,10 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 		feSort.push_back(_oAttRow[i]);
 	}
 		
-	int firstThree = 2;
+	int feFirstThree = 2;
 
 	for(int i=0; i<_oAttCol.size(); ++i){
-		for(int j=0; j<firstThree; ++j){
+		for(int j=0; j<feFirstThree; ++j){
 			for(int k=0; k<_oAttRow.size(); ++k){
 				if(_sorfON[i][j] == _oAttRow[k])
 					++feCount[k];
@@ -776,11 +685,56 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 		}
 	}
 
-	_outfile.push_back( "Best Feature: ");
-	for(int i=0; i<firstThree; ++i)
-		_outfile.push_back( feSort[i] + " ");
-	_outfile.push_back("\n");
+	cout << "\nBest Feature: ";
+	file << "\nBest Feature: ";
+	for(int i=0; i<feFirstThree; ++i){
+		cout << feSort[i] << " ";
+		file << feSort[i] << " ";
+	}
 
+	cout << endl;
+	file << endl;
+
+	/* --- rank type --- */
+	vector<double> tyCount;
+	vector<string> tySort;
+
+	for(int i=0; i<_oAttCol.size(); ++i){
+		tyCount.push_back(0);
+		tySort.push_back(_oAttCol[i]);
+	}
+
+	int tyFirstThree = 1;
+
+	for(int i=0; i<_oAttCol.size(); ++i){
+		for(int j=0; j<tyFirstThree; ++j){
+			tyCount[i] += _sorVON[i][j];
+			tyCount[i] += _sorVOD[i][j];
+			tyCount[i] += _sorVOA[i][j];
+		}
+	}
+	
+	for(int i=0; i<_oAttCol.size(); ++i){
+		for(int j=i; j<_oAttCol.size(); ++j){
+			if(tyCount[i]>tyCount[j]){
+				sortswap(tyCount[i], tyCount[j], tySort[i], tySort[j]);
+			}
+		}
+	}
+
+	cout << "\nBest Group: ";
+	file << "\nBest Group: ";
+	for(int i=0; i<tyFirstThree; ++i){
+		cout << tySort[i] << " ";
+		file << tySort[i] << " ";
+	}
+
+	cout << endl;
+	file << endl;
+
+	cout.unsetf( ios::fixed );
+	file.unsetf( ios::fixed );
+	file.close();
 }
 
 string currentDateTime(){
@@ -789,118 +743,497 @@ string currentDateTime(){
     char       buf[80];
     tstruct = *localtime(&now);
 
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    strftime(buf, sizeof(buf), "%Y%m%d_%I%M%S", &tstruct);
     return buf;
 }
 
-void writeTxt(vector<string> _in){
-	fstream file;
-	string name = currentDateTime() + ".txt";
-	file.open(name, ios::out);
+void help(){
+	cout << "Error: main.out  [csv path] [calibration func(IC0400 or IC0061)]" << endl;
+}
 
-	if(!file){
-		cout << "Error: TXT file not open."<< endl;
-		exit(0);
+void openAllFe(int feN, vector<int>& _feIndex){
+	for(int i=0; i<feN; ++i)
+		_feIndex.push_back(i);
+}
+
+void progressBar(string name, int index, int total, bool fin){
+	float progress = ((float)index/(float)total);
+	
+	int barWidth = 70;
+
+	cout << name << "\t"<<"[";
+	int pos = barWidth * progress;
+	
+	for (int i = 0; i < barWidth; ++i) {
+		if (i < pos) std::cout << "#";
+		else if (i == pos) std::cout << ">";
+		else std::cout << " ";
 	}
-	else{
-		for(int i=0; i<_in.size(); ++i){
-			file << _in[i] << endl;
+
+	cout << "] " << int(progress * 100.0) << "%" << "\r";
+	if(fin)
+		cout << endl;
+}
+
+void changeAttName(vector<string>& __oAttCol){
+	vector<string> att;
+
+	for(int i=0; i<__oAttCol.size(); ++i){
+		att = split(__oAttCol[i], ',');
+		
+		__oAttCol[i] = "";
+		
+		for(int j=0; j<att.size(); ++j){
+			if(att.size() < 2){
+				__oAttCol[i] += "NG";
+			}
+			else{
+				if(att[j] == "Type")
+					continue;
+				if(j!=0)
+					__oAttCol[i] += ",";
+				__oAttCol[i] += att[j];			
+			}
 		}
+		att.clear();
 	}
 }
 
 
+void featureExtraction(vector<int> _index, vector<Mat> _defImg, vector<Mat> _refImg, vector< vector<double> >& _feCal){
 
-/*
+	vector<double> __feCal;
+	for(int i=0; i<_defImg.size(); ++i)
+		__feCal.push_back(0);
+	for(int i=0; i<_index.size(); ++i)
+		_feCal.push_back(__feCal);
 
+     Feature fe;
 
-	cout << "\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
-	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
-	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			cout << _oAttCol[i] <<"\t\t";
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			cout << _oAttCol[i] <<"\t\t\t";
-		else if(_oAttCol[i].size() < 7)
-			cout << _oAttCol[i] <<"\t\t\t\t";
-		else
-			cout << _oAttCol[i] <<"\t";
-		cout <<  _sorfON[i][0] << "("<< _sorVON[i][0]<< "%)"<<"\t";
-		cout <<  _sorfON[i][1] << "("<< _sorVON[i][1]<< "%)"<<"\t";
-		cout <<  _sorfON[i][2] << "("<< _sorVON[i][2]<< "%)"<<"\t";
-		cout << endl;
+	for(int i=0; i<_index.size(); ++i){  
+		progressBar("feExtraction",i,_index.size(),false);
+          switch(_index[i]){
+               case 0:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5000(_defImg[j], _refImg[j]);   
+                    } 
+                    break;
+               case 1:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5100(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 2:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5101(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 3:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5102(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 4:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5103(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 5:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5104(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 6:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5110(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 7:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5200(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 8:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5210(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 9:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5211(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 10:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5212(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 11:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5220(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 12:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5221(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 13:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5222(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 14:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5230(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 15:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5231(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 16:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5232(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 17:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5240(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 18:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5241(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 19:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5242(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 20:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5250(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 21:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5251(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 22:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5252(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 23:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5300(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 24:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5301(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 25:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5302(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 26:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5303(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 27:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5304(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 28:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5305(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 29:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5310(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 30:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5311(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 31:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5312(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 32:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5313(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 33:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5314(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 34:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5315(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 35:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5400(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 36:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5401(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 37:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5402(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 38:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5403(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 39:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5404(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 40:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5405(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 41:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5410(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 42:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5411(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 43:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5412(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 44:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5413(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 45:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5414(_defImg[j], _refImg[j]);
+                    }
+                    break;                    
+               case 46:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5415(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 47:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5416(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 48:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5417(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 49:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5418(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               case 50:
+                    for(int j=0; j<_defImg.size(); ++j){
+                         _feCal[i][j] = (double)fe.FE5419(_defImg[j], _refImg[j]);
+                    }
+                    break;
+               default:
+                    break;
+          }
+     }
+	progressBar("feExtraction",_index.size(),_index.size(),true);
+}
 
-	}
+string feName(int _index){
+	string name;
 
-	cout << "\t\t\t" << "/* --- overlap/D ---*/" << "\t\t\t" << endl;
-	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
-	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			cout << _oAttCol[i] <<"\t\t";
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			cout << _oAttCol[i] <<"\t\t\t";
-		else if(_oAttCol[i].size() < 7)
-			cout << _oAttCol[i] <<"\t\t\t\t";
-		else
-			cout << _oAttCol[i] <<"\t";
-		cout <<  _sorfOD[i][0] << "("<< _sorVOD[i][0]<< "%)"<<"\t";
-		cout <<  _sorfOD[i][1] << "("<< _sorVOD[i][1]<< "%)"<<"\t";
-		cout <<  _sorfOD[i][2] << "("<< _sorVOD[i][2]<< "%)"<<"\t";
-		cout << endl;
-
-	}
-
-	cout << "\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
-	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
-	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13)
-			cout << _oAttCol[i] <<"\t\t";
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7)
-			cout << _oAttCol[i] <<"\t\t\t";
-		else if(_oAttCol[i].size() < 7)
-			cout << _oAttCol[i] <<"\t\t\t\t";
-		else
-			cout << _oAttCol[i] <<"\t";
-		cout <<  _sorfOA[i][0] << "("<< _sorVOA[i][0]<< "%)"<<"\t";
-		cout <<  _sorfOA[i][1] << "("<< _sorVOA[i][1]<< "%)"<<"\t";
-		cout <<  _sorfOA[i][2] << "("<< _sorVOA[i][2]<< "%)"<<"\t";
-		cout << endl;
-	}
-
-	vector<double> feCount;
-	vector<string> feSort;
-	for(int i=0; i<_oAttRow.size(); ++i){
-		feCount.push_back(0);
-		feSort.push_back(_oAttRow[i]);
-	}
-		
-	int firstThree = 2;
-
-	for(int i=0; i<_oAttCol.size(); ++i){
-		for(int j=0; j<firstThree; ++j){
-			for(int k=0; k<_oAttRow.size(); ++k){
-				if(_sorfON[i][j] == _oAttRow[k])
-					++feCount[k];
-				if(_sorfOD[i][j] == _oAttRow[k])
-					++feCount[k];
-				if(_sorfOA[i][j] == _oAttRow[k])
-					++feCount[k];
-			}
-		}
-	}
-
-	for(int i=0; i<_oAttRow.size(); ++i){
-		for(int j=i; j<_oAttRow.size(); ++j){
-			if(feCount[i]<feCount[j]){
-				sortswap(feCount[i], feCount[j], feSort[i], feSort[j]);
-			}
-		}
-	}
-
-	cout << "Best Feature: ";
-	for(int i=0; i<firstThree; ++i)
-		cout << feSort[i] << " ";
-	cout << endl;
-
-
-*/
+          switch(_index){
+               case 0:
+                    name = ("FE5000");
+                    break;
+               case 1:
+                    name = ("FE5100");
+                    break;
+               case 2:
+                    name = ("FE5101");
+                    break;
+               case 3:
+                    name = ("FE5102");
+                    break;
+               case 4:
+                    name = ("FE5103");
+                    break;
+               case 5:
+                    name = ("FE5104");
+                    break;
+               case 6:
+                    name = ("FE5110");
+                    break;
+               case 7:
+                    name = ("FE5200");
+                    break;
+               case 8:
+                    name = ("FE5210");
+                    break;                    
+               case 9:
+                    name = ("FE5211");
+                    break;                    
+               case 10:
+                    name = ("FE5212");
+                    break;                    
+               case 11:
+                    name = ("FE5220");
+                    break;                    
+               case 12:
+                    name = ("FE5221");
+                    break;                    
+               case 13:
+                    name = ("FE5222");
+                    break;                    
+               case 14:
+                    name = ("FE5230");
+                    break;                    
+               case 15:
+                    name = ("FE5231");
+                    break;                    
+               case 16:
+                    name = ("FE5232");
+                    break;                    
+               case 17:
+                    name = ("FE5240");
+                    break;                    
+               case 18:
+                    name = ("FE5241");
+                    break;                    
+               case 19:
+                    name = ("FE5242");
+                    break;
+               case 20:
+                    name = ("FE5250");
+                    break;
+               case 21:
+                    name = ("FE5251");
+                    break;
+               case 22:
+                    name = ("FE5252");
+                    break;
+               case 23:
+                    name = ("FE5300");
+                    break;
+               case 24:
+                    name = ("FE5301");
+                    break;
+               case 25:
+                    name = ("FE5302");
+                    break;
+               case 26:
+                    name = ("FE5303");
+                    break;
+               case 27:
+                    name = ("FE5304");
+                    break;
+               case 28:
+                    name = ("FE5305");
+                    break;
+               case 29:
+                    name = ("FE5310");
+                    break;
+               case 30:
+                    name = ("FE5311");
+                    break;
+               case 31:
+                    name = ("FE5312");
+                    break; 
+               case 32:
+                    name = ("FE5313");
+                    break;
+               case 33:
+                    name = ("FE5314");
+                    break;
+               case 34:
+                    name = ("FE5315");
+                    break;
+               case 35:
+                    name = ("FE5400");
+                    break;
+               case 36:
+                    name = ("FE5401");
+                    break;
+               case 37:
+                    name = ("FE5402");
+                    break;
+               case 38:
+                    name = ("FE5403");
+                    break;
+               case 39:
+                    name = ("FE5404");
+                    break;
+               case 40:
+                    name = ("FE5405");
+                    break;
+               case 41:
+                    name = ("FE5410");
+                    break;
+               case 42:
+                    name = ("FE5411");
+                    break;
+               case 43:
+                    name = ("FE5412");
+                    break;
+               case 44:
+                    name = ("FE5413");
+                    break;
+               case 45:
+                    name = ("FE5414");
+                    break;
+               case 46:
+                    name = ("FE5415");
+                    break;
+               case 47:
+                    name = ("FE5416");
+                    break;
+               case 48:
+                    name = ("FE5417");
+                    break;
+               case 49:
+                    name = ("FE5418");
+                    break;
+               case 50:
+                    name = ("FE5419");
+                    break;
+               default:
+                    break;
+          }
+     return name;
+}

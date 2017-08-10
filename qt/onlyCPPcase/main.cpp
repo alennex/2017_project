@@ -58,7 +58,7 @@ void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vec
 void sortswap(double&, double&, string&, string&);
 
 void showRank( vector<string>, vector<string>, vector< vector<string> >, vector< vector<string> >, vector< vector<string> >,
-  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<ndNum>&);
+  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<ndNum>);
 void changeAttName(vector<string>&);
 
 void help();
@@ -68,6 +68,7 @@ string int2string(int);
 vector<string> split(const string& , const char& );
 string currentDateTime();
 void progressBar(string, int, int, bool);
+void writeCSV(vector< vector<double> >, vector<string>, vector< vector<string> >);
 
 int main(int argc, char* argv[]){
 	
@@ -86,13 +87,6 @@ int main(int argc, char* argv[]){
 	vector< vector<string> > inFile;
 	openCSV(_fileName, inFile);
 
-	for(int i=0; i<inFile.size(); ++i){
-		for(int j=0; j<inFile[0].size(); ++j){
-			cout << inFile[i][j] << " ";
-		}
-		cout << endl;
-	}
-/*
 	vector<Mat> defImg, refImg;
 	openImg(inFile, defImg, refImg);
 	
@@ -104,19 +98,20 @@ int main(int argc, char* argv[]){
 
 	vector< vector<string> > attTable;
 	collectAttribute(inFile, attTable);
-	
+
 	vector<string> oAttCol, oAttRow;
 	vector< vector<overArea> > oArea;
 	vector<ndNum> ndCount;
-
 	overlap(inFile, attTable, feCal, feIndex, oAttCol, oAttRow, oArea, ndCount);
 
+	
 	vector< vector<string> > sorfON, sorfOD, sorfOA;
 	vector< vector<double> > sorVON, sorVOD, sorVOA;		
 	sortOAreaTb(oAttCol, oAttRow, oArea, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
 
 	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA, ndCount);
-*/
+
+	writeCSV(feCal, oAttRow, inFile);
 	return 0;
 }
 
@@ -162,8 +157,9 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 		if(_inFile[0][i].find("REF_IMAGE") != std::string::npos)
 			refCol = i;
 		if(_inFile[0][i].find("ECC_result") != std::string::npos)
-			refCol = i;
+			keptImg = i;
 	}
+
 	if(defCol == 0|| refCol == 0|| keptImg == 0){
 		cout << "Error in openImg: defCol == 0|| refCol == 0|| keptImg == 0" << endl;
 		exit(0);
@@ -172,6 +168,7 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 	string refName;
 
 	for(int i=1; i<_inFile.size(); ++i){
+		progressBar("open Image", i, _inFile.size(),false);
 		if(_inFile[i][keptImg] != "0"){
 			cout << "kept" << i << endl;
 			continue;
@@ -193,6 +190,7 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 			exit(0);
 		}		
 	}
+	progressBar("open Image", _inFile.size(), _inFile.size(),true);
 }
 
 void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >& _attTable){
@@ -208,7 +206,8 @@ void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >
 		if(_inFile[0][i].find("DEF_IMAGE") != std::string::npos || 
 			_inFile[0][i].find("REF_IMAGE") != std::string::npos || 
 			_inFile[0][i].find("DEFECTID") != std::string::npos||
-			_inFile[0][i].find("ECC_result") != std::string::npos)
+			_inFile[0][i].find("ECC_result") != std::string::npos||
+			_inFile[0][i].find("LOTID") != std::string::npos)
 			continue;
 		else{
 			++typeID;
@@ -246,7 +245,7 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 		_oArea.push_back(__oArea);
 
 	ndNum tmp2;
-	for(int i=0; i<_oAttRow.size(); ++i)
+	for(int i=0; i<_oAttCol.size(); ++i)
 		_ndCount.push_back(tmp2);
 
 	vector<string> TypeRow;	// collect ID = 0 or 1
@@ -284,7 +283,7 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 				break;
 
 			case 2:	// one attrib + only
-			{
+			{	
 				vector<string> type0, type1;
 				type0 = split(typeID[0], '@');
 				type1 = split(typeID[1], '@');
@@ -301,14 +300,16 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 				for(int j=0; j<_feIndex.size(); ++j){
 					TypeRow.clear();
 					TypeVal.clear();
-
+					
 					for(int k=1; k<_inFile.size(); ++k){
+
 						if(_inFile[k][TypeCol0] == type0[1]){
 							TypeRow.push_back(_inFile[k][TypeCol1]);
 							TypeVal.push_back(_feCal[j][k-1]);
 						}
 					}
 					calOverArea(TypeRow, TypeVal, _oArea[i][j]);
+					
 				}
 			}
 				break;
@@ -342,7 +343,6 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 
 							TypeRow.push_back(_inFile[k][TypeCol2]);
 							TypeVal.push_back(_feCal[j][k-1]);
-
 						}
 					}
 					calOverArea(TypeRow, TypeVal, _oArea[i][j]);
@@ -356,6 +356,7 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 		countND(_oAttCol[i], TypeRow, _ndCount[i]);
 	}
 	progressBar("overlap area", _oAttCol.size(), _oAttCol.size(),true);
+	
 }
 
 void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol ){
@@ -395,7 +396,7 @@ void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol 
 
 void overlap_row(vector<int> __feIndex, vector<string>& __oAttRow){
 	for(int i=0; i<__feIndex.size(); ++i){
-		string buf = "fe-" + int2string(__feIndex[i]);
+		string buf = feName(i);
 		__oAttRow.push_back(buf);
 	}
 }
@@ -422,11 +423,6 @@ vector<string> split(const string& source, const char& delim){
 
 void countND(string label, vector<string> _typeRow, ndNum& rst){
 
-    if(_typeRow.size() != _typeVal.size()){
-		cout << "Error in countND: _typeRow.size() != _typeVal.size()" << endl;
-		exit(0);
-	}
-
 	int nSum = 0, dSum = 0;
 	for(int i=0; i<_typeRow.size(); i++){
 		if(_typeRow[i] == "0")
@@ -440,12 +436,12 @@ void countND(string label, vector<string> _typeRow, ndNum& rst){
 	}
 
 	rst.attName = label;
-	rst.nSum = nSum;
-	rst.dSum = dSum;
+	rst.nNum = nSum;
+	rst.dNum = dSum;
+	rst.nd = nSum + dSum;
 }
 
 void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst){
-
 	if(_typeRow.size() != _typeVal.size()){
 		cout << "Error in calOverArea: in calOverArea, _typeRow.size() != _typeVal.size()" << endl;
 		exit(0);
@@ -465,33 +461,47 @@ void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst
 		}
 	}
 
-	double maxVal = 0;
-	for(int i=0; i<type0Val.size(); ++i)
+	int bin = 30;
+	double interval = 0;
+	double minVal = 100000.0,maxVal = 0.0;
+	for(int i=0; i<type0Val.size(); ++i){
 		maxVal = (maxVal>type0Val[i])?maxVal:type0Val[i];
-	for(int i=0; i<type1Val.size(); ++i)
-		maxVal = (maxVal>type0Val[i])?maxVal:type0Val[i];
-	maxVal = maxVal + 5;
+		minVal = (minVal<type0Val[i])?minVal:type0Val[i];
+	}
 
+	for(int i=0; i<type1Val.size(); ++i){
+		maxVal = (maxVal>type1Val[i])?maxVal:type1Val[i];
+		minVal = (minVal>type1Val[i])?minVal:type1Val[i];
+	}
+	if(maxVal == 0) maxVal++;
+	interval = fabs(maxVal - minVal)/(double)bin + 1;
+		
 	vector<int> overArea, t0Area, t1Area;
-	for(int i=0; i<maxVal; ++i){
+	for(int i=0; i<abs(maxVal/interval); ++i){
 		overArea.push_back(0);
 		t0Area.push_back(0);
 		t1Area.push_back(0);
 	}
 
 	for(int i=0; i<type0Val.size(); ++i)
-		t0Area[round(type0Val[i])]++;
+		t0Area[round(type0Val[i]/interval)]++;
 	for(int i=0; i<type1Val.size(); ++i)
-		t1Area[round(type1Val[i])]++;
-	for(int i=0; i<maxVal; ++i)
+		t1Area[round(type1Val[i]/interval)]++;
+	for(int i=0; i<overArea.size(); ++i)
 		overArea[i] = (t0Area[i] < t1Area[i])?(t0Area[i]):(t1Area[i]);
 
 	double sumOverArea = 0., sumT0 = 0., sumT1 = 0.;
-	for(int i=0; i<maxVal; ++i){
+	for(int i=0; i<overArea.size(); ++i){
 		sumOverArea += overArea[i];
 		sumT0 += t0Area[i];
 		sumT1 += t1Area[i];
 	}
+
+	type0Val.clear();
+	type1Val.clear();
+	overArea.clear();
+	t0Area.clear();
+	t1Area.clear();
 
 	if(sumOverArea == 0){
 		rst.ON = 0;
@@ -694,6 +704,42 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 		file << endl;
 	}
 
+	/* --- ND count show --- */
+	cout << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"N num"<<"\t"<<"D num"<<"\t"<<"total"<<endl; 
+	file << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"N num"<<"\t"<<"D num"<<"\t"<<"total"<<endl; 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}
+
+		cout <<  _ndCount[i].nNum << "\t";
+		cout <<  _ndCount[i].dNum << "\t";
+		cout <<  _ndCount[i].nd << "\t";
+		//cout <<  _ndCount[i].attName;
+		cout << endl;
+
+		file <<  _ndCount[i].nNum << "\t";
+		file <<  _ndCount[i].dNum << "\t";
+		file <<  _ndCount[i].nd << "\t";
+		//file <<  _ndCount[i].attName;
+		file << endl;
+	}
+
 	/* --- rank fe --- */
 	vector<double> feCount;
 	vector<string> feSort;
@@ -762,51 +808,15 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 		}
 	}
 
-	cout << "\nBest Group: ";
-	file << "\nBest Group: ";
+	cout << "Best Group: ";
+	file << "Best Group: ";
 	for(int i=0; i<tyFirstThree; ++i){
 		cout << tySort[i] << " ";
 		file << tySort[i] << " ";
 	}
-
 	cout << endl;
 	file << endl;
 
-	/* --- ND count show --- */
-	cout << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
-	cout << "\tAttribute\t"<<"\t"<<"N num"<<"\t\t"<<"D num"<<"\t\t"<<"total"<<endl; 
-	file << "\n\t\t\t" << "/* --- N/D Number ---*/" << "\t\t\t" << endl;
-	file << "\tAttribute\t"<<"\t"<<"N num"<<"\t\t"<<"D num"<<"\t\t"<<"total"<<endl; 
-	for(int i=0; i<_oAttCol.size(); ++i){
-		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
-			cout << _oAttCol[i] <<"\t\t";
-			file << _oAttCol[i] <<"\t\t";
-		}
-		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
-			cout << _oAttCol[i] <<"\t\t\t";
-			file << _oAttCol[i] <<"\t\t\t";
-		}
-		else if(_oAttCol[i].size() < 7){
-			cout << _oAttCol[i] <<"\t\t\t\t";
-			file << _oAttCol[i] <<"\t\t\t\t";
-		}
-		else{
-			cout << _oAttCol[i] <<"\t";
-			file << _oAttCol[i] <<"\t";
-		}
-
-		cout <<  _ndCount[i].nNum << "\t";
-		cout <<  _ndCount[i].dNum << "\t";
-		cout <<  _ndCount[i].nd << "\t";
-		cout <<  _ndCount[i].attName;
-		cout << endl;
-
-		file <<  _ndCount[i].nNum << "\t";
-		file <<  _ndCount[i].dNum << "\t";
-		file <<  _ndCount[i].nd << "\t";
-		file <<  _ndCount[i].attName;
-		file << endl;
-	}
 
 	cout.unsetf( ios::fixed );
 	file.unsetf( ios::fixed );
@@ -1311,4 +1321,34 @@ string feName(int _index){
                     break;
           }
      return name;
+}
+
+void writeCSV(vector< vector<double> > _feCal, vector<string> fename, vector< vector<string> > _inFile){
+
+	ofstream file;
+	string name = currentDateTime() + ".csv";
+	file.open(name);
+	//file << fixed  <<  setprecision(2);
+
+	for(int i=0; i<_inFile[0].size(); ++i)
+		file << _inFile[0][i] << ",";
+	for(int i=0; i<fename.size(); ++i){
+		file << fename[i];
+		if(i != (fename.size()-1)) file << ",";
+	}
+	file << endl;
+	
+	for(int i=0; i<_feCal.size(); ++i){
+		for(int j=0; j<_inFile[0].size(); ++j){
+			file << _inFile[i+1][j] << ",";
+		}
+		for(int j=0; j<_feCal[0].size(); ++j){
+			file << _feCal[i][j];
+			if(j != (_feCal[0].size()-1)) file<< ",";
+		}
+		file << endl;
+	}
+
+	//file.unsetf( ios::fixed );
+	file.close();
 }

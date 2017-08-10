@@ -1,4 +1,4 @@
-DEFECTID,TEST,SCANTESTID,Type,DEF_IMAGE,REF_IMAGE
+LOTID,TEST,SCANTESTID,Type,DEF_IMAGE,REF_IMAGE
 N9H280-1,2,2,1,testData/PATCH/left/1.png,testData/PATCH/right/1.png
 N9H280-2,1,1,0,testData/PATCH/left/2.png,testData/PATCH/right/2.png
 N9H280-3,1,1,0,testData/PATCH/left/3.png,testData/PATCH/right/3.png

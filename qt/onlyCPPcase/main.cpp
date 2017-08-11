@@ -5,7 +5,7 @@ date: 2017/08/10
 purpose: to verify feature effect work on defect image.
 usage: ./out {csv path} {calibration Name}
 
-to do thing: check Fecal[i][j] in j all == 0
+to do thing: 1. openImg check, 2. caloverArea, Normalize. 3. kernal density estimation(to code project)
 */
 
 #include <vector>
@@ -193,7 +193,7 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 		}
 		_defImg.push_back(defbuf);
 		_refImg.push_back(refbuf);
-		
+
 		defbuf = Mat::zeros(defbuf.size(), defbuf.type());
 		refbuf = Mat::zeros(refbuf.size(), refbuf.type());
 	}

@@ -166,6 +166,8 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 	}
 	string defName;
 	string refName;
+	Mat defbuf;
+	Mat refbuf;
 
 	for(int i=1; i<_inFile.size(); ++i){
 		progressBar("open Image", i, _inFile.size(),false);
@@ -176,19 +178,24 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 
 		defName = _inFile[i][defCol];
 		refName = _inFile[i][refCol];
-		_defImg.push_back(imread(defName,CV_LOAD_IMAGE_GRAYSCALE));
-		_refImg.push_back(imread(refName,CV_LOAD_IMAGE_GRAYSCALE));
-		
-		if(!_defImg[i-1].data){
+		defbuf = imread(defName,CV_LOAD_IMAGE_GRAYSCALE);
+		refbuf = imread(refName,CV_LOAD_IMAGE_GRAYSCALE);
+
+		if(!defbuf.data){
 			cout << "Error in openImg: DEF image " << i << " is not open."<< endl;
 			cout << "defName Path:" << defName << endl;
 			exit(0);
 		}
-		else if(!_refImg[i-1].data){
+		else if(!refbuf.data){
 			cout << "Error in openImg: REF image " << i << " is not open."<< endl;
 			cout << "refName Path:" << refName << endl;
 			exit(0);
-		}		
+		}
+		_defImg.push_back(defbuf);
+		_refImg.push_back(refbuf);
+		
+		defbuf = Mat::zeros(defbuf.size(), defbuf.type());
+		refbuf = Mat::zeros(refbuf.size(), refbuf.type());
 	}
 	progressBar("open Image", _inFile.size(), _inFile.size(),true);
 }

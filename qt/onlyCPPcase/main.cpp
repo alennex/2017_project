@@ -1,11 +1,13 @@
 
 /*
 version v1.0
-date: 2017/08/10
+date: 2017/08/11
 purpose: to verify feature effect work on defect image.
 usage: ./out {csv path} {calibration Name}
 
 to do thing: 1. openImg check, 2. caloverArea, Normalize. 3. kernal density estimation(to code project)
+
+doing thing: 1.sort Attrible( sortAttribute Func). 2.openImg func(removeFileRow) 3. caloverArea Normalize
 */
 
 #include <vector>
@@ -39,9 +41,11 @@ typedef struct _ndnum{
 
 void openCSV(char*, vector< vector<string> >&);
 void openImg(vector< vector<string> > ,vector<Mat>&, vector<Mat>&);
+void removeFileRow(vector< vector<string> >&, vector<int>);
 void calibration(char*, char*, string&);
 void featureExtraction(vector<int>, vector<Mat>, vector<Mat>, vector< vector<double> >&);
 void collectAttribute(vector< vector<string> >, vector< vector<string> >&);
+void sortAttribute(vector< vector<string> >& );
 
 void overlap(vector< vector<string> >, vector< vector<string> >, vector< vector<double> >, 
 	vector<int>, vector<string>&, vector<string>&, vector< vector<overArea> >&, vector<ndNum>&);
@@ -168,6 +172,7 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 	string refName;
 	Mat defbuf;
 	Mat refbuf;
+	vector< int > rowIndex;
 
 	for(int i=1; i<_inFile.size(); ++i){
 		progressBar("open Image", i, _inFile.size(),false);
@@ -184,12 +189,14 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 		if(!defbuf.data){
 			cout << "Error in openImg: DEF image " << i << " is not open."<< endl;
 			cout << "defName Path:" << defName << endl;
-			exit(0);
+			rowIndex.push_back(i);
+			continue;
 		}
 		else if(!refbuf.data){
 			cout << "Error in openImg: REF image " << i << " is not open."<< endl;
 			cout << "refName Path:" << refName << endl;
-			exit(0);
+			rowIndex.push_back(i);
+			continue;
 		}
 		_defImg.push_back(defbuf);
 		_refImg.push_back(refbuf);
@@ -197,7 +204,33 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 		defbuf = Mat::zeros(defbuf.size(), defbuf.type());
 		refbuf = Mat::zeros(refbuf.size(), refbuf.type());
 	}
+	removeFileRow(_inFile,rowIndex);
 	progressBar("open Image", _inFile.size(), _inFile.size(),true);
+}
+
+void removeFileRow(vector< vector<string> >& __inFile, vector<int> __index){
+	vector< vector<string> > bufFile;
+	vector<string> _bufFile;
+	for(int i=0; i<__inFile[0].size(); ++i)
+		_bufFile.push_back(" ");
+	for(int i=0; i<__inFile.size(); ++i)
+		bufFile.push_back(_bufFile);
+
+	for(int i=0; i<__inFile.size(); ++i){
+		for(int j=0; j<__inFile[0].size(); ++j){
+			bufFile[i][j] = __inFile[i][j];
+		}
+		__inFile[i].clear();
+	}
+	__inFile.clear();
+
+	for(int i=0; i<bufFile.size(); ++i){
+		if(i == __index)
+			continue;
+		else{
+			__inFile.push_back(bufFile[i]);
+		}
+	}
 }
 
 void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >& _attTable){
@@ -231,6 +264,40 @@ void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >
 					}
 					else
 						continue; 
+				}
+			}
+		}
+	}
+	sortAttribute(_attTable);
+}
+
+void sortAttribute(vector< vector<string> >& __attTable){
+	
+	int val1 = 0, val2 = 0;
+	string bufString;
+	for(int i=0; i<__attTable.size(); ++i){
+		for(int j=1; j<__attTable[i].size(); ++j){
+			if(__attTable[i][j] == " ") break;
+			for(int k=j; k<__attTable[i].size(); ++k){
+				val1 = 0, val2 = 0;
+				val1 = atoi(__attTable[i][j].c_str());
+				val2 = atoi(__attTable[i][k].c_str());
+				if(val1 > val2){
+					bufString = __attTable[i][k]; 
+					__attTable[i][k] = __attTable[i][j];
+					__attTable[i][j] = bufString;
+				}
+			}
+		}
+	}
+
+	for(int i=0; i<__attTable.size(); ++i){
+		for(int j=i; j<__attTable.size(); ++j){
+			if(__attTable[i][0].size() > __attTable[j][0].size()){
+				for(int k=0; k<__attTable[0].size(); ++k){
+					bufString = __attTable[i][k];
+					__attTable[i][k] = __attTable[j][k];
+					__attTable[j][k] = bufString;
 				}
 			}
 		}
@@ -468,7 +535,7 @@ void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst
 		}
 	}
 
-	int bin = 30;
+	int bin = 20;
 	double interval = 0;
 	double minVal = 100000.0,maxVal = 0.0;
 	for(int i=0; i<type0Val.size(); ++i){
@@ -483,27 +550,37 @@ void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst
 	if(maxVal == 0) maxVal++;
 	interval = fabs(maxVal - minVal)/(double)bin + 1;
 		
-	vector<int> overArea, t0Area, t1Area;
+	vector<double> overArea, t0Area, t1Area;
 	for(int i=0; i<abs(maxVal/interval); ++i){
-		overArea.push_back(0);
-		t0Area.push_back(0);
-		t1Area.push_back(0);
+		overArea.push_back(0.0);
+		t0Area.push_back(0.0);
+		t1Area.push_back(0.0);
 	}
 
 	for(int i=0; i<type0Val.size(); ++i)
 		t0Area[round(type0Val[i]/interval)]++;
 	for(int i=0; i<type1Val.size(); ++i)
 		t1Area[round(type1Val[i]/interval)]++;
-	for(int i=0; i<overArea.size(); ++i)
-		overArea[i] = (t0Area[i] < t1Area[i])?(t0Area[i]):(t1Area[i]);
-
+	
 	double sumOverArea = 0., sumT0 = 0., sumT1 = 0.;
 	for(int i=0; i<overArea.size(); ++i){
-		sumOverArea += overArea[i];
 		sumT0 += t0Area[i];
 		sumT1 += t1Area[i];
 	}
 
+	for(int i=0; i<overArea.size(); ++i){
+		t0Area[i] = t0Area[i]/sumT0;
+		t1Area[i] = t1Area[i]/sumT1;
+		overArea[i] = (t0Area[i] < t1Area[i])?(t0Area[i]):(t1Area[i]);
+	}
+
+	sumT0 = 0.0; sumT1 = 0.0;	
+	for(int i=0; i<overArea.size(); ++i){
+		sumT0 += t0Area[i];
+		sumT1 += t1Area[i];
+		sumOverArea += overArea[i];
+	}
+		
 	type0Val.clear();
 	type1Val.clear();
 	overArea.clear();

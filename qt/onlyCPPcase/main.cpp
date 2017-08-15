@@ -1,13 +1,16 @@
 
 /*
-version v1.0
-date: 2017/08/11
+version v2.0
+date: 2017/08/14
 purpose: to verify feature effect work on defect image.
 usage: ./out {csv path} {calibration Name}
 
 to do thing: 1. openImg check, 2. caloverArea, Normalize. 3. kernal density estimation(to code project)
 
-doing thing: 1.sort Attrible( sortAttribute Func). 2.openImg func(removeFileRow) 3. caloverArea Normalize
+doing thing: 
+1.sort Attrible( sortAttribute Func). 
+2.openImg func(removeFileRow) 
+3. caloverArea Normalize && new coverage caluated
 */
 
 #include <vector>
@@ -15,6 +18,7 @@ doing thing: 1.sort Attrible( sortAttribute Func). 2.openImg func(removeFileRow)
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <math.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -30,6 +34,12 @@ typedef struct _overArea{
 	double ON = 0.0;	// over/type0
 	double OD = 0.0;	// over/type1
 	double OA = 0.0;	// over/all
+
+	double _N = 0.0;
+	double _D = 0.0;
+	double _ND = 0.0;
+	double _Range = 0.0;
+
 }overArea;
 
 typedef struct _ndnum{
@@ -40,7 +50,9 @@ typedef struct _ndnum{
 }ndNum;
 
 void openCSV(char*, vector< vector<string> >&);
-void openImg(vector< vector<string> > ,vector<Mat>&, vector<Mat>&);
+void copyFile(vector< vector<string> >, vector< vector<string> >&);
+void openImg(vector< vector<string> >& ,vector<Mat>&, vector<Mat>&, vector<int>&);
+void eraseSpace(string&);
 void removeFileRow(vector< vector<string> >&, vector<int>);
 void calibration(char*, char*, string&);
 void featureExtraction(vector<int>, vector<Mat>, vector<Mat>, vector< vector<double> >&);
@@ -50,19 +62,23 @@ void sortAttribute(vector< vector<string> >& );
 void overlap(vector< vector<string> >, vector< vector<string> >, vector< vector<double> >, 
 	vector<int>, vector<string>&, vector<string>&, vector< vector<overArea> >&, vector<ndNum>&);
 void overlap_col	(vector< vector<string> >, vector<string>&);
+void sortString(vector<string>&);
 void overlap_row(vector<int>, vector<string>&);
 void calOverArea(vector<string>, vector<double>, overArea&);
 void countND(string, vector<string>, ndNum&);
 
 void sortOAreaTb(vector<string>, vector<string>, vector< vector<overArea> >,
- vector< vector<string> >&, vector< vector<string> >&, vector< vector<string> >&,
-  vector< vector<double> >&, vector< vector<double> >&, vector< vector<double> >&);
+ vector< vector<string> >&, vector< vector<string> >&, vector< vector<string> >&, vector< vector<string> >&,
+  vector< vector<double> >&, vector< vector<double> >&, vector< vector<double> >&,vector< vector<double> >&);
 void sorFinit(vector<string>, vector<string>, vector< vector<string> >&);
-void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vector<double> >&, vector< vector<double> >&);
+void sorVinit(vector< vector<overArea> >, vector< vector<double> >&, vector< vector<double> >&, vector< vector<double> >&, vector< vector<double> >&);
 void sortswap(double&, double&, string&, string&);
 
-void showRank( vector<string>, vector<string>, vector< vector<string> >, vector< vector<string> >, vector< vector<string> >,
-  vector< vector<double> >, vector< vector<double> >, vector< vector<double> >, vector<ndNum>);
+void showRank( vector<string>, vector<string>, 
+	vector< vector<string> >, vector< vector<string> >, 
+	vector< vector<string> >, vector< vector<string> >,
+	vector< vector<double> >, vector< vector<double> >, 
+	vector< vector<double> >,vector< vector<double> >, vector<ndNum>);
 void changeAttName(vector<string>&);
 
 void help();
@@ -72,28 +88,47 @@ string int2string(int);
 vector<string> split(const string& , const char& );
 string currentDateTime();
 void progressBar(string, int, int, bool);
-void writeCSV(vector< vector<double> >, vector<string>, vector< vector<string> >);
+void writeCSV(vector< vector<double> >, vector<string>, vector< vector<string> >, vector<int>);
 
 int main(int argc, char* argv[]){
 	
-
 	if(argc!=3){ help(); exit(0);}
 
 	char* fileName = argv[1];
 	char* calN = argv[2];
+	
+	vector<string> typerow;
+	vector<double> typeval;
 
+	for(int i=0;i<5; ++i){
+		typerow.push_back("1");
+	}
+	for(int i=0;i<5; ++i){
+		typerow.push_back("0");
+	}
+	for(int i=0; i<10; ++i){
+		typeval.push_back(0);
+	}
+	typerow.push_back("0");
+	typeval.push_back(255);
+	overArea rst;
+
+	calOverArea(typerow, typeval, rst);
+
+	/*
 	string outfile;
 	calibration(calN, fileName, outfile);
 
 	char* _fileName = &outfile[0u];
 
-
-	vector< vector<string> > inFile;
+	vector< vector<string> > inFile, initInFile;
 	openCSV(_fileName, inFile);
+	copyFile(inFile, initInFile);
 
 	vector<Mat> defImg, refImg;
-	openImg(inFile, defImg, refImg);
-	
+	vector<int> removeIndex;
+	openImg(inFile, defImg, refImg, removeIndex);
+
 	vector<int> feIndex;
 	openAllFe(FeatureN, feIndex);
 	
@@ -108,17 +143,22 @@ int main(int argc, char* argv[]){
 	vector<ndNum> ndCount;
 	overlap(inFile, attTable, feCal, feIndex, oAttCol, oAttRow, oArea, ndCount);
 
+	for(int i=0; i<oArea.size(); ++i){
+		for(int j=0; j<oArea[0].size(); ++j){
+			cout << oArea[i][j]._N << " " << oArea[i][j]._D << " " << oArea[i][j]._ND <<" " << oArea[i][j]._Range <<endl;
+		}
+	}
 	
-	vector< vector<string> > sorfON, sorfOD, sorfOA;
-	vector< vector<double> > sorVON, sorVOD, sorVOA;		
-	sortOAreaTb(oAttCol, oAttRow, oArea, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA);
+	vector< vector<string> > sorfN, sorfD, sorfND, sorfR;
+	vector< vector<double> > sorVN, sorVD, sorVND, sorfVR;		
+	sortOAreaTb(oAttCol, oAttRow, oArea, sorfN, sorfD, sorfND, sorfR, sorVN, sorVD, sorVND, sorfVR);
 
-	showRank(oAttCol, oAttRow, sorfON, sorfOD, sorfOA, sorVON, sorVOD, sorVOA, ndCount);
+	showRank(oAttCol, oAttRow,  sorfN, sorfD, sorfND, sorfR, sorVN, sorVD, sorVND, sorfVR, ndCount);
 
-	writeCSV(feCal, oAttRow, inFile);
+	writeCSV(feCal, oAttRow, initInFile, removeIndex);
+	*/
 	return 0;
 }
-
 
 void calibration(char* _calName, char* _fileName, string& _outfile){
 	
@@ -151,7 +191,25 @@ void openCSV(char* _fileName, vector< vector<string> >& _inFile){
     theFile.close();
 }
 
-void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>& _refImg){
+void copyFile(vector< vector<string> > srcFile, vector< vector<string> >& dstFile){
+	for(int i=0; i<srcFile.size(); ++i){
+		dstFile.push_back(srcFile[i]);
+	}
+}
+
+void eraseSpace(string& str){
+	string buf = str;
+	str = "";
+	for(int i=0; i<buf.size(); ++i){
+		if(buf[i] == ' ')
+			continue;
+		else{
+			str += buf[i];
+		}
+	}
+}
+
+void openImg(vector< vector<string> >& _inFile,vector<Mat>& _defImg, vector<Mat>& _refImg, vector<int>& _removeIndex){
 
 	int defCol = 0, refCol = 0, keptImg = 0;
 
@@ -172,63 +230,77 @@ void openImg(vector< vector<string> > _inFile,vector<Mat>& _defImg, vector<Mat>&
 	string refName;
 	Mat defbuf;
 	Mat refbuf;
-	vector< int > rowIndex;
 
 	for(int i=1; i<_inFile.size(); ++i){
 		progressBar("open Image", i, _inFile.size(),false);
+
 		if(_inFile[i][keptImg] != "0"){
-			cout << "kept" << i << endl;
+			_removeIndex.push_back(i);
 			continue;
 		}
 
 		defName = _inFile[i][defCol];
 		refName = _inFile[i][refCol];
+		eraseSpace(defName);
+		eraseSpace(refName);
+		
 		defbuf = imread(defName,CV_LOAD_IMAGE_GRAYSCALE);
 		refbuf = imread(refName,CV_LOAD_IMAGE_GRAYSCALE);
 
 		if(!defbuf.data){
 			cout << "Error in openImg: DEF image " << i << " is not open."<< endl;
 			cout << "defName Path:" << defName << endl;
-			rowIndex.push_back(i);
+			_removeIndex.push_back(i);
 			continue;
 		}
 		else if(!refbuf.data){
 			cout << "Error in openImg: REF image " << i << " is not open."<< endl;
 			cout << "refName Path:" << refName << endl;
-			rowIndex.push_back(i);
+			_removeIndex.push_back(i);
 			continue;
 		}
-		_defImg.push_back(defbuf);
-		_refImg.push_back(refbuf);
+		_defImg.push_back(defbuf.clone());
+		_refImg.push_back(refbuf.clone());
 
 		defbuf = Mat::zeros(defbuf.size(), defbuf.type());
 		refbuf = Mat::zeros(refbuf.size(), refbuf.type());
 	}
-	removeFileRow(_inFile,rowIndex);
+
 	progressBar("open Image", _inFile.size(), _inFile.size(),true);
+	removeFileRow(_inFile,_removeIndex);
 }
 
 void removeFileRow(vector< vector<string> >& __inFile, vector<int> __index){
-	vector< vector<string> > bufFile;
-	vector<string> _bufFile;
-	for(int i=0; i<__inFile[0].size(); ++i)
-		_bufFile.push_back(" ");
-	for(int i=0; i<__inFile.size(); ++i)
-		bufFile.push_back(_bufFile);
+	
+	if(__index.size() > 0){
+		
+		vector< vector<string> > bufFile;
+		vector<string> _bufFile;
 
-	for(int i=0; i<__inFile.size(); ++i){
-		for(int j=0; j<__inFile[0].size(); ++j){
-			bufFile[i][j] = __inFile[i][j];
+		for(int i=0; i<__inFile[0].size(); ++i)
+			_bufFile.push_back(" ");
+		for(int i=0; i<__inFile.size(); ++i)
+			bufFile.push_back(_bufFile);
+
+		for(int i=0; i<__inFile.size(); ++i){
+			for(int j=0; j<__inFile[0].size(); ++j){
+				bufFile[i][j] = __inFile[i][j];
+			}
 		}
-		__inFile[i].clear();
-	}
-	__inFile.clear();
+		
+		for(int i=0; i<bufFile.size(); ++i)
+			__inFile[i].clear();
+		__inFile.clear();
 
-	for(int i=0; i<bufFile.size(); ++i){
-		if(i == __index)
-			continue;
-		else{
-			__inFile.push_back(bufFile[i]);
+		int k=0;
+		for(int i=0; i<bufFile.size(); ++i){
+			if(i == __index[k]){
+				++k;
+				continue;
+			}
+			else{
+				__inFile.push_back(bufFile[i]);
+			}
 		}
 	}
 }
@@ -268,6 +340,7 @@ void collectAttribute(vector< vector<string> > _inFile, vector< vector<string> >
 			}
 		}
 	}
+
 	sortAttribute(_attTable);
 }
 
@@ -276,24 +349,31 @@ void sortAttribute(vector< vector<string> >& __attTable){
 	int val1 = 0, val2 = 0;
 	string bufString;
 	for(int i=0; i<__attTable.size(); ++i){
-		for(int j=1; j<__attTable[i].size(); ++j){
-			if(__attTable[i][j] == " ") break;
-			for(int k=j; k<__attTable[i].size(); ++k){
-				val1 = 0, val2 = 0;
-				val1 = atoi(__attTable[i][j].c_str());
-				val2 = atoi(__attTable[i][k].c_str());
-				if(val1 > val2){
-					bufString = __attTable[i][k]; 
-					__attTable[i][k] = __attTable[i][j];
-					__attTable[i][j] = bufString;
+		for(int j=1; j<__attTable[i].size(); ++j){	
+			for(int k=j+1; k<__attTable[i].size(); ++k){
+				if(__attTable[i][j] == " "||__attTable[i][k] == " "){
+					break;
+				}
+				else{
+					val1 = 0;
+					val2 = 0;
+					val1 = atoi(__attTable[i][j].c_str());
+					val2 = atoi(__attTable[i][k].c_str());
+					if(val1 > val2){
+						bufString = __attTable[i][k]; 
+						__attTable[i][k] = __attTable[i][j];
+						__attTable[i][j] = bufString;
+					}
 				}
 			}
 		}
 	}
 
 	for(int i=0; i<__attTable.size(); ++i){
-		for(int j=i; j<__attTable.size(); ++j){
-			if(__attTable[i][0].size() > __attTable[j][0].size()){
+		for(int j=i+1; j<__attTable.size(); ++j){
+			if(__attTable[i][0].size() > __attTable[j][0].size() || 
+				__attTable[j][0] == "Type"||
+				__attTable[j][0] == "TYPE"){
 				for(int k=0; k<__attTable[0].size(); ++k){
 					bufString = __attTable[i][k];
 					__attTable[i][k] = __attTable[j][k];
@@ -430,7 +510,6 @@ void overlap(vector< vector<string> > _inFile, vector< vector<string> > _attTabl
 		countND(_oAttCol[i], TypeRow, _ndCount[i]);
 	}
 	progressBar("overlap area", _oAttCol.size(), _oAttCol.size(),true);
-	
 }
 
 void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol ){
@@ -441,7 +520,7 @@ void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol 
 			__oAttCol.push_back(__attTable[i][0]);
 		}
 		else{
-			for(int j=i; j<__attTable.size(); ++j){
+			for(int j=0; j<__attTable.size(); ++j){
 				if(i == j)
 					continue;
 				else if (__attTable[j][0].find("Type") != std::string::npos){
@@ -463,6 +542,58 @@ void overlap_col	(vector< vector<string> > __attTable,vector<string>& __oAttCol 
 						}
 					}
 				}
+			}
+		}
+	}
+
+	vector<string> typeID1, typeID2;
+	vector<string> typeID1in, typeID2in;
+	vector<string> bufAttCol;
+
+	for(int i=0; i<__oAttCol.size(); ++i)
+		bufAttCol.push_back(__oAttCol[i]);
+	__oAttCol.clear();
+
+	for(int i=0; i<bufAttCol.size(); ++i){
+		typeID1.clear(); typeID2.clear(); typeID1in.clear(); typeID2in.clear();
+
+		for(int j=i+1; j<bufAttCol.size(); ++j){
+			if(bufAttCol[i].size() == bufAttCol[j].size()){
+				
+				typeID1 = split(bufAttCol[i], ',');
+				typeID2 = split(bufAttCol[j], ',');
+				sortString(typeID1);
+				sortString(typeID2);
+
+				if(typeID1.size() == typeID2.size()){
+					for(int k=0; k<typeID1.size(); ++k){
+						if(typeID1[k] == typeID2[k] && k == typeID1.size()-1)
+							bufAttCol[i] = "";
+					}
+
+				}
+			}
+		}	
+	}
+
+	for(int i=0; i<bufAttCol.size(); ++i){
+		if(bufAttCol[i].size() > 0) 
+			__oAttCol.push_back(bufAttCol[i]);
+		else
+			continue;
+	}
+
+	bufAttCol.clear();
+}
+
+void sortString(vector<string>& _str){
+	string buf;
+	for(int i=0; i<_str.size(); ++i){
+		for(int j=i+1; j<_str.size(); ++j){
+			if(_str[i].size() > _str[j].size()){
+				buf = _str[i];
+				_str[i] = _str[j];
+				_str[j] = buf;
 			}
 		}
 	}
@@ -516,6 +647,7 @@ void countND(string label, vector<string> _typeRow, ndNum& rst){
 }
 
 void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst){
+
 	if(_typeRow.size() != _typeVal.size()){
 		cout << "Error in calOverArea: in calOverArea, _typeRow.size() != _typeVal.size()" << endl;
 		exit(0);
@@ -530,108 +662,181 @@ void calOverArea(vector<string> _typeRow, vector<double> _typeVal, overArea& rst
 			type1Val.push_back(_typeVal[i]);
 		}
 		else{
-			cout << "Error in calOverArea: the type more than 2 kind of value." << endl;
+			cout << "Error in calOverArea: the type more than 2 kind of value(" << _typeRow[i]<<")." << endl;
 			exit(0);
 		}
 	}
 
-	int bin = 20;
-	double interval = 0;
-	double minVal = 100000.0,maxVal = 0.0;
+	double type0Max = 0., type0Min = 1000.;
+	double type1Max = 0., type1Min = 1000.;
 	for(int i=0; i<type0Val.size(); ++i){
-		maxVal = (maxVal>type0Val[i])?maxVal:type0Val[i];
-		minVal = (minVal<type0Val[i])?minVal:type0Val[i];
+		type0Max = (type0Max > type0Val[i])?type0Max:type0Val[i];
+		type0Min = (type0Min < type0Val[i])?type0Min:type0Val[i];
 	}
 
 	for(int i=0; i<type1Val.size(); ++i){
-		maxVal = (maxVal>type1Val[i])?maxVal:type1Val[i];
-		minVal = (minVal>type1Val[i])?minVal:type1Val[i];
+		type1Max = (type1Max > type1Val[i])?type1Max:type1Val[i];
+		type1Min = (type1Min < type1Val[i])?type1Min:type1Val[i];
 	}
-	if(maxVal == 0) maxVal++;
-	interval = fabs(maxVal - minVal)/(double)bin + 1;
-		
-	vector<double> overArea, t0Area, t1Area;
-	for(int i=0; i<abs(maxVal/interval); ++i){
-		overArea.push_back(0.0);
-		t0Area.push_back(0.0);
-		t1Area.push_back(0.0);
+
+	string flag  = "";
+
+	if(type0Max < type1Min)
+		flag = "0011";
+	else if(type1Max < type0Min)
+		flag = "1100";
+	else if(type0Min < type1Min && type0Max > type1Max)
+		flag = "0110";
+	else if(type1Min < type0Min && type1Max > type0Max)
+		flag = "1001";
+	else if(type0Min < type1Min && type0Max < type1Max)
+		flag = "0101";
+	else if(type1Min < type0Min && type1Max < type0Max)
+		flag = "1010";
+
+	vector<double> type0Histogram, type1Histogram;
+	double allMax = (type0Max > type1Max)?type0Max:type1Max;
+	double allMin = (type0Min < type1Min)?type0Min:type1Min;
+	for(int i=0; i<allMax+1; ++i){
+		type0Histogram.push_back(0);
+		type1Histogram.push_back(0);
 	}
 
 	for(int i=0; i<type0Val.size(); ++i)
-		t0Area[round(type0Val[i]/interval)]++;
-	for(int i=0; i<type1Val.size(); ++i)
-		t1Area[round(type1Val[i]/interval)]++;
+		++type0Histogram[round(type0Val[i])];
 	
-	double sumOverArea = 0., sumT0 = 0., sumT1 = 0.;
-	for(int i=0; i<overArea.size(); ++i){
-		sumT0 += t0Area[i];
-		sumT1 += t1Area[i];
+	for(int i=0; i<type1Val.size(); ++i)
+		++type1Histogram[round(type1Val[i])];
+
+	double type0Sum = 0., type1Sum = 0.;
+	for(int i=0; i<allMax+1; ++i){
+		type0Sum += type0Histogram[i];
+		type1Sum += type1Histogram[i];
+	}
+	
+	for(int i=0; i<allMax+1; ++i){
+		type0Histogram[i] = type0Histogram[i]/type0Sum;
+		type1Histogram[i] = type1Histogram[i]/type1Sum;
 	}
 
-	for(int i=0; i<overArea.size(); ++i){
-		t0Area[i] = t0Area[i]/sumT0;
-		t1Area[i] = t1Area[i]/sumT1;
-		overArea[i] = (t0Area[i] < t1Area[i])?(t0Area[i]):(t1Area[i]);
-	}
+	for(int i=0; i<allMax+1; ++i)
+		cout << type0Histogram[i] << " ";
+	cout << endl;
 
-	sumT0 = 0.0; sumT1 = 0.0;	
-	for(int i=0; i<overArea.size(); ++i){
-		sumT0 += t0Area[i];
-		sumT1 += t1Area[i];
-		sumOverArea += overArea[i];
-	}
+	for(int i=0; i<allMax+1; ++i)
+		cout << type1Histogram[i] << " ";
+	cout << endl;
+	cout << type0Max << " " << type0Min << " " << type1Max << " " << type1Min<< endl;
+
+	cout << "flag: " << flag << endl;
+
 		
-	type0Val.clear();
-	type1Val.clear();
-	overArea.clear();
-	t0Area.clear();
-	t1Area.clear();
+	double _range = 0., range = 0.;
+	double _N = 0., _D = 0.;		
 
-	if(sumOverArea == 0){
-		rst.ON = 0;
-		rst.OD = 0;
-		rst.OA = 0;
+	if(flag == "0011"){
+		_range = 0;
+		range = type1Max - type0Min;
+		_N = 0;
+		_D = 0;
 	}
-	else if(sumT0 == 0){
-		rst.ON = 0;
-		rst.OD = 100.* sumOverArea / sumT1;
-		rst.OA = 100.* sumOverArea / (sumT0 + sumT1 - sumOverArea); 
+	else if(flag == "1100"){
+		_range = 0;
+		range = type0Max - type1Min;
+		_N = 0;
+		_D = 0;
 	}
-	else if(sumT1 == 0){
-		rst.ON = 100.* sumOverArea / sumT0;
-		rst.OD = 0;
-		rst.OA = 100.* sumOverArea / (sumT0 + sumT1 - sumOverArea); 
+	else if(flag == "0110"){
+		_range = type1Max - type1Min;
+		range = type0Max - type0Min;
+		int start = type1Min;
+		int end = type1Max;
+		for(int i=start; i<=end; ++i){
+			_N += type0Histogram[i];
+			_D += type1Histogram[i];
+		}
 	}
-	else{
-		rst.ON = 100.* sumOverArea / sumT0;
-		rst.OD = 100.* sumOverArea / sumT1;
-		rst.OA = 100.* sumOverArea / (sumT0 + sumT1 - sumOverArea); 
+	else if(flag == "1001"){
+		_range = type0Max - type0Min;
+		range = type1Max - type1Min;
+		int start = type0Min;
+		int end = type0Max;
+		for(int i=start; i<=end; ++i){
+			_N += type0Histogram[i];
+			_D += type1Histogram[i];
+		}
+	}
+	else if(flag == "0101"){
+		_range = type0Max - type1Min;
+		range = type1Max - type0Min;
+		int start = type1Min;
+		int end = type0Max;
+		for(int i=start; i<=end; ++i){
+			_N += type0Histogram[i];
+			_D += type1Histogram[i];
+		}
+	}
+	else if(flag == "1010"){
+		_range = type1Max - type0Min;
+		range = type0Max - type1Min;
+		int start = type0Min;
+		int end = type1Max;
+		for(int i=start; i<=end; ++i){
+			_N += type0Histogram[i];
+			_D += type1Histogram[i];
+		}
+	}
+
+	cout << _range << " " << range << endl;
+	rst._N = _N;
+	rst._D = _D;
+	rst._ND = 0.5*(_N + _D);
+	rst._Range = _range/range;
+
+	for(int i=0; i<_typeRow.size(); ++i)
+		cout << _typeRow[i] << ",";
+	cout << endl;
+
+	for(int i=0; i<_typeRow.size(); ++i)
+		cout << _typeVal[i] << ",";
+	cout << endl;
+	cout << rst._N << " " << rst._D << " " << rst._ND << " " << rst._Range << endl;
+
+	if( rst._Range != rst._Range){
+		exit(0);
 	}
 }
 
 void sortOAreaTb(vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<overArea> > _oArea,
- vector< vector<string> >& _sorfON, vector< vector<string> >& _sorfOD, vector< vector<string> >& _sorfOA,
-  vector< vector<double> >& _sorVON, vector< vector<double> >& _sorVOD, vector< vector<double> >& _sorVOA){
+ vector< vector<string> >& _sorfN, vector< vector<string> >& _sorfD, 
+ vector< vector<string> >& _sorfND, vector< vector<string> >& _sorfR,
+ vector< vector<double> >& _sorVN, vector< vector<double> >& _sorVD, 
+ vector< vector<double> >& _sorVND, vector< vector<double> >& _sorfVR){
 
-	sorFinit(_oAttCol, _oAttRow, _sorfON);
-	sorFinit(_oAttCol, _oAttRow, _sorfOD);
-	sorFinit(_oAttCol, _oAttRow, _sorfOA);
+	sorFinit(_oAttCol, _oAttRow, _sorfN);
+	sorFinit(_oAttCol, _oAttRow, _sorfD);
+	sorFinit(_oAttCol, _oAttRow, _sorfND);
+	sorFinit(_oAttCol, _oAttRow, _sorfR);
 
-	sorVinit(_oArea, _sorVON, _sorVOD, _sorVOA);
+	sorVinit(_oArea, _sorVN, _sorVD, _sorVND, _sorfVR);
 
 	for(int i=0; i<_oAttCol.size(); ++i){
 		for(int j=0; j<_oAttRow.size(); ++j){
 			for(int k=j; k<_oAttRow.size(); ++k){
-				if(_sorVON[i][j] > _sorVON[i][k]){
-					sortswap(_sorVON[i][j], _sorVON[i][k], _sorfON[i][j], _sorfON[i][k]);
+				if(_sorVN[i][j] > _sorVN[i][k]){
+					sortswap(_sorVN[i][j], _sorVN[i][k], _sorfN[i][j], _sorfN[i][k]);
 				}
 
-				if(_sorVOD[i][j] > _sorVOD[i][k]){
-					sortswap(_sorVOD[i][j], _sorVOD[i][k], _sorfOD[i][j], _sorfOD[i][k]);
+				if(_sorVD[i][j] > _sorVD[i][k]){
+					sortswap(_sorVD[i][j], _sorVD[i][k], _sorfD[i][j], _sorfD[i][k]);
 				}
 					
-				if(_sorVOA[i][j] > _sorVOA[i][k]){
-					sortswap(_sorVOA[i][j], _sorVOA[i][k], _sorfOA[i][j], _sorfOA[i][k]);
+				if(_sorVND[i][j] > _sorVND[i][k]){
+					sortswap(_sorVND[i][j], _sorVND[i][k], _sorfND[i][j], _sorfND[i][k]);
+				}
+
+				if(_sorfVR[i][j] > _sorfVR[i][k]){
+					sortswap(_sorfVR[i][j], _sorfVR[i][k], _sorfR[i][j], _sorfR[i][k]);
 				}					
 			}
 		}
@@ -648,7 +853,9 @@ void sorFinit(vector<string> __oAttCol, vector<string> __oAttRow, vector< vector
 	}
 }
 
-void sorVinit(vector< vector<overArea> > __oArea, vector< vector<double> >& __sorvON, vector< vector<double> >& __sorvOD, vector< vector<double> >& __sorvOA){
+void sorVinit(vector< vector<overArea> > __oArea, vector< vector<double> >& __sorvN, 
+	vector< vector<double> >& __sorvD, vector< vector<double> >& __sorvND,
+	vector< vector<double> >& __sorvR){
 	
 	vector<double> __lsorv;
 	for(int i=0; i<__oArea[0].size(); ++i){
@@ -656,16 +863,18 @@ void sorVinit(vector< vector<overArea> > __oArea, vector< vector<double> >& __so
 	}
 
 	for(int i=0; i<__oArea.size(); ++i){
-		__sorvON.push_back(__lsorv);
-		__sorvOD.push_back(__lsorv);
-		__sorvOA.push_back(__lsorv);
+		__sorvN.push_back(__lsorv);
+		__sorvD.push_back(__lsorv);
+		__sorvND.push_back(__lsorv);
+		__sorvR.push_back(__lsorv);
 	}
 
 	for(int i=0; i<__oArea.size(); ++i){
 		for(int j=0; j<__oArea[0].size(); ++j){
-			__sorvON[i][j] = __oArea[i][j].ON;
-			__sorvOD[i][j] = __oArea[i][j].OD;
-			__sorvOA[i][j] = __oArea[i][j].OA;
+			__sorvN[i][j] = __oArea[i][j]._N;
+			__sorvD[i][j] = __oArea[i][j]._D;
+			__sorvND[i][j] = __oArea[i][j]._ND;
+			__sorvR[i][j] = __oArea[i][j]._Range;
 		}
 	}
 }
@@ -678,8 +887,11 @@ void sortswap(double& val0, double& val1, string& tex0, string& tex1){
 	tmpt = tex0; tex0 = tex1; tex1 = tmpt;
 }
 
-void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<string> > _sorfON, vector< vector<string> > _sorfOD, vector< vector<string> > _sorfOA,
-  vector< vector<double> > _sorVON, vector< vector<double> > _sorVOD, vector< vector<double> > _sorVOA, vector<ndNum> _ndCount){
+void showRank( vector<string> _oAttCol, vector<string> _oAttRow, 
+	vector< vector<string> > _sorfN, vector< vector<string> > _sorfD, 
+	vector< vector<string> > _sorfND, vector< vector<string> > _sorfR, 
+	vector< vector<double> > _sorVN, vector< vector<double> > _sorVD, 
+	vector< vector<double> > _sorVND, vector< vector<double> > _sorfVR, vector<ndNum> _ndCount){
 	
 	fstream file;
 	string name = currentDateTime() + ".txt";
@@ -689,7 +901,7 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 	cout << fixed  <<  setprecision(2);
 	file << fixed  <<  setprecision(2);
 
-	cout << "\n\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
+	cout << "\n\t\t\t" << "/* --- _N ---*/" << "\t\t\t" << endl;
 	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
 	file << "\n\t\t\t" << "/* --- overlap/N ---*/" << "\t\t\t" << endl;
 	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl;
@@ -710,18 +922,18 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 			cout << _oAttCol[i] <<"\t";
 			file << _oAttCol[i] <<"\t";
 		}	
-		cout <<  _sorfON[i][0] << "("<< _sorVON[i][0]<< "%)"<<"\t";
-		cout <<  _sorfON[i][1] << "("<< _sorVON[i][1]<< "%)"<<"\t";
-		cout <<  _sorfON[i][2] << "("<< _sorVON[i][2]<< "%)"<<"\t";
+		cout <<  _sorfN[i][0] << "("<< _sorVN[i][0]<< "%)"<<"\t";
+		cout <<  _sorfN[i][1] << "("<< _sorVN[i][1]<< "%)"<<"\t";
+		cout <<  _sorfN[i][2] << "("<< _sorVN[i][2]<< "%)"<<"\t";
 		cout << endl;
 
-		file <<  _sorfON[i][0] << "("<< _sorVON[i][0]<< "%)"<<"\t";
-		file <<  _sorfON[i][1] << "("<< _sorVON[i][1]<< "%)"<<"\t";
-		file <<  _sorfON[i][2] << "("<< _sorVON[i][2]<< "%)"<<"\t";
+		file <<  _sorfN[i][0] << "("<< _sorVN[i][0]<< "%)"<<"\t";
+		file <<  _sorfN[i][1] << "("<< _sorVN[i][1]<< "%)"<<"\t";
+		file <<  _sorfN[i][2] << "("<< _sorVN[i][2]<< "%)"<<"\t";
 		file << endl;
 	}
 
-	cout << "\n\t\t\t" << "/* --- overlap/D ---*/" << "\t\t\t" << endl;
+	cout << "\n\t\t\t" << "/* --- _D ---*/" << "\t\t\t" << endl;
 	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
 	file << "\n\t\t\t" << "/* --- overlap/D ---*/" << "\t\t\t" << endl;
 	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
@@ -744,18 +956,18 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 			file << _oAttCol[i] <<"\t";
 		}
 			
-		cout <<  _sorfOD[i][0] << "("<< _sorVOD[i][0]<< "%)"<<"\t";
-		cout <<  _sorfOD[i][1] << "("<< _sorVOD[i][1]<< "%)"<<"\t";
-		cout <<  _sorfOD[i][2] << "("<< _sorVOD[i][2]<< "%)"<<"\t";
+		cout <<  _sorfD[i][0] << "("<< _sorVD[i][0]<< "%)"<<"\t";
+		cout <<  _sorfD[i][1] << "("<< _sorVD[i][1]<< "%)"<<"\t";
+		cout <<  _sorfD[i][2] << "("<< _sorVD[i][2]<< "%)"<<"\t";
 		cout << endl;
 
-		file <<  _sorfOD[i][0] << "("<< _sorVOD[i][0]<< "%)"<<"\t";
-		file <<  _sorfOD[i][1] << "("<< _sorVOD[i][1]<< "%)"<<"\t";
-		file <<  _sorfOD[i][2] << "("<< _sorVOD[i][2]<< "%)"<<"\t";
+		file <<  _sorfD[i][0] << "("<< _sorVD[i][0]<< "%)"<<"\t";
+		file <<  _sorfD[i][1] << "("<< _sorVD[i][1]<< "%)"<<"\t";
+		file <<  _sorfD[i][2] << "("<< _sorVD[i][2]<< "%)"<<"\t";
 		file << endl;
 	}
 
-	cout << "\n\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
+	cout << "\n\t\t\t" << "/* --- _N + _D ---*/" << "\t\t\t" << endl;
 	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
 	file << "\n\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
 	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
@@ -777,14 +989,47 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 			file << _oAttCol[i] <<"\t";
 		}
 			
-		cout <<  _sorfOA[i][0] << "("<< _sorVOA[i][0]<< "%)"<<"\t";
-		cout <<  _sorfOA[i][1] << "("<< _sorVOA[i][1]<< "%)"<<"\t";
-		cout <<  _sorfOA[i][2] << "("<< _sorVOA[i][2]<< "%)"<<"\t";
+		cout <<  _sorfND[i][0] << "("<< _sorVND[i][0]<< "%)"<<"\t";
+		cout <<  _sorfND[i][1] << "("<< _sorVND[i][1]<< "%)"<<"\t";
+		cout <<  _sorfND[i][2] << "("<< _sorVND[i][2]<< "%)"<<"\t";
 		cout << endl;
 
-		file <<  _sorfOA[i][0] << "("<< _sorVOA[i][0]<< "%)"<<"\t";
-		file <<  _sorfOA[i][1] << "("<< _sorVOA[i][1]<< "%)"<<"\t";
-		file <<  _sorfOA[i][2] << "("<< _sorVOA[i][2]<< "%)"<<"\t";
+		file <<  _sorfND[i][0] << "("<< _sorVND[i][0]<< "%)"<<"\t";
+		file <<  _sorfND[i][1] << "("<< _sorVND[i][1]<< "%)"<<"\t";
+		file <<  _sorfND[i][2] << "("<< _sorVND[i][2]<< "%)"<<"\t";
+		file << endl;
+	}
+
+	cout << "\n\t\t\t" << "/* --- _Range ---*/" << "\t\t\t" << endl;
+	cout << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+	file << "\n\t\t\t" << "/* --- overlap/ALL ---*/" << "\t\t\t" << endl;
+	file << "\tAttribute\t"<<"\t"<<"NO.1"<<"\t\t"<<"NO.2"<<"\t\t"<<"NO.3"<<endl; 
+	for(int i=0; i<_oAttCol.size(); ++i){
+		if(_oAttCol[i].size() < 20 &&_oAttCol[i].size() > 13){
+			cout << _oAttCol[i] <<"\t\t";
+			file << _oAttCol[i] <<"\t\t";
+		}
+		else if(_oAttCol[i].size() < 13 &&_oAttCol[i].size() > 7){
+			cout << _oAttCol[i] <<"\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t";
+		}
+		else if(_oAttCol[i].size() < 7){
+			cout << _oAttCol[i] <<"\t\t\t\t";
+			file << _oAttCol[i] <<"\t\t\t\t";
+		}
+		else{
+			cout << _oAttCol[i] <<"\t";
+			file << _oAttCol[i] <<"\t";
+		}
+			
+		cout <<  _sorfR[i][0] << "("<< _sorfVR[i][0]<< "%)"<<"\t";
+		cout <<  _sorfR[i][1] << "("<< _sorfVR[i][1]<< "%)"<<"\t";
+		cout <<  _sorfR[i][2] << "("<< _sorfVR[i][2]<< "%)"<<"\t";
+		cout << endl;
+
+		file <<  _sorfR[i][0] << "("<< _sorfVR[i][0]<< "%)"<<"\t";
+		file <<  _sorfR[i][1] << "("<< _sorfVR[i][1]<< "%)"<<"\t";
+		file <<  _sorfR[i][2] << "("<< _sorfVR[i][2]<< "%)"<<"\t";
 		file << endl;
 	}
 
@@ -837,11 +1082,13 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 	for(int i=0; i<_oAttCol.size(); ++i){
 		for(int j=0; j<feFirstThree; ++j){
 			for(int k=0; k<_oAttRow.size(); ++k){
-				if(_sorfON[i][j] == _oAttRow[k])
+				if(_sorfN[i][j] == _oAttRow[k])
 					++feCount[k];
-				if(_sorfOD[i][j] == _oAttRow[k])
+				if(_sorfD[i][j] == _oAttRow[k])
 					++feCount[k];
-				if(_sorfOA[i][j] == _oAttRow[k])
+				if(_sorfND[i][j] == _oAttRow[k])
+					++feCount[k];
+				if(_sorfR[i][j] == _oAttRow[k])
 					++feCount[k];
 			}
 		}
@@ -878,9 +1125,10 @@ void showRank( vector<string> _oAttCol, vector<string> _oAttRow, vector< vector<
 
 	for(int i=0; i<_oAttCol.size(); ++i){
 		for(int j=0; j<tyFirstThree; ++j){
-			tyCount[i] += _sorVON[i][j];
-			tyCount[i] += _sorVOD[i][j];
-			tyCount[i] += _sorVOA[i][j];
+			tyCount[i] += _sorVN[i][j];
+			tyCount[i] += _sorVD[i][j];
+			tyCount[i] += _sorVND[i][j];
+			tyCount[i] += _sorfVR[i][j];
 		}
 	}
 	
@@ -1407,13 +1655,12 @@ string feName(int _index){
      return name;
 }
 
-void writeCSV(vector< vector<double> > _feCal, vector<string> fename, vector< vector<string> > _inFile){
+void writeCSV(vector< vector<double> > _feCal, vector<string> fename, vector< vector<string> > _inFile, vector<int> _removeIndex){
 
 	ofstream file;
 	string name = currentDateTime() + ".csv";
 	file.open(name);
-	//file << fixed  <<  setprecision(2);
-
+	
 	for(int i=0; i<_inFile[0].size(); ++i)
 		file << _inFile[0][i] << ",";
 	for(int i=0; i<fename.size(); ++i){
@@ -1421,18 +1668,26 @@ void writeCSV(vector< vector<double> > _feCal, vector<string> fename, vector< ve
 		if(i != (fename.size()-1)) file << ",";
 	}
 	file << endl;
-	
-	for(int i=0; i<_feCal.size(); ++i){
+
+	for(int i=1, k=0; i<_inFile.size(); ++i){
+		
 		for(int j=0; j<_inFile[0].size(); ++j){
-			file << _inFile[i+1][j] << ",";
+			file << _inFile[i][j] << ",";
 		}
-		for(int j=0; j<_feCal[0].size(); ++j){
-			file << _feCal[i][j];
-			if(j != (_feCal[0].size()-1)) file<< ",";
+
+		if(i == _removeIndex[k]){
+			file << endl;
+			++k; 
+			continue;
 		}
-		file << endl;
+		else{
+			for(int j=0; j<_feCal.size(); ++j){
+				file << _feCal[j][i-1-k];
+				if(j != (_feCal[0].size()-1)) file<< ",";
+			}
+			file << endl;
+		}
 	}
 
-	//file.unsetf( ios::fixed );
 	file.close();
 }

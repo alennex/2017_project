@@ -8,7 +8,10 @@ usage: ./out {csv path} {calibration Name}
 2. used opencv 3.2
 
 usage: 
+1.build the .out file
 $ make static
+
+2.try the data
 $ ./piaV1.out test.csv IC0010
 
 

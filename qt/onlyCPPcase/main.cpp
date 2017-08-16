@@ -96,26 +96,7 @@ int main(int argc, char* argv[]){
 
 	char* fileName = argv[1];
 	char* calN = argv[2];
-	
-	vector<string> typerow;
-	vector<double> typeval;
-/*
-	for(int i=0;i<5; ++i){
-		typerow.push_back("1");
-	}
-	for(int i=0;i<5; ++i){
-		typerow.push_back("0");
-	}
-	for(int i=0; i<10; ++i){
-		typeval.push_back(0);
-	}
-	typerow.push_back("0");
-	typeval.push_back(255);
-	overArea rst;
-
-	calOverArea(typerow, typeval, rst);
-*/
-	
+		
 	string outfile;
 	calibration(calN, fileName, outfile);
 
